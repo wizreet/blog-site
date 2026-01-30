@@ -28,7 +28,7 @@ const posts = allPosts.slice(0, PAGE_SIZE);
 const totalPages = Math.ceil(allPosts.length / PAGE_SIZE);
 ---
 
-<DashboardLayout title={siteConfig.title} description={siteConfig.subtitle}>
+<DashboardLayout title={siteConfig.title} description={siteConfig.subtitle} hideLeftSidebar={true}>
   <div class="home-page">
     {/* Hero/Intro Section */}
     <section class="intro-card card-base">

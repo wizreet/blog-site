@@ -109,7 +109,7 @@ const tocHeadings = headings.filter((h) => h.depth >= 2 && h.depth <= 3);
       <div class="section-body">
         {categories.map((category) => (
           <a
-            href={getUrl(`/categories/${category.name.toLowerCase()}/`)}
+            href={getUrl(`/posts/category/${category.name.toLowerCase()}/`)}
             class="nav-link"
           >
             <Icon name="material-symbols:label-outline" class="nav-icon" />
@@ -363,25 +363,25 @@ const tocHeadings = headings.filter((h) => h.depth >= 2 && h.depth <= 3);
     // Right sidebar collapse toggle
     const rightToggle = document.getElementById('right-sidebar-toggle');
     const dashboardContainer = document.querySelector('.dashboard-container');
-    
+
     if (rightToggle && dashboardContainer) {
       const savedState = localStorage.getItem('right-sidebar-collapsed');
       let isCollapsed = savedState === 'true';
-      
+
       // Apply initial state
       if (isCollapsed) {
         dashboardContainer.classList.add('right-sidebar-collapsed');
       }
-      
+
       // Clone to remove old listeners
       const newToggle = rightToggle.cloneNode(true) as HTMLElement;
       rightToggle.parentNode?.replaceChild(newToggle, rightToggle);
-      
+
       newToggle.addEventListener('click', (e) => {
         e.preventDefault();
         isCollapsed = !isCollapsed;
         localStorage.setItem('right-sidebar-collapsed', isCollapsed.toString());
-        
+
         const container = document.querySelector('.dashboard-container');
         if (isCollapsed) {
           container?.classList.add('right-sidebar-collapsed');
@@ -396,7 +396,7 @@ const tocHeadings = headings.filter((h) => h.depth >= 2 && h.depth <= 3);
   document.addEventListener('DOMContentLoaded', initRightSidebar);
   document.addEventListener('astro:after-swap', initRightSidebar);
   document.addEventListener('swup:contentReplaced', initRightSidebar);
-  
+
   // Fallback
   if (document.readyState === 'complete' || document.readyState === 'interactive') {
     initRightSidebar();

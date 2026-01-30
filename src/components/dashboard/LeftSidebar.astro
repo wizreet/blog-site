@@ -459,68 +459,75 @@ seriesWithPosts.forEach((series) => {
 
 <script>
   function initSidebar() {
-    const toggles = document.querySelectorAll('[data-toggle]');
+    // Handle accordion toggles using event delegation for better reliability
+    const sidebarNav = document.querySelector('.sidebar-nav');
 
-    toggles.forEach((btn) => {
-      const newBtn = btn.cloneNode(true) as HTMLElement;
-      btn.parentNode?.replaceChild(newBtn, btn);
+    if (sidebarNav && !sidebarNav.hasAttribute('data-initialized')) {
+      sidebarNav.setAttribute('data-initialized', 'true');
 
-      newBtn.addEventListener('click', () => {
-        const group = newBtn.closest('.nav-group');
-        const panel = group?.querySelector('[data-panel]');
+      sidebarNav.addEventListener('click', (e) => {
+        const target = e.target as HTMLElement;
+        const toggleBtn = target.closest('[data-toggle]') as HTMLElement;
+
+        if (!toggleBtn) return;
+
+        e.preventDefault();
+
+        const group = toggleBtn.closest('.nav-group');
+        const panel = group?.querySelector('[data-panel]') as HTMLElement;
         const groupType = group?.getAttribute('data-group');
-        const isOpen = newBtn.getAttribute('aria-expanded') === 'true';
+        const isOpen = toggleBtn.getAttribute('aria-expanded') === 'true';
 
-        // Close others in same group type
-        if (groupType) {
-          document.querySelectorAll(`.nav-group[data-group="${groupType}"]`).forEach((g) => {
-            if (g !== group) {
-              g.querySelector('[data-toggle]')?.setAttribute('aria-expanded', 'false');
-              g.querySelector('[data-panel]')?.removeAttribute('data-expanded');
-            }
-          });
-        }
+        // Close ALL other groups (accordion behavior)
+        document.querySelectorAll('.nav-group').forEach((g) => {
+          if (g !== group) {
+            const otherToggle = g.querySelector('[data-toggle]');
+            const otherPanel = g.querySelector('[data-panel]');
+            otherToggle?.setAttribute('aria-expanded', 'false');
+            otherPanel?.removeAttribute('data-expanded');
+          }
+        });
 
         // Toggle current
-        newBtn.setAttribute('aria-expanded', isOpen ? 'false' : 'true');
         if (isOpen) {
+          toggleBtn.setAttribute('aria-expanded', 'false');
           panel?.removeAttribute('data-expanded');
         } else {
+          toggleBtn.setAttribute('aria-expanded', 'true');
           panel?.setAttribute('data-expanded', 'true');
         }
       });
-    });
+    }
 
-    // Auto-expand active
-    document.querySelectorAll('.group-header.active').forEach((btn) => {
-      const group = btn.closest('.nav-group');
+    // Auto-expand active item on page load
+    const activeHeader = document.querySelector('.group-header.active');
+    if (activeHeader) {
+      const group = activeHeader.closest('.nav-group');
       const panel = group?.querySelector('[data-panel]');
-      btn.setAttribute('aria-expanded', 'true');
+      activeHeader.setAttribute('aria-expanded', 'true');
       panel?.setAttribute('data-expanded', 'true');
-    });
+    }
 
     // Left sidebar collapse toggle
     const leftToggle = document.getElementById('left-sidebar-toggle');
     const dashboardContainer = document.querySelector('.dashboard-container');
-    
-    if (leftToggle && dashboardContainer) {
+
+    if (leftToggle && dashboardContainer && !leftToggle.hasAttribute('data-initialized')) {
+      leftToggle.setAttribute('data-initialized', 'true');
+
       const savedState = localStorage.getItem('left-sidebar-collapsed');
       let isCollapsed = savedState === 'true';
-      
+
       // Apply initial state
       if (isCollapsed) {
         dashboardContainer.classList.add('left-sidebar-collapsed');
       }
-      
-      // Clone to remove old listeners
-      const newToggle = leftToggle.cloneNode(true) as HTMLElement;
-      leftToggle.parentNode?.replaceChild(newToggle, leftToggle);
-      
-      newToggle.addEventListener('click', (e) => {
+
+      leftToggle.addEventListener('click', (e) => {
         e.preventDefault();
         isCollapsed = !isCollapsed;
         localStorage.setItem('left-sidebar-collapsed', isCollapsed.toString());
-        
+
         const container = document.querySelector('.dashboard-container');
         if (isCollapsed) {
           container?.classList.add('left-sidebar-collapsed');
@@ -531,7 +538,12 @@ seriesWithPosts.forEach((series) => {
     }
   }
 
-  initSidebar();
+  // Initialize on DOM ready and page transitions
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initSidebar);
+  } else {
+    initSidebar();
+  }
   document.addEventListener('astro:after-swap', initSidebar);
   document.addEventListener('swup:contentReplaced', initSidebar);
 </script>
