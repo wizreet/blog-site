@@ -18,7 +18,6 @@ import { siteConfig, getNavLinks } from '@/config';
 import { getUrl } from '@utils/url-utils';
 import ThemeSwitch from '@components/ThemeSwitch.tsx';
 import Search from '@components/Search.tsx';
-import LanguageSwitcher from '@components/LanguageSwitcher.tsx';
 import type { NavLink } from '@/types/config';
 
 // Get resolved navigation links (converts presets to actual links)
@@ -60,7 +59,7 @@ function hasChildren(link: NavLink): boolean {
   class="fixed left-0 right-0 top-0 z-40 h-[var(--navbar-height)] border-b border-[var(--border-color)] bg-[var(--card-bg)]/80 backdrop-blur-lg transition-all duration-300"
 >
   <nav class="container-page flex h-full items-center justify-between">
-    <!-- Left Actions: Sidebar Toggle + Home -->
+    <!-- Left Actions: Sidebar Toggle -->
     <div class="flex items-center gap-1">
       <!-- Sidebar Toggle (Desktop) -->
       <button
@@ -73,16 +72,6 @@ function hasChildren(link: NavLink): boolean {
         <Icon name="material-symbols:menu-open" class="sidebar-icon-open h-5 w-5" />
         <Icon name="material-symbols:menu" class="sidebar-icon-closed h-5 w-5 hidden" />
       </button>
-
-      <!-- Home Button -->
-      <a
-        href={getUrl('/')}
-        class="btn-plain scale-animation flex h-10 w-10 items-center justify-center rounded-lg active:scale-95"
-        aria-label="Home"
-        title="Home"
-      >
-        <Icon name="material-symbols:home-outline" class="h-5 w-5" />
-      </a>
     </div>
 
     <!-- Desktop Navigation -->
@@ -142,9 +131,6 @@ function hasChildren(link: NavLink): boolean {
     <div class="flex items-center gap-1">
       <!-- Search Button -->
       <Search client:load />
-
-      <!-- Language Switcher -->
-      <LanguageSwitcher client:load />
 
       <!-- Theme Toggle -->
       <ThemeSwitch client:load />
@@ -319,7 +305,7 @@ function hasChildren(link: NavLink): boolean {
   function initSidebarToggle() {
     const sidebarToggle = document.getElementById('sidebar-toggle');
     const dashboardContainer = document.querySelector('.dashboard-container');
-    
+
     if (!sidebarToggle || !dashboardContainer) return;
 
     // Check localStorage for saved preference

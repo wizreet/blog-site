@@ -415,17 +415,17 @@ seriesWithPosts.forEach((series) => {
 <script>
   function initSidebar() {
     const toggles = document.querySelectorAll('[data-toggle]');
-    
+
     toggles.forEach((btn) => {
       const newBtn = btn.cloneNode(true) as HTMLElement;
       btn.parentNode?.replaceChild(newBtn, btn);
-      
+
       newBtn.addEventListener('click', () => {
         const group = newBtn.closest('.nav-group');
         const panel = group?.querySelector('[data-panel]');
         const groupType = group?.getAttribute('data-group');
         const isOpen = newBtn.getAttribute('aria-expanded') === 'true';
-        
+
         // Close others in same group type
         if (groupType) {
           document.querySelectorAll(`.nav-group[data-group="${groupType}"]`).forEach((g) => {
@@ -435,7 +435,7 @@ seriesWithPosts.forEach((series) => {
             }
           });
         }
-        
+
         // Toggle current
         newBtn.setAttribute('aria-expanded', isOpen ? 'false' : 'true');
         if (isOpen) {
@@ -445,7 +445,7 @@ seriesWithPosts.forEach((series) => {
         }
       });
     });
-    
+
     // Auto-expand active
     document.querySelectorAll('.group-header.active').forEach((btn) => {
       const group = btn.closest('.nav-group');
@@ -454,7 +454,7 @@ seriesWithPosts.forEach((series) => {
       panel?.setAttribute('data-expanded', 'true');
     });
   }
-  
+
   initSidebar();
   document.addEventListener('swup:contentReplaced', initSidebar);
 </script>

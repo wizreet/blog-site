@@ -73,12 +73,12 @@ my-project/
 
 ### Key Directories
 
-| Directory | Purpose |
-|-----------|---------|
-| `public/` | Static assets (images, fonts, etc.) |
-| `src/components/` | Reusable UI components |
-| `src/layouts/` | Page layouts |
-| `src/pages/` | Route pages (file-based routing) |
+| Directory         | Purpose                             |
+| ----------------- | ----------------------------------- |
+| `public/`         | Static assets (images, fonts, etc.) |
+| `src/components/` | Reusable UI components              |
+| `src/layouts/`    | Page layouts                        |
+| `src/pages/`      | Route pages (file-based routing)    |
 
 ## Step 3: Development Server
 
@@ -226,12 +226,12 @@ npm run preview
 
 ## Common Commands
 
-| Command | Description |
-|---------|-------------|
-| `npm run dev` | Start dev server |
-| `npm run build` | Build for production |
-| `npm run preview` | Preview production build |
-| `npm run astro add` | Add integrations |
+| Command             | Description              |
+| ------------------- | ------------------------ |
+| `npm run dev`       | Start dev server         |
+| `npm run build`     | Build for production     |
+| `npm run preview`   | Preview production build |
+| `npm run astro add` | Add integrations         |
 
 ## Next Steps
 
@@ -249,11 +249,11 @@ npm run preview
 ## Troubleshooting
 
 > ⚠️ **Common Issue**: Port 4321 already in use
-> 
+>
 > Solution: Kill the process or use `--port 3000` flag
 
 > ⚠️ **Common Issue**: Styles not updating
-> 
+>
 > Solution: Clear browser cache or restart dev server
 
 ---

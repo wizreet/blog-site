@@ -32,25 +32,25 @@ Use admonitions to highlight important information:
 ### Info Callout
 
 > ℹ️ **Info**
-> 
+>
 > This provides additional context or background information that might be useful.
 
 ### Success Callout
 
 > ✅ **Success**
-> 
+>
 > Your changes have been saved successfully!
 
 ### Warning Callout
 
 > ⚠️ **Warning**
-> 
+>
 > This action cannot be undone. Proceed with caution.
 
 ### Error Callout
 
 > ❌ **Error**
-> 
+>
 > Something went wrong. Please try again.
 
 ## GitHub-style Features
@@ -90,6 +90,7 @@ Press <kbd>Ctrl</kbd> + <kbd>C</kbd> to copy.
 Press <kbd>Cmd</kbd> + <kbd>V</kbd> to paste on Mac.
 
 Common shortcuts:
+
 - <kbd>Ctrl</kbd> + <kbd>S</kbd> - Save
 - <kbd>Ctrl</kbd> + <kbd>Z</kbd> - Undo
 - <kbd>Ctrl</kbd> + <kbd>Shift</kbd> + <kbd>P</kbd> - Command Palette
@@ -137,6 +138,7 @@ Use ==highlighted text== to draw attention to important information.
 Emojis work naturally in posts! 🎉 🚀 💻 📝
 
 Common emojis:
+
 - ✅ Success
 - ❌ Error
 - ⚠️ Warning
@@ -149,12 +151,13 @@ Common emojis:
 ### Quote with Attribution
 
 > "Any fool can write code that a computer can understand. Good programmers write code that humans can understand."
-> 
+>
 > — Martin Fowler
 
 ### Code Comparison
 
 **Before:**
+
 ```javascript
 function old(x) {
   var result = [];
@@ -166,8 +169,9 @@ function old(x) {
 ```
 
 **After:**
+
 ```javascript
-const modern = (arr) => arr.map(x => x * 2);
+const modern = (arr) => arr.map((x) => x * 2);
 ```
 
 ## Embedding HTML

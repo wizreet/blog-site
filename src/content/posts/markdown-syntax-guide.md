@@ -25,7 +25,7 @@ Headings are created using `#` symbols. The number of `#` determines the heading
 
 **Bold text** is wrapped with double asterisks or underscores.
 
-*Italic text* uses single asterisks or underscores.
+_Italic text_ uses single asterisks or underscores.
 
 ~~Strikethrough~~ uses double tildes.
 
@@ -70,11 +70,11 @@ Inline `code` is wrapped with backticks.
 
 ## Tables
 
-| Feature    | Status    | Notes          |
-| ---------- | --------- | -------------- |
-| Markdown   | ✅ Done   | Full support   |
-| Images     | ✅ Done   | Optimized      |
-| Dark Mode  | ✅ Done   | Auto-detect    |
+| Feature   | Status  | Notes        |
+| --------- | ------- | ------------ |
+| Markdown  | ✅ Done | Full support |
+| Images    | ✅ Done | Optimized    |
+| Dark Mode | ✅ Done | Auto-detect  |
 
 ## Horizontal Rule
 

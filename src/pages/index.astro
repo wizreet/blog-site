@@ -29,12 +29,6 @@ const totalPages = Math.ceil(allPosts.length / PAGE_SIZE);
 
 <DashboardLayout title={siteConfig.title} description={siteConfig.subtitle}>
   <div class="home-page">
-    {/* Welcome Header */}
-    <header class="welcome-header">
-      <h1 class="welcome-title">{siteConfig.title}</h1>
-      <p class="welcome-subtitle">{siteConfig.subtitle}</p>
-    </header>
-
     {/* Recent Posts Section */}
     <section class="posts-section">
       <div class="section-header">
@@ -73,28 +67,7 @@ const totalPages = Math.ceil(allPosts.length / PAGE_SIZE);
   .home-page {
     display: flex;
     flex-direction: column;
-    gap: 2rem;
-  }
-
-  /* Welcome Header */
-  .welcome-header {
-    padding: 2rem;
-    background: linear-gradient(135deg, oklch(var(--primary) / 0.08), oklch(var(--primary) / 0.02));
-    border: 1px solid oklch(var(--primary) / 0.15);
-    border-radius: 16px;
-    text-align: center;
-  }
-
-  .welcome-title {
-    font-size: 1.875rem;
-    font-weight: 700;
-    color: var(--text-primary);
-    margin-bottom: 0.5rem;
-  }
-
-  .welcome-subtitle {
-    font-size: 1rem;
-    color: var(--text-secondary);
+    gap: 1rem;
   }
 
   /* Posts Section */
@@ -108,12 +81,11 @@ const totalPages = Math.ceil(allPosts.length / PAGE_SIZE);
     display: flex;
     align-items: center;
     justify-content: space-between;
-    padding-bottom: 0.75rem;
-    border-bottom: 1px solid var(--border-color);
+    margin-bottom: 0.5rem;
   }
 
   .section-title {
-    font-size: 1.25rem;
+    font-size: 1.125rem;
     font-weight: 600;
     color: var(--text-primary);
   }
@@ -130,11 +102,21 @@ const totalPages = Math.ceil(allPosts.length / PAGE_SIZE);
     opacity: 0.8;
   }
 
-  /* Posts List */
+  /* Posts List - Fuwari style: cards with subtle background on mobile, gap on desktop */
   .posts-list {
     display: flex;
     flex-direction: column;
     gap: 1rem;
+    background: var(--card-bg);
+    border-radius: var(--radius-large);
+    padding: 0.25rem 0;
+  }
+
+  @media (min-width: 768px) {
+    .posts-list {
+      background: transparent;
+      padding: 0;
+    }
   }
 
   /* Empty State */
@@ -142,23 +124,7 @@ const totalPages = Math.ceil(allPosts.length / PAGE_SIZE);
     text-align: center;
     padding: 4rem 2rem;
     background: var(--card-bg);
-    border: 1px solid var(--border-color);
-    border-radius: 12px;
+    border-radius: var(--radius-large);
     color: var(--text-secondary);
-  }
-
-  /* Responsive */
-  @media (min-width: 768px) {
-    .welcome-header {
-      padding: 2.5rem;
-    }
-
-    .welcome-title {
-      font-size: 2.25rem;
-    }
-
-    .welcome-subtitle {
-      font-size: 1.125rem;
-    }
   }
 </style>

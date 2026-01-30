@@ -80,34 +80,31 @@ const sortedYears = Object.keys(postsByYear)
   .posts-page {
     display: flex;
     flex-direction: column;
-    gap: 2rem;
+    gap: 1rem;
   }
 
-  /* Page Header */
+  /* Page Header - minimal */
   .page-header {
-    padding: 1.5rem;
-    background: var(--card-bg);
-    border: 1px solid var(--border-color);
-    border-radius: 12px;
+    margin-bottom: 0.5rem;
   }
 
   .page-title {
-    font-size: 1.75rem;
+    font-size: 1.5rem;
     font-weight: 700;
     color: var(--text-primary);
-    margin-bottom: 0.375rem;
+    margin-bottom: 0.25rem;
   }
 
   .page-subtitle {
-    font-size: 0.9375rem;
-    color: var(--text-secondary);
+    font-size: 0.875rem;
+    color: var(--text-tertiary);
   }
 
   /* Timeline */
   .posts-timeline {
     display: flex;
     flex-direction: column;
-    gap: 2rem;
+    gap: 1.5rem;
   }
 
   .year-section {
@@ -117,30 +114,41 @@ const sortedYears = Object.keys(postsByYear)
   .year-header {
     display: flex;
     align-items: center;
-    justify-content: space-between;
-    padding: 0.75rem 1rem;
-    margin-bottom: 1rem;
-    background: oklch(var(--primary) / 0.05);
-    border-radius: 8px;
-    border-left: 3px solid oklch(var(--primary));
+    gap: 0.75rem;
+    padding: 0.5rem 0;
+    margin-bottom: 0.75rem;
   }
 
   .year-text {
-    font-size: 1.25rem;
+    font-size: 1.125rem;
     font-weight: 700;
-    color: var(--text-primary);
+    color: oklch(var(--primary));
   }
 
   .year-count {
-    font-size: 0.8125rem;
+    font-size: 0.75rem;
     color: var(--text-tertiary);
     font-weight: 500;
+    padding: 0.125rem 0.5rem;
+    background: var(--btn-regular-bg);
+    border-radius: 9999px;
   }
 
+  /* Posts list - Fuwari style */
   .posts-list {
     display: flex;
     flex-direction: column;
     gap: 1rem;
+    background: var(--card-bg);
+    border-radius: var(--radius-large);
+    padding: 0.25rem 0;
+  }
+
+  @media (min-width: 768px) {
+    .posts-list {
+      background: transparent;
+      padding: 0;
+    }
   }
 
   /* Empty State */
@@ -148,19 +156,7 @@ const sortedYears = Object.keys(postsByYear)
     text-align: center;
     padding: 4rem 2rem;
     background: var(--card-bg);
-    border: 1px solid var(--border-color);
-    border-radius: 12px;
+    border-radius: var(--radius-large);
     color: var(--text-secondary);
-  }
-
-  /* Responsive */
-  @media (min-width: 768px) {
-    .page-header {
-      padding: 2rem;
-    }
-
-    .page-title {
-      font-size: 2rem;
-    }
   }
 </style>

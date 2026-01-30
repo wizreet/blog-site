@@ -22,12 +22,12 @@ This guide shows you how to embed video content from various platforms into your
 You can embed YouTube videos using an iframe. Here's an example:
 
 <div style="position: relative; padding-bottom: 56.25%; height: 0; overflow: hidden; max-width: 100%; border-radius: 0.5rem;">
-  <iframe 
+  <iframe
     style="position: absolute; top: 0; left: 0; width: 100%; height: 100%;"
-    src="https://www.youtube.com/embed/dQw4w9WgXcQ" 
-    title="YouTube video player" 
-    frameborder="0" 
-    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" 
+    src="https://www.youtube.com/embed/dQw4w9WgXcQ"
+    title="YouTube video player"
+    frameborder="0"
+    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
     allowfullscreen>
   </iframe>
 </div>
@@ -37,6 +37,7 @@ You can embed YouTube videos using an iframe. Here's an example:
 ### 1. Get the Video ID
 
 For YouTube, the video ID is the part after `v=` in the URL:
+
 - URL: `https://www.youtube.com/watch?v=dQw4w9WgXcQ`
 - Video ID: `dQw4w9WgXcQ`
 
@@ -44,13 +45,14 @@ For YouTube, the video ID is the part after `v=` in the URL:
 
 ```html
 <div style="position: relative; padding-bottom: 56.25%; height: 0; overflow: hidden;">
-  <iframe 
+  <iframe
     style="position: absolute; top: 0; left: 0; width: 100%; height: 100%;"
-    src="https://www.youtube.com/embed/VIDEO_ID" 
-    title="Video title" 
-    frameborder="0" 
-    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
-    allowfullscreen>
+    src="https://www.youtube.com/embed/VIDEO_ID"
+    title="Video title"
+    frameborder="0"
+    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+    allowfullscreen
+  >
   </iframe>
 </div>
 ```
@@ -85,12 +87,13 @@ The CSS wrapper ensures videos maintain their aspect ratio on all screen sizes:
 ### Vimeo
 
 ```html
-<iframe 
-  src="https://player.vimeo.com/video/VIDEO_ID" 
-  width="640" 
-  height="360" 
-  frameborder="0" 
-  allowfullscreen>
+<iframe
+  src="https://player.vimeo.com/video/VIDEO_ID"
+  width="640"
+  height="360"
+  frameborder="0"
+  allowfullscreen
+>
 </iframe>
 ```
 
@@ -98,7 +101,7 @@ The CSS wrapper ensures videos maintain their aspect ratio on all screen sizes:
 
 ```html
 <video controls width="100%">
-  <source src="/videos/my-video.mp4" type="video/mp4">
+  <source src="/videos/my-video.mp4" type="video/mp4" />
   Your browser does not support the video tag.
 </video>
 ```
