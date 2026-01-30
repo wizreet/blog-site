@@ -15,13 +15,11 @@ enum I18nKey {
   tags = 'tags',
   categories = 'categories',
   series = 'series',
-  tabs = 'tabs',
   posts = 'posts',
   projects = 'projects',
   skills = 'skills',
   timeline = 'timeline',
   friends = 'friends',
-  music = 'music',
   links = 'links',
 
   // Post/Content
@@ -50,6 +48,10 @@ enum I18nKey {
   completed = 'completed',
   paused = 'paused',
   seriesDescription = 'seriesDescription',
+  backToSeries = 'backToSeries',
+  noPostsInSeries = 'noPostsInSeries',
+  allSeries = 'allSeries',
+  exploreSeries = 'exploreSeries',
 
   // Tags/Categories
   noTags = 'noTags',
@@ -81,23 +83,6 @@ enum I18nKey {
   notFound = 'notFound',
   notFoundMessage = 'notFoundMessage',
   backHome = 'backHome',
-
-  // Guitar Tabs
-  tabDifficulty = 'tabDifficulty',
-  tabTuning = 'tabTuning',
-  tabCapo = 'tabCapo',
-  tabDownloadPdf = 'tabDownloadPdf',
-  tabDownloadGp = 'tabDownloadGp',
-  tabVideoTutorial = 'tabVideoTutorial',
-
-  // Music
-  musicCovers = 'musicCovers',
-  musicOriginals = 'musicOriginals',
-  musicJams = 'musicJams',
-  musicGearUsed = 'musicGearUsed',
-  musicPlayer = 'musicPlayer',
-  musicPlayerShow = 'musicPlayerShow',
-  musicPlayerHide = 'musicPlayerHide',
 
   // Encrypted Content
   encrypted = 'encrypted',

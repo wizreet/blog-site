@@ -52,6 +52,10 @@ export const en: Translation = {
   [I18nKey.completed]: 'Completed',
   [I18nKey.paused]: 'Paused',
   [I18nKey.seriesDescription]: 'Organized collections of related posts',
+  [I18nKey.backToSeries]: 'Back to Series',
+  [I18nKey.noPostsInSeries]: 'No posts in this series yet',
+  [I18nKey.allSeries]: 'All Series',
+  [I18nKey.exploreSeries]: 'Explore Series',
 
   // Tags/Categories
   [I18nKey.noTags]: 'No tags',

@@ -3,19 +3,17 @@
  * Post Detail Page
  *
  * @description Displays a single blog post with full content.
- * Includes TOC, series navigation, and license info.
+ * Uses DashboardLayout with TOC in right sidebar.
  * Supports encrypted posts with password protection.
  *
  * @route /posts/[slug]
  */
 
 import { getCollection, render } from 'astro:content';
-import MainGridLayout from '@layouts/MainGridLayout.astro';
+import DashboardLayout from '@layouts/DashboardLayout.astro';
 import PostMeta from '@components/misc/PostMeta.astro';
 import SeriesNav from '@components/misc/SeriesNav.astro';
 import License from '@components/misc/License.astro';
-import TOC from '@components/widget/TOC.astro';
-import Profile from '@components/widget/Profile.astro';
 import Encryptor from '@components/Encryptor.astro';
 import { getPostUrl } from '@utils/url-utils';
 import { getSeriesById } from '@data/series';
@@ -49,18 +47,16 @@ if (series) {
 const isEncrypted = post.data.encrypted && post.data.password;
 
 // SEO
-const { title, description, image, published, updated } = post.data;
+const { title, description, image } = post.data;
 const imageUrl = image ? (typeof image === 'string' ? image : image.src) : undefined;
 ---
 
-<MainGridLayout
+<DashboardLayout
   title={title}
   description={description}
-  ogImage={imageUrl}
+  ogImage={imageUrl ?? undefined}
   url={getPostUrl(post.id)}
-  publishDate={published}
-  modifiedDate={updated}
-  isArticle={true}
+  headings={headings}
 >
   <article class="card-base overflow-hidden">
     <!-- Post Header -->
@@ -112,15 +108,4 @@ const imageUrl = image ? (typeof image === 'string' ? image : image.src) : undef
       <SeriesNav series={series} posts={seriesPosts} currentSlug={post.id} />
     </div>
   )}
-
-  <!-- Sidebar slot -->
-  <Fragment slot="sidebar">
-    <div class="flex flex-col gap-4">
-      <!-- TOC -->
-      {headings.length > 0 && <TOC headings={headings} />}
-
-      <!-- Profile -->
-      <Profile />
-    </div>
-  </Fragment>
-</MainGridLayout>
+</DashboardLayout>

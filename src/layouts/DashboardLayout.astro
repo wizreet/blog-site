@@ -1,0 +1,281 @@
+---
+/**
+ * Dashboard Layout
+ *
+ * @description Three-column blog-focused layout with navigation dashboard.
+ *
+ * Structure:
+ * ┌─────────────┬─────────────────────────────────┬─────────────┐
+ * │   Left      │        Main Content             │   Right     │
+ * │  Sidebar    │                                 │  Sidebar    │
+ * │             │                                 │             │
+ * │  - Series   │                                 │  - Profile  │
+ * │  - Cats     │                                 │  - TOC      │
+ * │  - Tags     │                                 │             │
+ * └─────────────┴─────────────────────────────────┴─────────────┘
+ *
+ * Responsive:
+ * - Desktop (lg+): Three columns
+ * - Tablet (md): Two columns (main + right)
+ * - Mobile: Single column with collapsible nav
+ *
+ * @slot default - Main content area
+ * @slot left-sidebar - Override left sidebar content
+ * @slot right-sidebar - Override right sidebar content
+ *
+ * @example
+ * ```astro
+ * <DashboardLayout title="All Posts">
+ *   <PostList posts={posts} />
+ * </DashboardLayout>
+ * ```
+ */
+
+import Layout from './Layout.astro';
+import Navbar from '@components/Navbar.astro';
+import Footer from '@components/Footer.astro';
+import BackToTop from '@components/BackToTop.astro';
+import LeftSidebar from '@components/dashboard/LeftSidebar.astro';
+import RightSidebar from '@components/dashboard/RightSidebar.astro';
+import type { MarkdownHeading } from 'astro';
+
+interface Props {
+  /** Page title for SEO and browser tab */
+  title?: string;
+  /** Page description for SEO */
+  description?: string;
+  /** Open Graph image URL */
+  ogImage?: string;
+  /** Canonical URL */
+  url?: string;
+  /** Article publish date */
+  publishDate?: Date;
+  /** Article modified date */
+  modifiedDate?: Date;
+  /** Is this an article page? */
+  isArticle?: boolean;
+  /** Robots meta directive */
+  robots?: string;
+  /** Hide left sidebar */
+  hideLeftSidebar?: boolean;
+  /** Hide right sidebar */
+  hideRightSidebar?: boolean;
+  /** Headings for TOC */
+  headings?: MarkdownHeading[];
+  /** Additional class for main content */
+  contentClass?: string;
+  /** Active category for highlighting */
+  activeCategory?: string;
+  /** Active series for highlighting */
+  activeSeries?: string;
+}
+
+const {
+  title,
+  description,
+  ogImage,
+  url,
+  publishDate,
+  modifiedDate,
+  isArticle = false,
+  robots,
+  hideLeftSidebar = false,
+  hideRightSidebar = false,
+  headings = [],
+  contentClass = '',
+  activeCategory,
+  activeSeries,
+} = Astro.props;
+
+// Check for custom sidebar slots
+const hasLeftSlot = Astro.slots.has('left-sidebar');
+const hasRightSlot = Astro.slots.has('right-sidebar');
+---
+
+<Layout
+  title={title}
+  description={description}
+  ogImage={ogImage}
+  url={url}
+  publishDate={publishDate}
+  modifiedDate={modifiedDate}
+  isArticle={isArticle}
+  robots={robots}
+>
+  <!-- Navigation -->
+  <Navbar />
+
+  <!-- Main Layout Container -->
+  <div class="dashboard-container">
+    <div class="dashboard-grid">
+      {/* Left Sidebar - Navigation Dashboard */}
+      {!hideLeftSidebar && (
+        <aside class="left-sidebar" aria-label="Navigation">
+          <div class="sidebar-content">
+            {hasLeftSlot ? (
+              <slot name="left-sidebar" />
+            ) : (
+              <LeftSidebar
+                activeCategory={activeCategory}
+                activeSeries={activeSeries}
+              />
+            )}
+          </div>
+        </aside>
+      )}
+
+      {/* Main Content Area */}
+      <main
+        id="main-content"
+        class:list={[
+          'main-content',
+          { 'no-left': hideLeftSidebar },
+          { 'no-right': hideRightSidebar },
+          contentClass,
+        ]}
+      >
+        <slot />
+      </main>
+
+      {/* Right Sidebar - Profile & TOC */}
+      {!hideRightSidebar && (
+        <aside class="right-sidebar" aria-label="Page info">
+          <div class="sidebar-content">
+            {hasRightSlot ? (
+              <slot name="right-sidebar" />
+            ) : (
+              <RightSidebar headings={headings} />
+            )}
+          </div>
+        </aside>
+      )}
+    </div>
+  </div>
+
+  <!-- Footer -->
+  <Footer />
+
+  <!-- Back to Top Button -->
+  <BackToTop />
+</Layout>
+
+<style>
+  /* Dashboard Container */
+  .dashboard-container {
+    width: 100%;
+    min-height: calc(100vh - var(--navbar-height) - 4rem);
+    padding-top: calc(var(--navbar-height) + 1.5rem);
+    padding-bottom: 2rem;
+  }
+
+  /* Three-column Grid */
+  .dashboard-grid {
+    display: grid;
+    gap: 1.5rem;
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 0 1rem;
+
+    /* Mobile: Single column */
+    grid-template-columns: 1fr;
+    grid-template-areas: 'main';
+  }
+
+  /* Left Sidebar */
+  .left-sidebar {
+    display: none;
+  }
+
+  /* Main Content */
+  .main-content {
+    grid-area: main;
+    min-width: 0;
+    width: 100%;
+  }
+
+  /* Right Sidebar */
+  .right-sidebar {
+    display: none;
+  }
+
+  /* Sidebar Content Container */
+  .sidebar-content {
+    position: sticky;
+    top: calc(var(--navbar-height) + 1.5rem);
+    max-height: calc(100vh - var(--navbar-height) - 3rem);
+    overflow-y: auto;
+    scrollbar-width: thin;
+    scrollbar-color: var(--border-color) transparent;
+  }
+
+  .sidebar-content::-webkit-scrollbar {
+    width: 4px;
+  }
+
+  .sidebar-content::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  .sidebar-content::-webkit-scrollbar-thumb {
+    background: var(--border-color);
+    border-radius: 2px;
+  }
+
+  /* Tablet: Two columns (main + right) */
+  @media (min-width: 768px) {
+    .dashboard-container {
+      padding: calc(var(--navbar-height) + 2rem) 1.5rem 2rem;
+    }
+
+    .dashboard-grid {
+      gap: 2rem;
+      padding: 0 1.5rem;
+      grid-template-columns: 1fr 280px;
+      grid-template-areas: 'main right';
+    }
+
+    .right-sidebar {
+      display: block;
+      grid-area: right;
+    }
+  }
+
+  /* Desktop: Three columns */
+  @media (min-width: 1024px) {
+    .dashboard-container {
+      padding: calc(var(--navbar-height) + 2rem) 2rem 2rem;
+    }
+
+    .dashboard-grid {
+      gap: 2rem;
+      padding: 0;
+      grid-template-columns: 260px 1fr 280px;
+      grid-template-areas: 'left main right';
+    }
+
+    .left-sidebar {
+      display: block;
+      grid-area: left;
+    }
+
+    .main-content.no-left {
+      grid-column: 1 / 3;
+    }
+
+    .main-content.no-right {
+      grid-column: 2 / 4;
+    }
+
+    .main-content.no-left.no-right {
+      grid-column: 1 / 4;
+    }
+  }
+
+  /* Large Desktop: Wider layout */
+  @media (min-width: 1280px) {
+    .dashboard-grid {
+      max-width: 1440px;
+      grid-template-columns: 280px 1fr 300px;
+    }
+  }
+</style>

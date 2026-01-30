@@ -1,30 +1,48 @@
 ---
 /**
- * All Posts Page
+ * Category Posts Page
  *
- * @description Lists all blog posts with category filtering.
- * Uses the three-column dashboard layout.
+ * @description Lists all posts in a specific category.
+ * Dynamic route: /posts/category/[category]/
  *
- * @route /posts/
+ * @route /posts/category/[category]/
  */
 
 import DashboardLayout from '@layouts/DashboardLayout.astro';
 import PostCard from '@components/card/PostCard.astro';
-import { getSortedPosts } from '@utils/content-utils';
+import { getCategoryList, getPostsByCategory } from '@utils/content-utils';
 import { i18n, I18nKey } from '@i18n/index';
+import { Icon } from 'astro-icon/components';
+import { getUrl } from '@utils/url-utils';
 
-// Get all posts sorted by date
-const allPosts = await getSortedPosts();
+export async function getStaticPaths() {
+  const categories = await getCategoryList();
+
+  return categories.map((category) => ({
+    params: { category: category.name.toLowerCase() },
+    props: { categoryName: category.name },
+  }));
+}
+
+interface Props {
+  categoryName: string;
+}
+
+const { category } = Astro.params;
+const { categoryName } = Astro.props;
+
+// Get posts for this category
+const posts = await getPostsByCategory(categoryName);
 
 // Group posts by year
-const postsByYear = allPosts.reduce(
+const postsByYear = posts.reduce(
   (acc, post) => {
     const year = new Date(post.data.published).getFullYear();
     if (!acc[year]) acc[year] = [];
     acc[year].push(post);
     return acc;
   },
-  {} as Record<number, typeof allPosts>
+  {} as Record<number, typeof posts>
 );
 
 // Sort years descending
@@ -34,17 +52,29 @@ const sortedYears = Object.keys(postsByYear)
 ---
 
 <DashboardLayout
-  title={i18n(I18nKey.allPosts)}
-  description="Browse all blog posts organized by date and category"
+  title={`${categoryName} - ${i18n(I18nKey.categories)}`}
+  description={`All posts in the ${categoryName} category`}
+  activeCategory={categoryName}
 >
-  <div class="posts-page">
+  <div class="category-page">
     {/* Page Header */}
     <header class="page-header">
-      <h1 class="page-title">{i18n(I18nKey.allPosts)}</h1>
-      <p class="page-subtitle">
-        {allPosts.length}
-        {allPosts.length === 1 ? i18n(I18nKey.postCount) : i18n(I18nKey.postsCount)}
-      </p>
+      <a href={getUrl('/posts/')} class="back-link">
+        <Icon name="material-symbols:arrow-back" class="back-icon" />
+        <span>{i18n(I18nKey.allPosts)}</span>
+      </a>
+
+      <div class="header-content">
+        <div class="category-badge">
+          <Icon name="material-symbols:label" class="badge-icon" />
+          <span>{i18n(I18nKey.categories)}</span>
+        </div>
+        <h1 class="page-title">{categoryName}</h1>
+        <p class="page-subtitle">
+          {posts.length}
+          {posts.length === 1 ? i18n(I18nKey.postCount) : i18n(I18nKey.postsCount)}
+        </p>
+      </div>
     </header>
 
     {/* Posts grouped by year */}
@@ -54,7 +84,7 @@ const sortedYears = Object.keys(postsByYear)
           <h2 class="year-header">
             <span class="year-text">{year}</span>
             <span class="year-count">
-              {postsByYear[year].length} {postsByYear[year].length === 1 ? 'post' : 'posts'}
+              {postsByYear[year].length}
             </span>
           </h2>
 
@@ -68,16 +98,16 @@ const sortedYears = Object.keys(postsByYear)
     </div>
 
     {/* Empty State */}
-    {allPosts.length === 0 && (
+    {posts.length === 0 && (
       <div class="empty-state">
-        <p>{i18n(I18nKey.archiveEmpty)}</p>
+        <p>No posts in this category yet.</p>
       </div>
     )}
   </div>
 </DashboardLayout>
 
 <style>
-  .posts-page {
+  .category-page {
     display: flex;
     flex-direction: column;
     gap: 2rem;
@@ -89,6 +119,47 @@ const sortedYears = Object.keys(postsByYear)
     background: var(--card-bg);
     border: 1px solid var(--border-color);
     border-radius: 12px;
+  }
+
+  .back-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.375rem;
+    font-size: 0.875rem;
+    color: var(--text-secondary);
+    text-decoration: none;
+    margin-bottom: 1rem;
+    transition: color 0.15s ease;
+  }
+
+  .back-link:hover {
+    color: oklch(var(--primary));
+  }
+
+  .back-icon {
+    width: 1rem;
+    height: 1rem;
+  }
+
+  .header-content {
+    /* No extra spacing needed */
+  }
+
+  .category-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.375rem;
+    font-size: 0.75rem;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: oklch(var(--primary));
+    margin-bottom: 0.5rem;
+  }
+
+  .badge-icon {
+    width: 0.875rem;
+    height: 0.875rem;
   }
 
   .page-title {
@@ -135,6 +206,9 @@ const sortedYears = Object.keys(postsByYear)
     font-size: 0.8125rem;
     color: var(--text-tertiary);
     font-weight: 500;
+    background: var(--btn-regular-bg);
+    padding: 0.125rem 0.5rem;
+    border-radius: 9999px;
   }
 
   .posts-list {

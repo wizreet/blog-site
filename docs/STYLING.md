@@ -36,23 +36,25 @@ themeConfig: {
 }
 ```
 
-| Hue | Color |
-|-----|-------|
-| 0 | Red |
-| 30 | Orange |
-| 60 | Yellow |
-| 120 | Green |
-| 180 | Cyan |
-| 210 | Blue |
+| Hue | Color  |
+| --- | ------ |
+| 0   | Red    |
+| 30  | Orange |
+| 60  | Yellow |
+| 120 | Green  |
+| 180 | Cyan   |
+| 210 | Blue   |
 | 250 | Purple |
-| 300 | Pink |
+| 300 | Pink   |
 
 ### Dark/Light Mode
 
 Toggle via `data-theme` attribute:
+
 ```html
 <html data-theme="dark">
-<html data-theme="light">
+  <html data-theme="light"></html>
+</html>
 ```
 
 ## 🔧 Tailwind CSS
@@ -69,10 +71,8 @@ module.exports = {
       // Custom extensions
     },
   },
-  plugins: [
-    require('@tailwindcss/typography'),
-  ],
-}
+  plugins: [require('@tailwindcss/typography')],
+};
 ```
 
 ### Using Theme Variables
@@ -97,12 +97,16 @@ Reference CSS variables in Tailwind:
 <div class="card-base p-4">Content</div>
 
 <!-- Button -->
-<button class="rounded-lg bg-[oklch(var(--primary))] px-4 py-2 text-white hover:bg-[oklch(var(--primary)/0.9)]">
+<button
+  class="rounded-lg bg-[oklch(var(--primary))] px-4 py-2 text-white hover:bg-[oklch(var(--primary)/0.9)]"
+>
   Click me
 </button>
 
 <!-- Input -->
-<input class="rounded-lg border border-[var(--border-color)] bg-[var(--card-bg)] px-4 py-2 text-[var(--text-primary)] focus:border-[oklch(var(--primary))] focus:outline-none">
+<input
+  class="rounded-lg border border-[var(--border-color)] bg-[var(--card-bg)] px-4 py-2 text-[var(--text-primary)] focus:border-[oklch(var(--primary))] focus:outline-none"
+/>
 ```
 
 ## 📦 Utility Classes
@@ -120,14 +124,11 @@ The `.card-base` class provides consistent card styling:
 ```
 
 Usage:
+
 ```html
 <div class="card-base overflow-hidden">
-  <header class="p-4 border-b border-[var(--border-color)]">
-    Header
-  </header>
-  <div class="p-4">
-    Content
-  </div>
+  <header class="p-4 border-b border-[var(--border-color)]">Header</header>
+  <div class="p-4">Content</div>
 </div>
 ```
 
@@ -147,11 +148,12 @@ For markdown content, use Tailwind Typography:
 
 ```html
 <div class="prose prose-lg dark:prose-invert">
-  <Content />
+  <content />
 </div>
 ```
 
 Modifiers:
+
 - `prose-sm` / `prose` / `prose-lg` / `prose-xl` - Size
 - `dark:prose-invert` - Dark mode colors
 - `max-w-none` - Remove max-width
@@ -169,12 +171,7 @@ Modifiers:
 ### Responsive Images
 
 ```html
-<img 
-  src="/images/photo.jpg" 
-  alt="Description" 
-  class="h-full w-full object-cover"
-  loading="lazy"
-/>
+<img src="/images/photo.jpg" alt="Description" class="h-full w-full object-cover" loading="lazy" />
 ```
 
 ### Aspect Ratios
@@ -205,6 +202,7 @@ import { Icon } from 'astro-icon/components'
 Browse icons: [https://icon-sets.iconify.design/](https://icon-sets.iconify.design/)
 
 Common icon sets:
+
 - `material-symbols:` - Material Design
 - `fa6-brands:` - Font Awesome 6 Brands
 - `fa6-solid:` - Font Awesome 6 Solid
@@ -215,29 +213,28 @@ Common icon sets:
 ### Conditional Classes
 
 ```html
-<div class="bg-white dark:bg-gray-900">
-  Changes background in dark mode
-</div>
+<div class="bg-white dark:bg-gray-900">Changes background in dark mode</div>
 ```
 
 ### Using CSS Variables
 
 CSS variables automatically adjust for theme:
+
 ```html
 <!-- Works in both modes -->
-<div class="bg-[var(--card-bg)] text-[var(--text-primary)]">
+<div class="bg-[var(--card-bg)] text-[var(--text-primary)]"></div>
 ```
 
 ## 📱 Responsive Design
 
 ### Breakpoints
 
-| Prefix | Width |
-|--------|-------|
-| `sm:` | 640px |
-| `md:` | 768px |
-| `lg:` | 1024px |
-| `xl:` | 1280px |
+| Prefix | Width  |
+| ------ | ------ |
+| `sm:`  | 640px  |
+| `md:`  | 768px  |
+| `lg:`  | 1024px |
+| `xl:`  | 1280px |
 | `2xl:` | 1536px |
 
 ### Examples
@@ -245,12 +242,12 @@ CSS variables automatically adjust for theme:
 ```html
 <!-- Stack on mobile, row on desktop -->
 <div class="flex flex-col md:flex-row">
-
-<!-- Hidden on mobile -->
-<div class="hidden md:block">
-
-<!-- Different padding by screen size -->
-<div class="p-4 md:p-6 lg:p-8">
+  <!-- Hidden on mobile -->
+  <div class="hidden md:block">
+    <!-- Different padding by screen size -->
+    <div class="p-4 md:p-6 lg:p-8"></div>
+  </div>
+</div>
 ```
 
 ## ⚡ Animation
@@ -262,22 +259,15 @@ CSS variables automatically adjust for theme:
   Smooth color change
 </button>
 
-<div class="transition-transform hover:scale-105">
-  Scale on hover
-</div>
+<div class="transition-transform hover:scale-105">Scale on hover</div>
 ```
 
 ### Common Transitions
 
 ```html
-transition-all       /* All properties */
-transition-colors    /* Colors only */
-transition-opacity   /* Opacity only */
-transition-transform /* Transform only */
-
-duration-150  /* 150ms */
-duration-200  /* 200ms */
-duration-300  /* 300ms */
+transition-all /* All properties */ transition-colors /* Colors only */ transition-opacity /*
+Opacity only */ transition-transform /* Transform only */ duration-150 /* 150ms */ duration-200 /*
+200ms */ duration-300 /* 300ms */
 ```
 
 ## 🧩 Component Patterns
@@ -303,12 +293,16 @@ duration-300  /* 300ms */
 
 ```html
 <!-- Primary button -->
-<button class="rounded-lg bg-[oklch(var(--primary))] px-4 py-2 font-medium text-white transition-colors hover:bg-[oklch(var(--primary)/0.8)]">
+<button
+  class="rounded-lg bg-[oklch(var(--primary))] px-4 py-2 font-medium text-white transition-colors hover:bg-[oklch(var(--primary)/0.8)]"
+>
   Primary
 </button>
 
 <!-- Secondary button -->
-<button class="rounded-lg bg-[var(--btn-regular-bg)] px-4 py-2 text-[var(--text-secondary)] transition-colors hover:bg-[var(--btn-hover-bg)] hover:text-[oklch(var(--primary))]">
+<button
+  class="rounded-lg bg-[var(--btn-regular-bg)] px-4 py-2 text-[var(--text-secondary)] transition-colors hover:bg-[var(--btn-hover-bg)] hover:text-[oklch(var(--primary))]"
+>
   Secondary
 </button>
 ```
@@ -324,10 +318,10 @@ duration-300  /* 300ms */
 
 ```html
 <!-- Good: Readable multi-line -->
-<button 
+<button
   class="
-    rounded-lg bg-[oklch(var(--primary))] 
-    px-4 py-2 font-medium text-white 
+    rounded-lg bg-[oklch(var(--primary))]
+    px-4 py-2 font-medium text-white
     transition-colors hover:bg-[oklch(var(--primary)/0.8)]
   "
 >

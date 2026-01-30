@@ -40,19 +40,17 @@ const displayTags = tags?.slice(0, 3) || [];
 const hasMoreTags = (tags?.length || 0) > 3;
 ---
 
-<article class="card-base group">
-  <a href={getPostUrl(post.id)} class="block p-5">
-    <div class:list={['flex gap-4', compact ? 'flex-col sm:flex-row' : 'flex-col']}>
+<article class="post-card">
+  <a href={getPostUrl(post.id)} class="post-link">
+    <div class:list={['post-content', compact ? 'compact' : '']}>
       <!-- Main Content -->
-      <div class="flex-1 min-w-0">
+      <div class="post-main">
         <!-- Category & Series -->
-        <div class="mb-2 flex flex-wrap items-center gap-2">
+        <div class="post-meta-top">
           {
             category && (
-              <span
-                class="inline-flex items-center gap-1 rounded-md bg-[oklch(var(--primary)/0.1)] px-2 py-0.5 text-xs font-medium text-[oklch(var(--primary))]"
-              >
-                <Icon name="material-symbols:folder-outline" class="h-3 w-3" />
+              <span class="category-badge">
+                <Icon name="material-symbols:folder-outline" class="badge-icon" />
                 {category}
               </span>
             )
@@ -62,10 +60,10 @@ const hasMoreTags = (tags?.length || 0) > 3;
             series && (
               <a
                 href={getSeriesUrl(series.id)}
-                class="inline-flex items-center gap-1 rounded-md bg-[var(--btn-regular-bg)] px-2 py-0.5 text-xs text-[var(--text-secondary)] transition-colors hover:bg-[var(--btn-hover-bg)]"
+                class="series-badge"
                 onclick="event.stopPropagation()"
               >
-                <Icon name="material-symbols:collections-bookmark-outline" class="h-3 w-3" />
+                <Icon name="material-symbols:collections-bookmark-outline" class="badge-icon" />
                 {series.id} #{series.part}
               </a>
             )
@@ -73,37 +71,30 @@ const hasMoreTags = (tags?.length || 0) > 3;
         </div>
 
         <!-- Title -->
-        <h2
-          class:list={[
-            'font-bold text-[var(--text-primary)] transition-colors group-hover:text-[oklch(var(--primary))]',
-            compact ? 'text-lg line-clamp-2' : 'text-xl md:text-2xl line-clamp-2',
-          ]}
-        >
+        <h2 class:list={['post-title', compact ? 'compact' : '']}>
           {title}
         </h2>
 
         <!-- Description -->
         {
           description && !compact && (
-            <p class="mt-2 line-clamp-2 text-[var(--text-secondary)]">
-              {description}
-            </p>
+            <p class="post-description">{description}</p>
           )
         }
 
         <!-- Meta Info -->
-        <div class="mt-3 flex flex-wrap items-center gap-x-4 gap-y-1 text-sm text-[var(--text-tertiary)]">
+        <div class="post-meta">
           <!-- Date -->
-          <div class="flex items-center gap-1" title={formatDate(published)}>
-            <Icon name="material-symbols:calendar-today-outline" class="h-4 w-4" />
+          <div class="meta-item" title={formatDate(published)}>
+            <Icon name="material-symbols:calendar-today-outline" class="meta-icon" />
             <time datetime={published.toISOString()}>
               {getRelativeTime(published)}
             </time>
           </div>
 
           <!-- Reading Time -->
-          <div class="flex items-center gap-1">
-            <Icon name="material-symbols:schedule-outline" class="h-4 w-4" />
+          <div class="meta-item">
+            <Icon name="material-symbols:schedule-outline" class="meta-icon" />
             <span>{readingTime} min read</span>
           </div>
         </div>
@@ -111,19 +102,15 @@ const hasMoreTags = (tags?.length || 0) > 3;
         <!-- Tags -->
         {
           displayTags.length > 0 && !compact && (
-            <div class="mt-3 flex flex-wrap items-center gap-1.5">
+            <div class="post-tags">
               {displayTags.map((tag) => (
-                <span
-                  class="inline-flex items-center gap-0.5 rounded bg-[var(--btn-regular-bg)] px-1.5 py-0.5 text-xs text-[var(--text-tertiary)]"
-                >
-                  <span class="opacity-60">#</span>
+                <span class="tag">
+                  <span class="tag-hash">#</span>
                   {tag}
                 </span>
               ))}
               {hasMoreTags && (
-                <span class="text-xs text-[var(--text-tertiary)]">
-                  +{(tags?.length || 0) - 3}
-                </span>
+                <span class="tags-more">+{(tags?.length || 0) - 3}</span>
               )}
             </div>
           )
@@ -133,11 +120,11 @@ const hasMoreTags = (tags?.length || 0) > 3;
       <!-- Thumbnail (optional, small) -->
       {
         image && !compact && (
-          <div class="shrink-0">
+          <div class="post-thumbnail">
             <img
               src={typeof image === 'string' ? image : image.src}
               alt={title}
-              class="h-24 w-24 rounded-lg object-cover md:h-28 md:w-28"
+              class="thumbnail-image"
               loading="lazy"
             />
           </div>
@@ -146,3 +133,198 @@ const hasMoreTags = (tags?.length || 0) > 3;
     </div>
   </a>
 </article>
+
+<style>
+  .post-card {
+    background: var(--card-bg);
+    border: 1px solid var(--border-color);
+    border-radius: 12px;
+    overflow: hidden;
+    transition: all 0.2s ease;
+  }
+
+  .post-card:hover {
+    border-color: oklch(var(--primary) / 0.3);
+    box-shadow: 0 4px 12px oklch(var(--primary) / 0.08);
+  }
+
+  .post-link {
+    display: block;
+    padding: 1.25rem;
+    text-decoration: none;
+  }
+
+  .post-content {
+    display: flex;
+    gap: 1.25rem;
+    flex-direction: row;
+  }
+
+  .post-content.compact {
+    flex-direction: column;
+  }
+
+  @media (max-width: 640px) {
+    .post-content {
+      flex-direction: column;
+    }
+  }
+
+  .post-main {
+    flex: 1;
+    min-width: 0;
+  }
+
+  /* Meta Top (Category & Series) */
+  .post-meta-top {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.5rem;
+    margin-bottom: 0.625rem;
+  }
+
+  .category-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.25rem;
+    padding: 0.25rem 0.625rem;
+    border-radius: 6px;
+    background: oklch(var(--primary) / 0.1);
+    font-size: 0.75rem;
+    font-weight: 500;
+    color: oklch(var(--primary));
+  }
+
+  .series-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.25rem;
+    padding: 0.25rem 0.625rem;
+    border-radius: 6px;
+    background: var(--btn-regular-bg);
+    font-size: 0.75rem;
+    color: var(--text-secondary);
+    text-decoration: none;
+    transition: background 0.15s ease;
+  }
+
+  .series-badge:hover {
+    background: var(--btn-hover-bg);
+  }
+
+  .badge-icon {
+    width: 0.75rem;
+    height: 0.75rem;
+  }
+
+  /* Title */
+  .post-title {
+    font-size: 1.25rem;
+    font-weight: 700;
+    line-height: 1.4;
+    color: var(--text-primary);
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    transition: color 0.15s ease;
+  }
+
+  .post-title.compact {
+    font-size: 1.0625rem;
+  }
+
+  .post-card:hover .post-title {
+    color: oklch(var(--primary));
+  }
+
+  @media (min-width: 768px) {
+    .post-title {
+      font-size: 1.375rem;
+    }
+  }
+
+  /* Description */
+  .post-description {
+    margin-top: 0.5rem;
+    font-size: 0.9375rem;
+    line-height: 1.6;
+    color: var(--text-secondary);
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+
+  /* Meta Info */
+  .post-meta {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 1rem;
+    margin-top: 0.75rem;
+  }
+
+  .meta-item {
+    display: flex;
+    align-items: center;
+    gap: 0.375rem;
+    font-size: 0.8125rem;
+    color: var(--text-tertiary);
+  }
+
+  .meta-icon {
+    width: 1rem;
+    height: 1rem;
+    flex-shrink: 0;
+  }
+
+  /* Tags */
+  .post-tags {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.5rem;
+    margin-top: 0.75rem;
+  }
+
+  .tag {
+    display: inline-flex;
+    align-items: center;
+    padding: 0.1875rem 0.5rem;
+    border-radius: 4px;
+    background: var(--btn-regular-bg);
+    font-size: 0.75rem;
+    color: var(--text-tertiary);
+  }
+
+  .tag-hash {
+    opacity: 0.5;
+    margin-right: 0.125rem;
+  }
+
+  .tags-more {
+    font-size: 0.75rem;
+    color: var(--text-tertiary);
+  }
+
+  /* Thumbnail */
+  .post-thumbnail {
+    flex-shrink: 0;
+  }
+
+  .thumbnail-image {
+    width: 100px;
+    height: 100px;
+    border-radius: 8px;
+    object-fit: cover;
+  }
+
+  @media (min-width: 768px) {
+    .thumbnail-image {
+      width: 120px;
+      height: 120px;
+    }
+  }
+</style>

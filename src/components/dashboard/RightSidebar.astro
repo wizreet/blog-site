@@ -1,0 +1,307 @@
+---
+/**
+ * Right Sidebar Component
+ *
+ * @description Profile and Table of Contents sidebar.
+ *
+ * Features:
+ * - Profile card with avatar and links
+ * - Table of contents (if headings provided)
+ * - Smooth scroll to headings
+ *
+ * @example
+ * ```astro
+ * <RightSidebar headings={headings} />
+ * ```
+ */
+
+import { Icon } from 'astro-icon/components';
+import { profileConfig } from '@/config';
+import { i18n, I18nKey } from '@i18n/index';
+import type { MarkdownHeading } from 'astro';
+
+interface Props {
+  /** Headings for table of contents */
+  headings?: MarkdownHeading[];
+}
+
+const { headings = [] } = Astro.props;
+const { avatar, name, bio, links } = profileConfig;
+
+// Filter to h2 and h3 only for TOC
+const tocHeadings = headings.filter((h) => h.depth >= 2 && h.depth <= 3);
+---
+
+<div class="right-sidebar-content">
+  {/* Profile Card */}
+  <section class="profile-card" aria-label="Author profile">
+    <div class="profile-avatar">
+      <img
+        src={avatar}
+        alt={name}
+        class="avatar-image"
+        loading="lazy"
+        width="80"
+        height="80"
+      />
+    </div>
+
+    <h2 class="profile-name">{name}</h2>
+    <p class="profile-bio">{bio}</p>
+
+    {/* Social Links */}
+    {links && links.length > 0 && (
+      <div class="social-links">
+        {links.map((link) => (
+          <a
+            href={link.url}
+            target="_blank"
+            rel="noopener noreferrer"
+            class="social-link"
+            aria-label={link.name}
+            title={link.name}
+          >
+            <Icon name={link.icon} class="social-icon" />
+          </a>
+        ))}
+      </div>
+    )}
+  </section>
+
+  {/* Table of Contents */}
+  {tocHeadings.length > 0 && (
+    <section class="toc-card" aria-label="Table of contents">
+      <header class="toc-header">
+        <Icon name="material-symbols:list" class="toc-icon" />
+        <h2 class="toc-title">{i18n(I18nKey.tableOfContents)}</h2>
+      </header>
+
+      <nav class="toc-nav">
+        <ul class="toc-list" role="list">
+          {tocHeadings.map((heading) => (
+            <li class:list={['toc-item', `depth-${heading.depth}`]}>
+              <a
+                href={`#${heading.slug}`}
+                class="toc-link"
+                data-toc-link
+              >
+                {heading.text}
+              </a>
+            </li>
+          ))}
+        </ul>
+      </nav>
+    </section>
+  )}
+</div>
+
+<style>
+  .right-sidebar-content {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+  }
+
+  /* Profile Card */
+  .profile-card {
+    background: var(--card-bg);
+    border: 1px solid var(--border-color);
+    border-radius: 12px;
+    padding: 1.5rem;
+    text-align: center;
+  }
+
+  .profile-avatar {
+    display: flex;
+    justify-content: center;
+    margin-bottom: 1rem;
+  }
+
+  .avatar-image {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 3px solid oklch(var(--primary) / 0.2);
+    transition: transform 0.3s ease, border-color 0.3s ease;
+  }
+
+  .avatar-image:hover {
+    transform: scale(1.05);
+    border-color: oklch(var(--primary) / 0.5);
+  }
+
+  .profile-name {
+    font-size: 1.125rem;
+    font-weight: 600;
+    color: var(--text-primary);
+    margin-bottom: 0.5rem;
+  }
+
+  .profile-bio {
+    font-size: 0.875rem;
+    color: var(--text-secondary);
+    line-height: 1.5;
+    margin-bottom: 1rem;
+  }
+
+  /* Social Links */
+  .social-links {
+    display: flex;
+    justify-content: center;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+  }
+
+  .social-link {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 36px;
+    height: 36px;
+    border-radius: 8px;
+    background: var(--btn-regular-bg);
+    color: var(--text-secondary);
+    transition: all 0.2s ease;
+  }
+
+  .social-link:hover {
+    background: oklch(var(--primary));
+    color: white;
+    transform: translateY(-2px);
+  }
+
+  .social-icon {
+    width: 1.125rem;
+    height: 1.125rem;
+  }
+
+  /* Table of Contents */
+  .toc-card {
+    background: var(--card-bg);
+    border: 1px solid var(--border-color);
+    border-radius: 12px;
+    overflow: hidden;
+  }
+
+  .toc-header {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 1rem;
+    border-bottom: 1px solid var(--border-color);
+    background: oklch(var(--primary) / 0.03);
+  }
+
+  .toc-icon {
+    width: 1.125rem;
+    height: 1.125rem;
+    color: oklch(var(--primary));
+  }
+
+  .toc-title {
+    font-size: 0.8125rem;
+    font-weight: 600;
+    color: var(--text-primary);
+    text-transform: uppercase;
+    letter-spacing: 0.025em;
+  }
+
+  .toc-nav {
+    padding: 0.75rem;
+  }
+
+  .toc-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+  }
+
+  .toc-item {
+    margin: 0;
+  }
+
+  .toc-link {
+    display: block;
+    padding: 0.5rem 0.75rem;
+    font-size: 0.8125rem;
+    color: var(--text-secondary);
+    text-decoration: none;
+    border-radius: 6px;
+    transition: all 0.15s ease;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .toc-link:hover {
+    background: var(--btn-hover-bg);
+    color: var(--text-primary);
+  }
+
+  .toc-link.active {
+    background: oklch(var(--primary) / 0.1);
+    color: oklch(var(--primary));
+    font-weight: 500;
+  }
+
+  /* Indentation for heading levels */
+  .toc-item.depth-3 .toc-link {
+    padding-left: 1.5rem;
+    font-size: 0.75rem;
+  }
+</style>
+
+<script>
+  /**
+   * TOC Active State Tracking
+   * Highlights the current section in the table of contents
+   */
+  function initTOC() {
+    const tocLinks = document.querySelectorAll('[data-toc-link]');
+    if (tocLinks.length === 0) return;
+
+    const headings = Array.from(tocLinks).map((link) => {
+      const id = link.getAttribute('href')?.slice(1);
+      return id ? document.getElementById(id) : null;
+    }).filter(Boolean) as HTMLElement[];
+
+    if (headings.length === 0) return;
+
+    const observerOptions = {
+      rootMargin: '-80px 0px -80% 0px',
+      threshold: 0,
+    };
+
+    let activeLink: Element | null = null;
+
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach((entry) => {
+        if (entry.isIntersecting) {
+          const id = entry.target.getAttribute('id');
+          const link = document.querySelector(`[data-toc-link][href="#${id}"]`);
+
+          if (activeLink) {
+            activeLink.classList.remove('active');
+          }
+
+          if (link) {
+            link.classList.add('active');
+            activeLink = link;
+          }
+        }
+      });
+    }, observerOptions);
+
+    headings.forEach((heading) => observer.observe(heading));
+
+    // Cleanup on page navigation
+    document.addEventListener('swup:willReplaceContent', () => {
+      observer.disconnect();
+    }, { once: true });
+  }
+
+  // Initialize on page load and transitions
+  document.addEventListener('DOMContentLoaded', initTOC);
+  document.addEventListener('swup:contentReplaced', initTOC);
+</script>

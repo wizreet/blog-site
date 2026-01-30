@@ -46,6 +46,11 @@ export const ne: Translation = {
   [I18nKey.ongoing]: 'जारी',
   [I18nKey.completed]: 'सम्पन्न',
   [I18nKey.paused]: 'रोकिएको',
+  [I18nKey.backToSeries]: 'श्रृंखलामा फर्कनुहोस्',
+  [I18nKey.noPostsInSeries]: 'यो श्रृंखलामा अहिलेसम्म कुनै पोस्ट छैन',
+  [I18nKey.allSeries]: 'सबै श्रृंखलाहरू',
+  [I18nKey.exploreSeries]: 'श्रृंखलाहरू हेर्नुहोस्',
+  [I18nKey.seriesDescription]: 'सम्बन्धित पोस्टहरूको संगठित संग्रह',
 
   // Tags/Categories
   [I18nKey.noTags]: 'कुनै ट्याग छैन',
@@ -90,11 +95,33 @@ export const ne: Translation = {
   [I18nKey.musicOriginals]: 'मौलिक',
   [I18nKey.musicJams]: 'ज्याम सेसनहरू',
   [I18nKey.musicGearUsed]: 'प्रयोग गरिएको उपकरण',
+  [I18nKey.musicPlayer]: 'संगीत प्लेयर',
+  [I18nKey.musicPlayerShow]: 'प्लेयर देखाउनुहोस्',
+  [I18nKey.musicPlayerHide]: 'प्लेयर लुकाउनुहोस्',
+
+  // Encrypted Content
+  [I18nKey.encrypted]: 'एन्क्रिप्टेड',
+  [I18nKey.encryptedContent]: 'यो सामग्री एन्क्रिप्टेड छ',
+  [I18nKey.enterPassword]: 'अनलक गर्न पासवर्ड प्रविष्ट गर्नुहोस्',
+  [I18nKey.wrongPassword]: 'गलत पासवर्ड',
+  [I18nKey.unlockContent]: 'अनलक',
 
   // Misc
   [I18nKey.tableOfContents]: 'यस पृष्ठमा',
+  [I18nKey.tocEmpty]: 'कुनै शीर्षक छैन',
   [I18nKey.backToTop]: 'माथि फर्कनुहोस्',
   [I18nKey.viewAll]: 'सबै हेर्नुहोस्',
   [I18nKey.loading]: 'लोड हुँदैछ...',
   [I18nKey.error]: 'त्रुटि भयो',
+  [I18nKey.more]: 'थप',
+  [I18nKey.author]: 'लेखक',
+  [I18nKey.license]: 'लाइसेन्स',
+  [I18nKey.comments]: 'टिप्पणीहरू',
+  [I18nKey.themeColor]: 'थिम रंग',
+  [I18nKey.posts]: 'लेखहरू',
+  [I18nKey.links]: 'लिंकहरू',
+  [I18nKey.untitled]: 'शीर्षकबिहीन',
+  [I18nKey.uncategorized]: 'श्रेणीबिहीन',
+  [I18nKey.minuteRead]: 'मिनेट पढ्ने समय',
+  [I18nKey.minutesRead]: 'मिनेट पढ्ने समय',
 };

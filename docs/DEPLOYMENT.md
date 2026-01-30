@@ -17,12 +17,13 @@ Update `astro.config.mjs`:
 ```javascript
 export default defineConfig({
   site: 'https://YOUR_USERNAME.github.io',
-  base: '/YOUR_REPO_NAME',  // e.g., '/blog-site'
+  base: '/YOUR_REPO_NAME', // e.g., '/blog-site'
   output: 'static',
-})
+});
 ```
 
 **Current Configuration:**
+
 - Site: `https://wizreet.github.io`
 - Base: `/blog-site`
 
@@ -49,23 +50,23 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
-      
+
       - name: Setup Node
         uses: actions/setup-node@v4
         with:
           node-version: 20
-      
+
       - name: Setup pnpm
         uses: pnpm/action-setup@v2
         with:
           version: 8
-      
+
       - name: Install dependencies
         run: pnpm install
-      
+
       - name: Build
         run: pnpm build
-      
+
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:
@@ -111,6 +112,7 @@ pnpm build
 ### Setup
 
 1. Add `CNAME` file to `public/` folder:
+
 ```
 yourdomain.com
 ```
@@ -120,11 +122,12 @@ yourdomain.com
    - Or CNAME: `YOUR_USERNAME.github.io`
 
 3. Update `astro.config.mjs`:
+
 ```javascript
 export default defineConfig({
   site: 'https://yourdomain.com',
-  base: '/',  // Remove base for custom domain
-})
+  base: '/', // Remove base for custom domain
+});
 ```
 
 ## 🛠️ Troubleshooting
@@ -132,11 +135,13 @@ export default defineConfig({
 ### Build Failures
 
 **Check Node version:**
+
 ```bash
 node --version  # Should be 18+
 ```
 
 **Clear cache and reinstall:**
+
 ```bash
 rm -rf node_modules pnpm-lock.yaml
 pnpm install
@@ -169,11 +174,12 @@ pnpm build
 2. Set build command: `pnpm build`
 3. Set output directory: `dist`
 4. Update `astro.config.mjs`:
+
 ```javascript
 export default defineConfig({
   site: 'https://your-project.vercel.app',
   base: '/',
-})
+});
 ```
 
 ### Netlify
@@ -202,6 +208,7 @@ export default defineConfig({
 ### Verify Live Site
 
 After deployment:
+
 1. Visit your site URL
 2. Check console for errors (F12)
 3. Test all navigation links
@@ -211,6 +218,7 @@ After deployment:
 ## 📝 Deployment Checklist
 
 Before deploying:
+
 - [ ] Test locally with `pnpm build && pnpm preview`
 - [ ] Check for TypeScript errors: `pnpm check`
 - [ ] Verify all images exist in `public/`
@@ -219,6 +227,7 @@ Before deploying:
 - [ ] Check search functionality works
 
 After deploying:
+
 - [ ] Visit live site
 - [ ] Test all pages
 - [ ] Check mobile responsiveness

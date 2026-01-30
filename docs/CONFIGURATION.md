@@ -10,48 +10,48 @@ All primary settings are in `src/config.ts`.
 
 ```typescript
 export const siteConfig: SiteConfig = {
-  title: 'Reetwiz Amatya',      // Site title
-  subtitle: 'Portfolio',         // Subtitle
-  lang: 'en',                    // Language code
+  title: 'Reetwiz Amatya', // Site title
+  subtitle: 'Portfolio', // Subtitle
+  lang: 'en', // Language code
   themeColor: {
-    hue: 250,                    // Theme color hue (0-360)
-    fixed: false,                // Lock theme color
+    hue: 250, // Theme color hue (0-360)
+    fixed: false, // Lock theme color
   },
   banner: {
     enable: true,
-    src: '/images/banner.png',   // Banner image
-    position: 'center',          // Image position
+    src: '/images/banner.png', // Banner image
+    position: 'center', // Image position
     credit: {
       enable: false,
       text: '',
       url: '',
     },
   },
-}
+};
 ```
 
 ### Theme Color Reference
 
-| Hue | Color |
-|-----|-------|
-| 0 | Red |
-| 30 | Orange |
-| 60 | Yellow |
-| 120 | Green |
-| 180 | Cyan |
-| 210 | Blue |
-| 250 | Purple |
-| 270 | Violet |
+| Hue | Color   |
+| --- | ------- |
+| 0   | Red     |
+| 30  | Orange  |
+| 60  | Yellow  |
+| 120 | Green   |
+| 180 | Cyan    |
+| 210 | Blue    |
+| 250 | Purple  |
+| 270 | Violet  |
 | 300 | Magenta |
-| 330 | Pink |
+| 330 | Pink    |
 
 ## 👤 Profile Configuration
 
 ```typescript
 export const profileConfig: ProfileConfig = {
-  avatar: '/images/avatar.png',  // Avatar image
-  name: 'Reetwiz Amatya',        // Display name
-  bio: 'Your bio here...',       // Short biography
+  avatar: '/images/avatar.png', // Avatar image
+  name: 'Reetwiz Amatya', // Display name
+  bio: 'Your bio here...', // Short biography
   links: [
     {
       name: 'GitHub',
@@ -74,7 +74,7 @@ export const profileConfig: ProfileConfig = {
       url: 'mailto:reetwiz@gmail.com',
     },
   ],
-}
+};
 ```
 
 ### Available Icons
@@ -82,6 +82,7 @@ export const profileConfig: ProfileConfig = {
 Icons use Iconify format: `icon-set:icon-name`
 
 **Popular icon sets:**
+
 - `fa6-brands:` - Font Awesome 6 Brands (github, twitter, linkedin)
 - `fa6-solid:` - Font Awesome 6 Solid (envelope, link)
 - `material-symbols:` - Material Symbols
@@ -94,21 +95,21 @@ Browse icons: [https://icon-sets.iconify.design/](https://icon-sets.iconify.desi
 ```typescript
 export const navBarConfig: NavBarConfig = {
   links: [
-    LinkPreset.Posts,   // /posts
-    LinkPreset.Series,  // /series
-    LinkPreset.About,   // /about
+    LinkPreset.Posts, // /posts
+    LinkPreset.Series, // /series
+    LinkPreset.About, // /about
   ],
-}
+};
 ```
 
 ### Link Presets
 
-| Preset | URL | Icon |
-|--------|-----|------|
-| `LinkPreset.Home` | `/` | Home |
-| `LinkPreset.Posts` | `/posts` | Posts |
-| `LinkPreset.Series` | `/series` | Series |
-| `LinkPreset.About` | `/about` | About |
+| Preset               | URL        | Icon    |
+| -------------------- | ---------- | ------- |
+| `LinkPreset.Home`    | `/`        | Home    |
+| `LinkPreset.Posts`   | `/posts`   | Posts   |
+| `LinkPreset.Series`  | `/series`  | Series  |
+| `LinkPreset.About`   | `/about`   | About   |
 | `LinkPreset.Archive` | `/archive` | Archive |
 
 ### Custom Links
@@ -135,9 +136,9 @@ navBarConfig: {
 
 ```typescript
 export const themeConfig: ThemeConfig = {
-  hue: 250,            // Base color hue
-  isDark: false,       // Default to dark mode
-}
+  hue: 250, // Base color hue
+  isDark: false, // Default to dark mode
+};
 ```
 
 ## 🔒 License Configuration
@@ -147,7 +148,7 @@ export const licenseConfig: LicenseConfig = {
   enable: true,
   name: 'CC BY-NC-SA 4.0',
   url: 'https://creativecommons.org/licenses/by-nc-sa/4.0/',
-}
+};
 ```
 
 ## 📝 Content Configuration
@@ -155,7 +156,7 @@ export const licenseConfig: LicenseConfig = {
 Located in `src/content/config.ts`:
 
 ```typescript
-import { defineCollection, z } from 'astro:content'
+import { defineCollection, z } from 'astro:content';
 
 const posts = defineCollection({
   type: 'content',
@@ -172,9 +173,9 @@ const posts = defineCollection({
     encrypted: z.boolean().optional(),
     password: z.string().optional(),
   }),
-})
+});
 
-export const collections = { posts }
+export const collections = { posts };
 ```
 
 ## ⚙️ Astro Configuration
@@ -191,22 +192,23 @@ export default defineConfig({
     svelte(),
     // ... other integrations
   ],
-})
+});
 ```
 
 ### Important Settings
 
-| Setting | Description |
-|---------|-------------|
-| `site` | Your domain (for SEO and sitemap) |
-| `base` | Base path (for GitHub Pages subdirectory) |
-| `output` | `static` for static sites |
+| Setting  | Description                               |
+| -------- | ----------------------------------------- |
+| `site`   | Your domain (for SEO and sitemap)         |
+| `base`   | Base path (for GitHub Pages subdirectory) |
+| `output` | `static` for static sites                 |
 
 ## 🌍 Internationalization
 
 ### Adding Translation Keys
 
 1. **Add key to `src/i18n/i18nKey.ts`:**
+
 ```typescript
 export enum Key {
   // ... existing keys
@@ -215,21 +217,22 @@ export enum Key {
 ```
 
 2. **Add translation to `src/i18n/languages/en.ts`:**
+
 ```typescript
 export const en: Translation = {
   // ... existing translations
   [Key.myNewKey]: 'My translated text',
-}
+};
 ```
 
 ### Using Translations
 
 ```typescript
-import { i18n } from '../i18n/translation'
-import Key from '../i18n/i18nKey'
+import { i18n } from '../i18n/translation';
+import Key from '../i18n/i18nKey';
 
 // In component
-const text = i18n(Key.myNewKey)
+const text = i18n(Key.myNewKey);
 ```
 
 ```astro
@@ -266,10 +269,8 @@ module.exports = {
       // Custom theme extensions
     },
   },
-  plugins: [
-    require('@tailwindcss/typography'),
-  ],
-}
+  plugins: [require('@tailwindcss/typography')],
+};
 ```
 
 ## ✅ Configuration Checklist

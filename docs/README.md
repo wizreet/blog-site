@@ -76,24 +76,28 @@ pnpm preview
 
 ## 🔧 Key Files
 
-| File | Purpose |
-|------|---------|
-| `src/config.ts` | Site title, profile, navbar, theme settings |
-| `src/content/config.ts` | Blog post schema (frontmatter fields) |
-| `src/i18n/languages/en.ts` | English translations |
-| `astro.config.mjs` | Astro settings, base URL, integrations |
+| File                       | Purpose                                     |
+| -------------------------- | ------------------------------------------- |
+| `src/config.ts`            | Site title, profile, navbar, theme settings |
+| `src/content/config.ts`    | Blog post schema (frontmatter fields)       |
+| `src/i18n/languages/en.ts` | English translations                        |
+| `astro.config.mjs`         | Astro settings, base URL, integrations      |
 
 ## 🎨 Customization
 
 ### Change Site Info
+
 Edit `src/config.ts`:
+
 - `title` - Site title
 - `profileConfig.name` - Your name
 - `profileConfig.bio` - Short bio
 - `profileConfig.links` - Social links
 
 ### Add Navigation Links
+
 Edit `navBarConfig.links` in `src/config.ts`:
+
 ```typescript
 navBarConfig: {
   links: [
@@ -105,7 +109,9 @@ navBarConfig: {
 ```
 
 ### Change Theme Colors
+
 Edit `themeConfig` in `src/config.ts`:
+
 ```typescript
 themeConfig: {
   hue: 250,      // Color hue (0-360)
@@ -116,36 +122,40 @@ themeConfig: {
 ## 📝 Content Management
 
 ### Creating Posts
+
 Create `.md` or `.mdx` files in `src/content/posts/`:
 
 ```markdown
 ---
-title: "My Post Title"
+title: 'My Post Title'
 published: 2024-01-15
-description: "A brief description"
-tags: ["tag1", "tag2"]
-category: "Category"
-image: "/images/image.png"
+description: 'A brief description'
+tags: ['tag1', 'tag2']
+category: 'Category'
+image: '/images/image.png'
 ---
 
 Post content here...
 ```
 
 ### Encrypted Posts
+
 Add `encrypted: true` and `password: "your-password"` to frontmatter.
 
 ## 🌐 Internationalization
 
 Add new translation keys:
+
 1. Add key to `src/i18n/i18nKey.ts`
 2. Add translation to `src/i18n/languages/en.ts`
 
 Use in components:
-```typescript
-import { i18n } from '../i18n/translation'
-import Key from '../i18n/i18nKey'
 
-const text = i18n(Key.yourKey)
+```typescript
+import { i18n } from '../i18n/translation';
+import Key from '../i18n/i18nKey';
+
+const text = i18n(Key.yourKey);
 ```
 
 ## 📖 Further Reading

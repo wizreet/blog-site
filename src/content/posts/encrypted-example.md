@@ -1,11 +1,11 @@
 ---
-title: "Secret Project Notes"
+title: 'Secret Project Notes'
 published: 2024-01-20
-description: "Password-protected content with private notes"
-tags: ["private", "notes"]
-category: "Personal"
+description: 'Password-protected content with private notes'
+tags: ['private', 'notes']
+category: 'Personal'
 encrypted: true
-password: "secret123"
+password: 'secret123'
 ---
 
 # 🔐 Secret Content
@@ -31,6 +31,7 @@ This is an example of encrypted content. You can use this feature for:
 ## Security Note
 
 This is client-side encryption. While it prevents casual viewing:
+
 - Don't use it for truly sensitive data
 - The encryption key is derived from the password
 - It's meant for "soft" privacy, not high-security needs

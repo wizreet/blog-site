@@ -3,18 +3,19 @@
  * Home Page
  *
  * @description The main landing page showing recent blog posts.
- * Uses pagination and displays posts in a text-first card format.
+ * Uses three-column dashboard layout with category navigation.
  *
  * @route /
  */
 
-import MainGridLayout from '@layouts/MainGridLayout.astro';
+import DashboardLayout from '@layouts/DashboardLayout.astro';
 import PostCard from '@components/card/PostCard.astro';
 import Pagination from '@components/misc/Pagination.astro';
 import { getSortedPosts } from '@utils/content-utils';
 import { getUrl } from '@utils/url-utils';
 import { PAGE_SIZE } from '@constants/constants';
 import { siteConfig } from '@/config';
+import { i18n, I18nKey } from '@i18n/index';
 
 // Get all posts sorted by date
 const allPosts = await getSortedPosts();
@@ -26,34 +27,138 @@ const posts = allPosts.slice(0, PAGE_SIZE);
 const totalPages = Math.ceil(allPosts.length / PAGE_SIZE);
 ---
 
-<MainGridLayout title={undefined} description={siteConfig.subtitle}>
-  <div class="space-y-6">
-    <!-- Page Header -->
-    <div class="mb-8">
-      <h1 class="text-3xl font-bold text-[var(--text-primary)] md:text-4xl">
-        {siteConfig.title}
-      </h1>
-      <p class="mt-2 text-lg text-[var(--text-secondary)]">
-        {siteConfig.subtitle}
-      </p>
-    </div>
+<DashboardLayout title={siteConfig.title} description={siteConfig.subtitle}>
+  <div class="home-page">
+    {/* Welcome Header */}
+    <header class="welcome-header">
+      <h1 class="welcome-title">{siteConfig.title}</h1>
+      <p class="welcome-subtitle">{siteConfig.subtitle}</p>
+    </header>
 
-    <!-- Posts List -->
-    {
-      posts.length > 0 ? (
-        <div class="space-y-4">
+    {/* Recent Posts Section */}
+    <section class="posts-section">
+      <div class="section-header">
+        <h2 class="section-title">{i18n(I18nKey.recentPosts)}</h2>
+        <a href={getUrl('/posts/')} class="view-all-link">
+          {i18n(I18nKey.viewAll)} →
+        </a>
+      </div>
+
+      {/* Posts List */}
+      {posts.length > 0 ? (
+        <div class="posts-list">
           {posts.map((post) => (
             <PostCard post={post} />
           ))}
         </div>
       ) : (
-        <div class="rounded-xl bg-[var(--card-bg)] p-8 text-center">
-          <p class="text-[var(--text-secondary)]">No posts yet. Check back soon!</p>
+        <div class="empty-state">
+          <p>{i18n(I18nKey.archiveEmpty)}</p>
         </div>
-      )
+      )}
+    </section>
+
+    {/* Pagination */}
+    {totalPages > 1 && (
+      <Pagination
+        currentPage={1}
+        totalPages={totalPages}
+        baseUrl={getUrl('/page/')}
+      />
+    )}
+  </div>
+</DashboardLayout>
+
+<style>
+  .home-page {
+    display: flex;
+    flex-direction: column;
+    gap: 2rem;
+  }
+
+  /* Welcome Header */
+  .welcome-header {
+    padding: 2rem;
+    background: linear-gradient(135deg, oklch(var(--primary) / 0.08), oklch(var(--primary) / 0.02));
+    border: 1px solid oklch(var(--primary) / 0.15);
+    border-radius: 16px;
+    text-align: center;
+  }
+
+  .welcome-title {
+    font-size: 1.875rem;
+    font-weight: 700;
+    color: var(--text-primary);
+    margin-bottom: 0.5rem;
+  }
+
+  .welcome-subtitle {
+    font-size: 1rem;
+    color: var(--text-secondary);
+  }
+
+  /* Posts Section */
+  .posts-section {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+  }
+
+  .section-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding-bottom: 0.75rem;
+    border-bottom: 1px solid var(--border-color);
+  }
+
+  .section-title {
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: var(--text-primary);
+  }
+
+  .view-all-link {
+    font-size: 0.875rem;
+    color: oklch(var(--primary));
+    text-decoration: none;
+    font-weight: 500;
+    transition: opacity 0.15s ease;
+  }
+
+  .view-all-link:hover {
+    opacity: 0.8;
+  }
+
+  /* Posts List */
+  .posts-list {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+  }
+
+  /* Empty State */
+  .empty-state {
+    text-align: center;
+    padding: 4rem 2rem;
+    background: var(--card-bg);
+    border: 1px solid var(--border-color);
+    border-radius: 12px;
+    color: var(--text-secondary);
+  }
+
+  /* Responsive */
+  @media (min-width: 768px) {
+    .welcome-header {
+      padding: 2.5rem;
     }
 
-    <!-- Pagination -->
-    {totalPages > 1 && <Pagination currentPage={1} totalPages={totalPages} baseUrl={getUrl('/')} />}
-  </div>
-</MainGridLayout>
+    .welcome-title {
+      font-size: 2.25rem;
+    }
+
+    .welcome-subtitle {
+      font-size: 1.125rem;
+    }
+  }
+</style>

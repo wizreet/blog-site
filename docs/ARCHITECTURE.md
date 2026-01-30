@@ -1,237 +1,263 @@
-# Architecture Overview
+# Portfolio Architecture
 
-Understanding the portfolio site's structure and design decisions.
+> A blog-focused portfolio site built with Astro, featuring a three-column dashboard layout.
 
-## 🏗️ High-Level Architecture
+## 🏗️ Layout Architecture
+
+### Three-Column Dashboard Layout
+
+The site uses a responsive three-column layout optimized for blog reading and navigation:
 
 ```
-┌─────────────────────────────────────────────────────────────┐
-│                      Astro Framework                        │
-├─────────────────────────────────────────────────────────────┤
-│  Pages                │  Components          │  Content     │
-│  (src/pages/)         │  (src/components/)   │  Collections │
-│  - index.astro        │  - Navbar.astro      │  - posts/    │
-│  - about.astro        │  - Footer.astro      │  - tabs/     │
-│  - posts/[slug].astro │  - Search.tsx        │  - music/    │
-│  - series/            │  - card/             │              │
-│  - music/             │  - widget/           │              │
-│  - tabs/              │  - misc/             │              │
-├─────────────────────────────────────────────────────────────┤
-│  Styling              │  Data                │  Utils       │
-│  (Tailwind CSS)       │  (src/data/)         │  (src/utils/)│
-│  - global.css         │  - series.ts         │  - url-utils │
-│  - card.css           │                      │  - date-utils│
-│  - theme variables    │                      │  - content-  │
-│                       │                      │    utils     │
-└─────────────────────────────────────────────────────────────┘
-                              │
-                              ▼
-┌─────────────────────────────────────────────────────────────┐
-│                    Build Output (dist/)                     │
-│  Static HTML + CSS + JS  →  GitHub Pages                    │
-└─────────────────────────────────────────────────────────────┘
+┌─────────────┬─────────────────────────────────┬─────────────┐
+│   Left      │        Main Content             │   Right     │
+│  Sidebar    │                                 │  Sidebar    │
+│   260px     │        flex-1                   │   280px     │
+│             │                                 │             │
+│  - Series   │  - Blog posts                   │  - Profile  │
+│  - Cats     │  - Article content              │  - TOC      │
+│             │                                 │             │
+└─────────────┴─────────────────────────────────┴─────────────┘
 ```
 
-## 📁 Directory Structure Explained
+### Responsive Breakpoints
 
-### `/src/pages/`
-Astro file-based routing. Each `.astro` file becomes a route:
-- `index.astro` → `/`
-- `about.astro` → `/about`
-- `posts/[slug].astro` → `/posts/my-post`
-- `posts/index.astro` → `/posts`
+| Screen Size | Layout |
+|-------------|--------|
+| Desktop (lg+) | Three columns |
+| Tablet (md) | Two columns (main + right) |
+| Mobile | Single column with collapsible nav |
 
-### `/src/components/`
-Reusable UI components organized by type:
+## 📁 Directory Structure
 
-| Folder | Purpose |
-|--------|---------|
-| `card/` | Post cards, series cards |
-| `widget/` | Sidebar widgets (TOC, Profile) |
-| `misc/` | Meta info, series nav, license |
-| Root | Core components (Navbar, Footer, Search) |
-
-### `/src/content/`
-Content Collections with type-safe schemas:
-- `posts/` - Blog posts (Markdown)
-- `tabs/` - Guitar tabs (Markdown)
-- `music/` - Music videos (Markdown)
-- `spec/` - Specification content
-
-### `/src/i18n/`
-Internationalization system:
-- `i18nKey.ts` - Enum of all translation keys
-- `translation.ts` - i18n helper functions
-- `languages/en.ts` - English translations
-
-### `/src/layouts/`
-Page layouts:
-- `Layout.astro` - Base HTML layout
-- `MainGridLayout.astro` - Main content + sidebar grid
-
-### `/src/data/`
-Static data files:
-- `series.ts` - Series definitions
-
-### `/src/utils/`
-Utility functions:
-- `url-utils.ts` - URL generation helpers
-- `date-utils.ts` - Date formatting
-- `content-utils.ts` - Content collection helpers
-
-## 🎨 Styling Architecture
-
-### Tailwind CSS
-Primary styling via utility classes:
-```html
-<div class="card-base p-4 text-[var(--text-primary)]">
+```
+src/
+├── components/
+│   ├── card/
+│   │   └── PostCard.astro      # Blog post preview cards
+│   ├── dashboard/
+│   │   ├── LeftSidebar.astro   # Navigation: categories, series
+│   │   └── RightSidebar.astro  # Profile card, TOC
+│   ├── misc/
+│   │   ├── PostMeta.astro      # Date, reading time, tags
+│   │   ├── SeriesNav.astro     # Series navigation
+│   │   └── License.astro       # Post license info
+│   └── widget/
+│       ├── Profile.astro       # Author profile card
+│       └── TOC.astro           # Table of contents
+├── content/
+│   ├── posts/                  # Blog posts (markdown)
+│   └── spec/                   # Static pages (about)
+├── data/
+│   ├── series.ts               # Series definitions
+│   ├── projects.ts             # Projects data
+│   ├── skills.ts               # Skills data
+│   └── timeline.ts             # Timeline data
+├── i18n/
+│   ├── i18nKey.ts              # Translation keys enum
+│   ├── translation.ts          # i18n utility functions
+│   └── languages/
+│       ├── en.ts               # English translations
+│       └── ne.ts               # Nepali translations
+├── layouts/
+│   ├── Layout.astro            # Base HTML layout
+│   ├── DashboardLayout.astro   # Three-column blog layout
+│   └── MainGridLayout.astro    # Legacy layout (deprecated)
+├── pages/
+│   ├── index.astro             # Home page
+│   ├── about.astro             # About page
+│   ├── series.astro            # Series index
+│   ├── posts/
+│   │   ├── index.astro         # All posts
+│   │   ├── [slug].astro        # Single post
+│   │   └── category/
+│   │       └── [category].astro # Category filter
+│   └── series/
+│       └── [id].astro          # Series detail
+└── utils/
+    ├── content-utils.ts        # Content collection helpers
+    ├── date-utils.ts           # Date formatting
+    └── url-utils.ts            # URL generation
 ```
 
-### CSS Variables
-Theme colors via CSS custom properties:
-```css
---text-primary
---text-secondary
---text-tertiary
---page-bg
---card-bg
---border-color
---primary (oklch color)
-```
+## 🎨 Component Guide
 
-### Dark/Light Mode
-Theme toggle via `data-theme` attribute on `<html>`:
-```html
-<html data-theme="dark">
-```
+### DashboardLayout
 
-## 🔀 Component Communication
+The main layout component for all pages.
 
-### Props (Parent → Child)
 ```astro
-<!-- Parent -->
-<PostCard post={post} />
-
-<!-- Child (PostCard.astro) -->
----
-interface Props { post: CollectionEntry<'posts'> }
-const { post } = Astro.props;
----
+<DashboardLayout 
+  title="Page Title"
+  description="Page description"
+  headings={headings}          // Optional: for TOC
+  activeCategory="category"     // Optional: highlight in sidebar
+  activeSeries="series-id"      // Optional: highlight in sidebar
+>
+  <!-- Main content -->
+</DashboardLayout>
 ```
 
-### Slots (Composition)
+**Props:**
+
+| Prop | Type | Description |
+|------|------|-------------|
+| `title` | `string` | Page title for SEO |
+| `description` | `string` | Page description for SEO |
+| `headings` | `MarkdownHeading[]` | Article headings for TOC |
+| `hideLeftSidebar` | `boolean` | Hide left navigation |
+| `hideRightSidebar` | `boolean` | Hide right sidebar |
+| `activeCategory` | `string` | Highlight category in sidebar |
+| `activeSeries` | `string` | Highlight series in sidebar |
+
+### LeftSidebar
+
+Navigation dashboard with categories and series.
+
+**Features:**
+- Hierarchical category list with post counts
+- Series list with status badges (ongoing/completed/paused)
+- Active state highlighting
+- Collapsible on mobile
+
+### RightSidebar
+
+Profile and Table of Contents.
+
+**Features:**
+- Author profile with avatar and social links
+- Dynamic TOC generated from headings
+- Scroll-tracking for active heading
+- Sticky positioning on desktop
+
+### PostCard
+
+Blog post preview card with proper styling.
+
+**Features:**
+- Featured image support
+- Category badge
+- Reading time and date
+- Tag pills
+- Hover animations
+- Proper padding and spacing
+
+## 🌐 i18n (Internationalization)
+
+The site supports multiple languages with Nepali (ne) and English (en).
+
+### Adding Translations
+
+1. Add key to `src/i18n/i18nKey.ts`:
+```typescript
+enum I18nKey {
+  myNewKey = 'myNewKey',
+}
+```
+
+2. Add translations to each language file:
+```typescript
+// src/i18n/languages/en.ts
+[I18nKey.myNewKey]: 'My new text',
+
+// src/i18n/languages/ne.ts
+[I18nKey.myNewKey]: 'मेरो नयाँ पाठ',
+```
+
+3. Use in components:
 ```astro
-<!-- Parent -->
-<Card>
-  <p slot="header">Title</p>
-  <p>Content</p>
-</Card>
-
-<!-- Child (Card.astro) -->
-<div>
-  <slot name="header" />
-  <slot />
-</div>
+---
+import { i18n, I18nKey } from '@i18n/index';
+---
+<p>{i18n(I18nKey.myNewKey)}</p>
 ```
 
-## 📝 Content Flow
+## 📝 Content Collections
 
-```
-Markdown Files (src/content/)
-        │
-        ▼
-Content Collection Schema (content.config.ts)
-        │
-        ▼
-Astro.getCollection('posts')
-        │
-        ▼
-Page Components (src/pages/)
-        │
-        ▼
-Rendered HTML (dist/)
-```
+### Posts Collection
 
-## 🔒 Encryption System
+Location: `src/content/posts/*.md`
 
-For password-protected posts:
-
-```
-1. Markdown with encrypted: true, password: "xxx"
-        │
-        ▼
-2. Encryptor.astro renders content to HTML
-        │
-        ▼
-3. AES encryption with crypto-js
-        │
-        ▼
-4. PasswordProtection.astro stores encrypted blob
-        │
-        ▼
-5. Client-side JavaScript decrypts on correct password
+```yaml
+---
+title: "Post Title"
+published: 2025-01-01
+description: "Post description"
+category: "Web Development"
+tags: ["astro", "typescript"]
+series:
+  id: "getting-started"
+  part: 1
+encrypted: false       # Optional: password protection
+password: ""          # Required if encrypted
+---
 ```
 
-## 🔍 Search Architecture
+### Series Definition
 
-Using Pagefind for static search:
+Location: `src/data/series.ts`
 
-```
-Build Time:
-  HTML Pages → Pagefind Index → pagefind/ folder
-
-Runtime:
-  Search Query → Pagefind WASM → Results
-```
-
-## 🌐 Routing
-
-### Static Routes
-```
-/                  → index.astro
-/about             → about.astro
-/posts             → posts/index.astro
-/music             → music/index.astro (hidden)
-/tabs              → tabs/index.astro (hidden)
+```typescript
+export const series: Series[] = [
+  {
+    id: 'getting-started',
+    name: 'Getting Started',
+    description: 'Learn the basics',
+    icon: 'material-symbols:play-circle',
+    status: 'ongoing',
+  },
+];
 ```
 
-### Dynamic Routes
-```
-/posts/[slug]      → posts/[slug].astro
-/series/[id]       → series/[id].astro
-/tabs/[slug]       → tabs/[slug].astro
-```
+## 🎯 Best Practices
 
-## ⚡ Performance
+### CSS Guidelines
 
-### Island Architecture
-Only interactive components ship JavaScript:
-- Search.tsx - React component (client:load)
-- ThemeSwitch.tsx - React component (client:load)
+1. **Use CSS custom properties** for colors:
+   ```css
+   color: var(--text-primary);
+   background: oklch(var(--primary) / 0.1);
+   ```
 
-Static components (Navbar, Footer, Cards) = zero JS.
+2. **Use proper spacing**:
+   - Card padding: `1.25rem` (p-5)
+   - Section gaps: `1.5rem` (gap-6)
+   - Content max-width: `max-w-3xl`
 
-### Build-Time Optimization
-- Image optimization (astro:assets)
-- CSS purging (Tailwind)
-- HTML minification
-- Static generation
+3. **Use scoped styles** over utility classes for complex components
 
-## 🔧 Configuration Layers
+### Component Guidelines
 
-1. **Astro Config** (`astro.config.mjs`)
-   - Site URL, base path
-   - Integrations (React, Tailwind, etc.)
-   
-2. **Site Config** (`src/config.ts`)
-   - Profile info
-   - Navigation
-   - Theme settings
-   
-3. **Content Config** (`src/content.config.ts`)
-   - Collection schemas
-   - Frontmatter validation
+1. **Document props** with JSDoc comments
+2. **Use TypeScript interfaces** for type safety
+3. **Follow single responsibility principle**
+4. **Use i18n for all user-facing text**
 
-4. **Build Config** (`tailwind.config.cjs`, `tsconfig.json`)
-   - Styling configuration
-   - TypeScript paths
+### File Organization
+
+1. **Group by feature**, not by type
+2. **Keep components small** and focused
+3. **Use barrel exports** for related modules
+4. **Document complex logic** with comments
+
+## 🚀 Deployment
+
+The site is deployed to GitHub Pages via GitHub Actions.
+
+1. Push to `main` branch
+2. GitHub Actions runs `pnpm build`
+3. Deploys `dist/` to GitHub Pages
+
+**URL:** `https://wizreet.github.io/blog-site/`
+
+## 📊 Page Routes
+
+| Route | Page | Description |
+|-------|------|-------------|
+| `/` | Home | Recent posts, welcome message |
+| `/posts/` | Posts Index | All posts grouped by year |
+| `/posts/[slug]/` | Post Detail | Single blog post with TOC |
+| `/posts/category/[category]/` | Category | Posts filtered by category |
+| `/series/` | Series Index | All series with status |
+| `/series/[id]/` | Series Detail | Posts in a series |
+| `/about/` | About | Profile, skills, timeline |

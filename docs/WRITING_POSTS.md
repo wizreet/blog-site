@@ -10,11 +10,11 @@ All blog posts go in `src/content/posts/` as Markdown (`.md`) or MDX (`.mdx`) fi
 
 ```markdown
 ---
-title: "Your Post Title"
+title: 'Your Post Title'
 published: 2024-01-15
-description: "A brief description of your post"
-tags: ["javascript", "tutorial"]
-category: "Development"
+description: 'A brief description of your post'
+tags: ['javascript', 'tutorial']
+category: 'Development'
 ---
 
 Your content here...
@@ -24,24 +24,24 @@ Your content here...
 
 ### Required Fields
 
-| Field | Type | Description |
-|-------|------|-------------|
-| `title` | string | Post title |
-| `published` | date | Publication date (YYYY-MM-DD) |
+| Field       | Type   | Description                   |
+| ----------- | ------ | ----------------------------- |
+| `title`     | string | Post title                    |
+| `published` | date   | Publication date (YYYY-MM-DD) |
 
 ### Optional Fields
 
-| Field | Type | Description |
-|-------|------|-------------|
-| `description` | string | SEO description (max 160 chars) |
-| `tags` | string[] | Post tags |
-| `category` | string | Post category |
-| `image` | string | Cover image path |
-| `draft` | boolean | Hide from listings |
-| `series` | string | Series name |
-| `seriesOrder` | number | Order in series |
-| `encrypted` | boolean | Enable encryption |
-| `password` | string | Encryption password |
+| Field         | Type     | Description                     |
+| ------------- | -------- | ------------------------------- |
+| `description` | string   | SEO description (max 160 chars) |
+| `tags`        | string[] | Post tags                       |
+| `category`    | string   | Post category                   |
+| `image`       | string   | Cover image path                |
+| `draft`       | boolean  | Hide from listings              |
+| `series`      | string   | Series name                     |
+| `seriesOrder` | number   | Order in series                 |
+| `encrypted`   | boolean  | Enable encryption               |
+| `password`    | string   | Encryption password             |
 
 ## 🔐 Encrypted Posts
 
@@ -49,16 +49,17 @@ To create a password-protected post:
 
 ```markdown
 ---
-title: "Secret Post"
+title: 'Secret Post'
 published: 2024-01-15
 encrypted: true
-password: "mysecretpassword"
+password: 'mysecretpassword'
 ---
 
 This content will be encrypted and require a password to view.
 ```
 
 **How it works:**
+
 1. Content is encrypted with AES using `crypto-js`
 2. Visitors see a password prompt
 3. Correct password decrypts and reveals content
@@ -67,18 +68,23 @@ This content will be encrypted and require a password to view.
 ## 📸 Images
 
 ### Default Image
+
 Use `/images/image.png` as the default placeholder:
+
 ```markdown
 image: "/images/image.png"
 ```
 
 ### Custom Images
+
 Place images in `public/images/` and reference them:
+
 ```markdown
 image: "/images/my-post-image.png"
 ```
 
 ### In-Post Images
+
 ```markdown
 ![Alt text](/images/screenshot.png)
 ```
@@ -89,15 +95,17 @@ Group related posts into a series:
 
 ```markdown
 ---
-title: "React Tutorial - Part 1"
-series: "React Tutorial"
+title: 'React Tutorial - Part 1'
+series: 'React Tutorial'
 seriesOrder: 1
 ---
 
 ---
+
 title: "React Tutorial - Part 2"
 series: "React Tutorial"
 seriesOrder: 2
+
 ---
 ```
 
@@ -107,11 +115,13 @@ seriesOrder: 2
 
 ```markdown
 # Heading 1
+
 ## Heading 2
+
 ### Heading 3
 
 **Bold text**
-*Italic text*
+_Italic text_
 ~~Strikethrough~~
 
 - Bullet list
@@ -132,7 +142,7 @@ const hello = "world";
 [Link text](https://example.com)
 
 | Table | Header |
-|-------|--------|
+| ----- | ------ |
 | Cell  | Cell   |
 ```
 
@@ -142,11 +152,11 @@ MDX files allow importing components:
 
 ```mdx
 ---
-title: "Interactive Post"
+title: 'Interactive Post'
 published: 2024-01-15
 ---
 
-import MyComponent from '../../components/MyComponent.astro'
+import MyComponent from '../../components/MyComponent.astro';
 
 Regular markdown here...
 
@@ -158,29 +168,36 @@ More markdown...
 ## 📂 File Naming
 
 Use kebab-case for filenames:
+
 - ✅ `my-first-post.md`
 - ✅ `react-tutorial-part-1.mdx`
 - ❌ `My First Post.md`
 - ❌ `myFirstPost.md`
 
 The filename becomes the URL slug:
+
 - `my-first-post.md` → `/posts/my-first-post/`
 
 ## 🏷️ Tags and Categories
 
 ### Tags
+
 Multiple tags for filtering and discovery:
+
 ```yaml
-tags: ["javascript", "react", "tutorial", "beginner"]
+tags: ['javascript', 'react', 'tutorial', 'beginner']
 ```
 
 ### Categories
+
 Single category for primary classification:
+
 ```yaml
-category: "Development"
+category: 'Development'
 ```
 
 Common categories:
+
 - Development
 - Tutorial
 - Thoughts
@@ -197,14 +214,15 @@ Common categories:
 ## 📝 Example Posts
 
 ### Simple Post
+
 ```markdown
 ---
-title: "Hello World"
+title: 'Hello World'
 published: 2024-01-15
-description: "My first blog post"
-tags: ["introduction"]
-category: "Thoughts"
-image: "/images/image.png"
+description: 'My first blog post'
+tags: ['introduction']
+category: 'Thoughts'
+image: '/images/image.png'
 ---
 
 Welcome to my blog! This is my first post.
@@ -216,6 +234,7 @@ I'm a developer who loves to code and share knowledge.
 ## What to Expect
 
 I'll be writing about:
+
 - Web development
 - Programming tutorials
 - Tech thoughts
@@ -224,14 +243,15 @@ Stay tuned!
 ```
 
 ### Tutorial Post
+
 ```markdown
 ---
-title: "Getting Started with Astro"
+title: 'Getting Started with Astro'
 published: 2024-01-20
-description: "Learn how to build fast websites with Astro"
-tags: ["astro", "tutorial", "web-development"]
-category: "Tutorial"
-image: "/images/astro-tutorial.png"
+description: 'Learn how to build fast websites with Astro'
+tags: ['astro', 'tutorial', 'web-development']
+category: 'Tutorial'
+image: '/images/astro-tutorial.png'
 ---
 
 # Getting Started with Astro

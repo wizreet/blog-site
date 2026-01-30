@@ -223,6 +223,14 @@ export async function getSeriesList(): Promise<SeriesWithCount[]> {
 }
 
 /**
+ * Get all series with post counts (alias for getSeriesList)
+ * Used by dashboard components
+ */
+export async function getSeriesWithCounts(): Promise<SeriesWithCount[]> {
+  return getSeriesList();
+}
+
+/**
  * Get series navigation (prev/next) for a post
  */
 export async function getSeriesNavigation(post: PostEntry): Promise<SeriesNavigation | null> {
