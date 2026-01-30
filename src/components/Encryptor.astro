@@ -1,0 +1,38 @@
+---
+/**
+ * Encryptor Component
+ *
+ * @description Encrypts slot content with AES encryption.
+ * Used for password-protected blog posts.
+ *
+ * Based on Mizuki's Encryptor component.
+ *
+ * @example
+ * ```astro
+ * <Encryptor password="secret123">
+ *   <p>This content is encrypted!</p>
+ * </Encryptor>
+ * ```
+ */
+
+import CryptoJS from 'crypto-js';
+import PasswordProtection from './PasswordProtection.astro';
+
+interface Props {
+  password: string | number;
+}
+
+const { password } = Astro.props;
+
+// Render the slot content to HTML
+const htmlContent = await Astro.slots.render('default');
+
+// Add verification prefix and encrypt
+const contentToEncrypt = 'MIZUKI-VERIFY:' + htmlContent;
+const encryptedContent = CryptoJS.AES.encrypt(
+  contentToEncrypt,
+  String(password)
+).toString();
+---
+
+<PasswordProtection encryptedContent={encryptedContent} />

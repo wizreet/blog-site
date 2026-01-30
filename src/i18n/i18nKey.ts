@@ -16,11 +16,13 @@ enum I18nKey {
   categories = 'categories',
   series = 'series',
   tabs = 'tabs',
+  posts = 'posts',
   projects = 'projects',
   skills = 'skills',
   timeline = 'timeline',
   friends = 'friends',
   music = 'music',
+  links = 'links',
 
   // Post/Content
   recentPosts = 'recentPosts',
@@ -32,10 +34,14 @@ enum I18nKey {
   wordsCount = 'wordsCount',
   minuteCount = 'minuteCount',
   minutesCount = 'minutesCount',
+  minuteRead = 'minuteRead',
+  minutesRead = 'minutesRead',
   postCount = 'postCount',
   postsCount = 'postsCount',
   prevPost = 'prevPost',
   nextPost = 'nextPost',
+  untitled = 'untitled',
+  uncategorized = 'uncategorized',
 
   // Series
   seriesProgress = 'seriesProgress',
@@ -43,6 +49,7 @@ enum I18nKey {
   ongoing = 'ongoing',
   completed = 'completed',
   paused = 'paused',
+  seriesDescription = 'seriesDescription',
 
   // Tags/Categories
   noTags = 'noTags',
@@ -60,6 +67,7 @@ enum I18nKey {
   lightMode = 'lightMode',
   darkMode = 'darkMode',
   autoMode = 'autoMode',
+  themeColor = 'themeColor',
 
   // Archive
   archiveTitle = 'archiveTitle',
@@ -87,13 +95,28 @@ enum I18nKey {
   musicOriginals = 'musicOriginals',
   musicJams = 'musicJams',
   musicGearUsed = 'musicGearUsed',
+  musicPlayer = 'musicPlayer',
+  musicPlayerShow = 'musicPlayerShow',
+  musicPlayerHide = 'musicPlayerHide',
+
+  // Encrypted Content
+  encrypted = 'encrypted',
+  encryptedContent = 'encryptedContent',
+  enterPassword = 'enterPassword',
+  wrongPassword = 'wrongPassword',
+  unlockContent = 'unlockContent',
 
   // Misc
   tableOfContents = 'tableOfContents',
+  tocEmpty = 'tocEmpty',
   backToTop = 'backToTop',
   viewAll = 'viewAll',
   loading = 'loading',
   error = 'error',
+  more = 'more',
+  author = 'author',
+  license = 'license',
+  comments = 'comments',
 }
 
 export default I18nKey;

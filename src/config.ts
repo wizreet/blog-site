@@ -25,7 +25,7 @@ import { LinkPreset } from '@/types/config';
  */
 export const siteConfig: SiteConfig = {
   // Site title - appears in navbar, browser tab, and SEO
-  title: 'Your Name',
+  title: 'Reetwiz Amatya',
 
   // Subtitle/tagline - appears below title in profile
   subtitle: 'DevOps • Development • AI',
@@ -95,13 +95,6 @@ export const navBarConfig: NavBarConfig = {
       icon: 'material-symbols:folder',
     },
 
-    // Guitar tabs (public)
-    {
-      name: 'Tabs',
-      url: '/tabs/',
-      icon: 'material-symbols:music-note',
-    },
-
     // About page
     LinkPreset.About,
 
@@ -143,35 +136,35 @@ export const navBarConfig: NavBarConfig = {
  */
 export const profileConfig: ProfileConfig = {
   // Avatar image path (relative to src/assets/ or absolute URL)
-  avatar: '/images/avatar.svg',
+  avatar: '/images/avatar.png',
 
   // Display name
-  name: 'Your Name',
+  name: 'Reetwiz Amatya',
 
   // Short bio (1-2 sentences)
-  bio: 'DevOps engineer & software developer. Writing practical guides on cloud, containers, and modern development.',
+  bio: 'DevOps engineer & software developer. Passionate about cloud, containers, AI, and building things that matter.',
 
   // Social/contact links (shown as icons below bio)
   links: [
     {
       name: 'GitHub',
       icon: 'fa6-brands:github',
-      url: 'https://github.com/yourusername',
+      url: 'https://github.com/wizreet',
     },
     {
       name: 'LinkedIn',
       icon: 'fa6-brands:linkedin',
-      url: 'https://linkedin.com/in/yourusername',
+      url: 'https://linkedin.com/in/reetwiz',
     },
     {
       name: 'Twitter',
       icon: 'fa6-brands:x-twitter',
-      url: 'https://twitter.com/yourusername',
+      url: 'https://twitter.com/reetwiz',
     },
     {
       name: 'Email',
       icon: 'material-symbols:mail-outline',
-      url: 'mailto:your@email.com',
+      url: 'mailto:reetwiz@gmail.com',
     },
   ],
 };

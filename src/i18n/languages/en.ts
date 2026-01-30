@@ -18,11 +18,13 @@ export const en: Translation = {
   [I18nKey.categories]: 'Categories',
   [I18nKey.series]: 'Series',
   [I18nKey.tabs]: 'Guitar Tabs',
+  [I18nKey.posts]: 'Posts',
   [I18nKey.projects]: 'Projects',
   [I18nKey.skills]: 'Skills',
   [I18nKey.timeline]: 'Timeline',
   [I18nKey.friends]: 'Friends',
   [I18nKey.music]: 'Music',
+  [I18nKey.links]: 'Links',
 
   // Post/Content
   [I18nKey.recentPosts]: 'Recent Posts',
@@ -34,10 +36,14 @@ export const en: Translation = {
   [I18nKey.wordsCount]: 'words',
   [I18nKey.minuteCount]: 'min',
   [I18nKey.minutesCount]: 'min',
+  [I18nKey.minuteRead]: 'min read',
+  [I18nKey.minutesRead]: 'min read',
   [I18nKey.postCount]: 'post',
   [I18nKey.postsCount]: 'posts',
   [I18nKey.prevPost]: 'Previous',
   [I18nKey.nextPost]: 'Next',
+  [I18nKey.untitled]: 'Untitled',
+  [I18nKey.uncategorized]: 'Uncategorized',
 
   // Series
   [I18nKey.seriesProgress]: 'Part {current} of {total}',
@@ -45,6 +51,7 @@ export const en: Translation = {
   [I18nKey.ongoing]: 'Ongoing',
   [I18nKey.completed]: 'Completed',
   [I18nKey.paused]: 'Paused',
+  [I18nKey.seriesDescription]: 'Organized collections of related posts',
 
   // Tags/Categories
   [I18nKey.noTags]: 'No tags',
@@ -62,6 +69,7 @@ export const en: Translation = {
   [I18nKey.lightMode]: 'Light',
   [I18nKey.darkMode]: 'Dark',
   [I18nKey.autoMode]: 'Auto',
+  [I18nKey.themeColor]: 'Theme Color',
 
   // Archive
   [I18nKey.archiveTitle]: 'Archive',
@@ -89,11 +97,26 @@ export const en: Translation = {
   [I18nKey.musicOriginals]: 'Originals',
   [I18nKey.musicJams]: 'Jam Sessions',
   [I18nKey.musicGearUsed]: 'Gear Used',
+  [I18nKey.musicPlayer]: 'Music Player',
+  [I18nKey.musicPlayerShow]: 'Show Player',
+  [I18nKey.musicPlayerHide]: 'Hide Player',
+
+  // Encrypted Content
+  [I18nKey.encrypted]: 'Encrypted',
+  [I18nKey.encryptedContent]: 'This content is encrypted',
+  [I18nKey.enterPassword]: 'Enter password to unlock',
+  [I18nKey.wrongPassword]: 'Incorrect password',
+  [I18nKey.unlockContent]: 'Unlock',
 
   // Misc
   [I18nKey.tableOfContents]: 'On This Page',
+  [I18nKey.tocEmpty]: 'No headings',
   [I18nKey.backToTop]: 'Back to top',
   [I18nKey.viewAll]: 'View All',
   [I18nKey.loading]: 'Loading...',
   [I18nKey.error]: 'An error occurred',
+  [I18nKey.more]: 'More',
+  [I18nKey.author]: 'Author',
+  [I18nKey.license]: 'License',
+  [I18nKey.comments]: 'Comments',
 };

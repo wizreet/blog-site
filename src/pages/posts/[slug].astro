@@ -4,6 +4,7 @@
  *
  * @description Displays a single blog post with full content.
  * Includes TOC, series navigation, and license info.
+ * Supports encrypted posts with password protection.
  *
  * @route /posts/[slug]
  */
@@ -15,11 +16,10 @@ import SeriesNav from '@components/misc/SeriesNav.astro';
 import License from '@components/misc/License.astro';
 import TOC from '@components/widget/TOC.astro';
 import Profile from '@components/widget/Profile.astro';
+import Encryptor from '@components/Encryptor.astro';
 import { getPostUrl } from '@utils/url-utils';
-import { formatDate } from '@utils/date-utils';
 import { getSeriesById } from '@data/series';
 import { getSortedPosts } from '@utils/content-utils';
-import { i18n, I18nKey } from '@i18n/index';
 
 export async function getStaticPaths() {
   const posts = await getCollection('posts');
@@ -45,14 +45,18 @@ if (series) {
   seriesPosts = allPosts.filter((p) => p.data.series?.id === series.id);
 }
 
+// Check if post is encrypted
+const isEncrypted = post.data.encrypted && post.data.password;
+
 // SEO
 const { title, description, image, published, updated } = post.data;
+const imageUrl = image ? (typeof image === 'string' ? image : image.src) : undefined;
 ---
 
 <MainGridLayout
   title={title}
   description={description}
-  ogImage={image}
+  ogImage={imageUrl}
   url={getPostUrl(post.id)}
   publishDate={published}
   modifiedDate={updated}
@@ -74,18 +78,26 @@ const { title, description, image, published, updated } = post.data;
 
     <!-- Featured Image (if present) -->
     {
-      image && (
+      imageUrl && (
         <div class="aspect-video overflow-hidden">
-          <img src={image} alt={title} class="h-full w-full object-cover" loading="eager" />
+          <img src={imageUrl} alt={title} class="h-full w-full object-cover" loading="eager" />
         </div>
       )
     }
 
     <!-- Post Content -->
     <div class="p-6 md:p-8">
-      <div class="prose prose-lg max-w-none dark:prose-invert">
-        <Content />
-      </div>
+      {isEncrypted ? (
+        <Encryptor password={post.data.password}>
+          <div class="prose prose-lg max-w-none dark:prose-invert">
+            <Content />
+          </div>
+        </Encryptor>
+      ) : (
+        <div class="prose prose-lg max-w-none dark:prose-invert">
+          <Content />
+        </div>
+      )}
     </div>
 
     <!-- License -->

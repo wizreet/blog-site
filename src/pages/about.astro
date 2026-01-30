@@ -89,11 +89,52 @@ const otherProjects = projects.filter((p) => !p.featured);
           </div>
         )
       }
+    </section>
 
-      <!-- Hidden Music Easter Egg - only visible on hover -->
-      <p class="mt-8 text-xs text-[var(--text-tertiary)] opacity-30 hover:opacity-100 transition-opacity duration-500 cursor-default select-none" title="🎵">
-        <span class="hover:text-[oklch(var(--primary))]">♪</span>
-      </p>
+    <!-- Hidden Discoveries Section -->
+    <section class="card-base overflow-hidden">
+      <details class="group">
+        <summary class="flex cursor-pointer items-center justify-between p-6 text-[var(--text-secondary)] hover:text-[var(--text-primary)] transition-colors">
+          <span class="flex items-center gap-2 text-sm">
+            <Icon name="material-symbols:explore" class="h-5 w-5" />
+            Discover More...
+          </span>
+          <Icon name="material-symbols:expand-more" class="h-5 w-5 transition-transform group-open:rotate-180" />
+        </summary>
+        <div class="border-t border-[var(--border-color)] p-6 space-y-4">
+          <p class="text-sm text-[var(--text-tertiary)] mb-4">Some things are best found, not shown.</p>
+          
+          <!-- Guitar Tabs (Hidden Link) -->
+          <a 
+            href={getUrl('/tabs/')}
+            class="flex items-center gap-3 rounded-lg bg-[var(--btn-regular-bg)] p-4 transition-all hover:bg-[var(--btn-hover-bg)] hover:translate-x-1"
+          >
+            <div class="flex h-10 w-10 items-center justify-center rounded-lg bg-[oklch(var(--primary)/0.1)]">
+              <Icon name="material-symbols:music-note" class="h-5 w-5 text-[oklch(var(--primary))]" />
+            </div>
+            <div>
+              <h4 class="font-medium text-[var(--text-primary)]">Guitar Tabs</h4>
+              <p class="text-xs text-[var(--text-tertiary)]">My guitar tablature collection</p>
+            </div>
+            <Icon name="material-symbols:arrow-forward" class="ml-auto h-5 w-5 text-[var(--text-tertiary)]" />
+          </a>
+          
+          <!-- Music Videos (Hidden Link) -->
+          <a 
+            href={getUrl('/music/')}
+            class="flex items-center gap-3 rounded-lg bg-[var(--btn-regular-bg)] p-4 transition-all hover:bg-[var(--btn-hover-bg)] hover:translate-x-1"
+          >
+            <div class="flex h-10 w-10 items-center justify-center rounded-lg bg-[oklch(var(--primary)/0.1)]">
+              <Icon name="material-symbols:play-circle" class="h-5 w-5 text-[oklch(var(--primary))]" />
+            </div>
+            <div>
+              <h4 class="font-medium text-[var(--text-primary)]">Music & Covers</h4>
+              <p class="text-xs text-[var(--text-tertiary)]">Watch me play 🎸</p>
+            </div>
+            <Icon name="material-symbols:arrow-forward" class="ml-auto h-5 w-5 text-[var(--text-tertiary)]" />
+          </a>
+        </div>
+      </details>
     </section>
 
     <!-- About Content (from markdown if exists) -->
