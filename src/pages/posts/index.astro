@@ -1,0 +1,65 @@
+---
+/**
+ * All Posts Page
+ *
+ * @description Lists all blog posts with filtering options.
+ * Following Mizuki's archive pattern but simpler.
+ *
+ * @route /posts/
+ */
+
+import MainGridLayout from '@layouts/MainGridLayout.astro';
+import PostCard from '@components/card/PostCard.astro';
+import { getSortedPosts } from '@utils/content-utils';
+import { getUrl } from '@utils/url-utils';
+
+// Get all posts sorted by date
+const allPosts = await getSortedPosts();
+
+// Group posts by year
+const postsByYear = allPosts.reduce((acc, post) => {
+  const year = new Date(post.data.published).getFullYear();
+  if (!acc[year]) acc[year] = [];
+  acc[year].push(post);
+  return acc;
+}, {} as Record<number, typeof allPosts>);
+
+// Sort years descending
+const sortedYears = Object.keys(postsByYear)
+  .map(Number)
+  .sort((a, b) => b - a);
+---
+
+<MainGridLayout title="All Posts" description="Browse all blog posts">
+  <div class="space-y-6">
+    <!-- Page Header -->
+    <div class="mb-8">
+      <h1 class="text-3xl font-bold text-[var(--text-primary)] md:text-4xl">
+        All Posts
+      </h1>
+      <p class="mt-2 text-lg text-[var(--text-secondary)]">
+        {allPosts.length} {allPosts.length === 1 ? 'post' : 'posts'} total
+      </p>
+    </div>
+
+    <!-- Posts grouped by year -->
+    {sortedYears.map((year) => (
+      <div class="space-y-4">
+        <h2 class="sticky top-20 z-10 bg-[var(--page-bg)]/80 py-2 text-2xl font-bold text-[var(--text-primary)] backdrop-blur-sm">
+          {year}
+        </h2>
+        <div class="space-y-4">
+          {postsByYear[year].map((post) => (
+            <PostCard post={post} />
+          ))}
+        </div>
+      </div>
+    ))}
+
+    {allPosts.length === 0 && (
+      <div class="rounded-xl bg-[var(--card-bg)] p-8 text-center">
+        <p class="text-[var(--text-secondary)]">No posts yet. Check back soon!</p>
+      </div>
+    )}
+  </div>
+</MainGridLayout>

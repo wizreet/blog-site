@@ -81,8 +81,19 @@ export const navBarConfig: NavBarConfig = {
     // Home page
     LinkPreset.Home,
 
-    // Archive page (categories, tags, series all in one)
-    LinkPreset.Archive,
+    // Posts page - all posts
+    {
+      name: 'Posts',
+      url: '/posts/',
+      icon: 'material-symbols:article',
+    },
+
+    // Series page - organized post collections
+    {
+      name: 'Series',
+      url: '/series/',
+      icon: 'material-symbols:folder',
+    },
 
     // Guitar tabs (public)
     {

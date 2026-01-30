@@ -9,8 +9,6 @@
 import { Icon } from 'astro-icon/components';
 import type { CollectionEntry } from 'astro:content';
 import { formatDate, getRelativeTime } from '@utils/date-utils';
-import { getCategoryUrl, getTagUrl } from '@utils/url-utils';
-import { i18n, I18nKey } from '@i18n/index';
 
 interface Props {
   /** The post entry from content collection */
@@ -55,7 +53,7 @@ const readingTime = Math.max(1, Math.ceil(wordCount / 200));
   <!-- Reading Time -->
   <div class="flex items-center gap-1 text-[var(--text-tertiary)]">
     <Icon name="material-symbols:schedule-outline" class="h-4 w-4" />
-    <span>{readingTime} {i18n(I18nKey.minuteRead)}</span>
+    <span>{readingTime} min read</span>
   </div>
 
   <!-- Word Count (non-compact only) -->
@@ -71,13 +69,12 @@ const readingTime = Math.max(1, Math.ceil(wordCount / 200));
   <!-- Category -->
   {
     category && (
-      <a
-        href={getCategoryUrl(category)}
-        class="flex items-center gap-1 text-[oklch(var(--primary))] transition-colors hover:underline"
+      <span
+        class="flex items-center gap-1 text-[oklch(var(--primary))]"
       >
         <Icon name="material-symbols:folder-outline" class="h-4 w-4" />
         <span>{category}</span>
-      </a>
+      </span>
     )
   }
 </div>
@@ -88,12 +85,11 @@ const readingTime = Math.max(1, Math.ceil(wordCount / 200));
     <div class="mt-3 flex flex-wrap items-center gap-2">
       <Icon name="material-symbols:tag" class="h-4 w-4 text-[var(--text-tertiary)]" />
       {tags.map((tag) => (
-        <a
-          href={getTagUrl(tag)}
-          class="rounded-md bg-[var(--btn-regular-bg)] px-2 py-0.5 text-xs text-[var(--text-secondary)] transition-colors hover:bg-[var(--btn-hover-bg)] hover:text-[var(--text-primary)]"
+        <span
+          class="rounded-md bg-[var(--btn-regular-bg)] px-2 py-0.5 text-xs text-[var(--text-secondary)]"
         >
           #{tag}
-        </a>
+        </span>
       ))}
     </div>
   )

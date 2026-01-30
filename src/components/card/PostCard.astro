@@ -17,9 +17,8 @@
 
 import { Icon } from 'astro-icon/components';
 import type { CollectionEntry } from 'astro:content';
-import { getPostUrl, getCategoryUrl, getTagUrl, getSeriesUrl } from '@utils/url-utils';
+import { getPostUrl, getSeriesUrl } from '@utils/url-utils';
 import { formatDate, getRelativeTime } from '@utils/date-utils';
-import { i18n, I18nKey } from '@i18n/index';
 
 interface Props {
   /** The post entry from content collection */
@@ -50,14 +49,12 @@ const hasMoreTags = (tags?.length || 0) > 3;
         <div class="mb-2 flex flex-wrap items-center gap-2">
           {
             category && (
-              <a
-                href={getCategoryUrl(category)}
-                class="inline-flex items-center gap-1 rounded-md bg-[oklch(var(--primary)/0.1)] px-2 py-0.5 text-xs font-medium text-[oklch(var(--primary))] transition-colors hover:bg-[oklch(var(--primary)/0.2)]"
-                onclick="event.stopPropagation()"
+              <span
+                class="inline-flex items-center gap-1 rounded-md bg-[oklch(var(--primary)/0.1)] px-2 py-0.5 text-xs font-medium text-[oklch(var(--primary))]"
               >
                 <Icon name="material-symbols:folder-outline" class="h-3 w-3" />
                 {category}
-              </a>
+              </span>
             )
           }
 
@@ -107,7 +104,7 @@ const hasMoreTags = (tags?.length || 0) > 3;
           <!-- Reading Time -->
           <div class="flex items-center gap-1">
             <Icon name="material-symbols:schedule-outline" class="h-4 w-4" />
-            <span>{readingTime} {i18n(I18nKey.minuteRead)}</span>
+            <span>{readingTime} min read</span>
           </div>
         </div>
 
@@ -116,14 +113,12 @@ const hasMoreTags = (tags?.length || 0) > 3;
           displayTags.length > 0 && !compact && (
             <div class="mt-3 flex flex-wrap items-center gap-1.5">
               {displayTags.map((tag) => (
-                <a
-                  href={getTagUrl(tag)}
-                  class="inline-flex items-center gap-0.5 rounded bg-[var(--btn-regular-bg)] px-1.5 py-0.5 text-xs text-[var(--text-tertiary)] transition-colors hover:bg-[var(--btn-hover-bg)] hover:text-[var(--text-secondary)]"
-                  onclick="event.stopPropagation()"
+                <span
+                  class="inline-flex items-center gap-0.5 rounded bg-[var(--btn-regular-bg)] px-1.5 py-0.5 text-xs text-[var(--text-tertiary)]"
                 >
                   <span class="opacity-60">#</span>
                   {tag}
-                </a>
+                </span>
               ))}
               {hasMoreTags && (
                 <span class="text-xs text-[var(--text-tertiary)]">
@@ -140,7 +135,7 @@ const hasMoreTags = (tags?.length || 0) > 3;
         image && !compact && (
           <div class="shrink-0">
             <img
-              src={image}
+              src={typeof image === 'string' ? image : image.src}
               alt={title}
               class="h-24 w-24 rounded-lg object-cover md:h-28 md:w-28"
               loading="lazy"

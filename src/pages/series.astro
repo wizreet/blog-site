@@ -1,0 +1,74 @@
+---
+/**
+ * Series Page
+ *
+ * @description Lists all post series with their descriptions and post counts.
+ * Following Mizuki's pattern for series organization.
+ *
+ * @route /series/
+ */
+
+import MainGridLayout from '@layouts/MainGridLayout.astro';
+import { getSortedSeries } from '@/data/series';
+import { getSortedPosts } from '@utils/content-utils';
+import { getUrl } from '@utils/url-utils';
+import { Icon } from 'astro-icon/components';
+
+// Get all series and posts
+const allSeries = getSortedSeries();
+const allPosts = await getSortedPosts();
+
+// Count posts per series
+const seriesWithCounts = allSeries.map(series => {
+  const postCount = allPosts.filter(post => post.data.series === series.id).length;
+  return { ...series, postCount };
+});
+---
+
+<MainGridLayout title="Series" description="Browse all post series">
+  <div class="space-y-6">
+    <!-- Page Header -->
+    <div class="mb-8">
+      <h1 class="text-3xl font-bold text-[var(--text-primary)] md:text-4xl">
+        Series
+      </h1>
+      <p class="mt-2 text-lg text-[var(--text-secondary)]">
+        Organized collections of related posts
+      </p>
+    </div>
+
+    <!-- Series Grid -->
+    <div class="grid gap-4 sm:grid-cols-2">
+      {seriesWithCounts.map((series) => (
+        <a
+          href={getUrl(`/series/${series.id}/`)}
+          class="group rounded-xl bg-[var(--card-bg)] p-6 transition-all duration-300 hover:shadow-lg hover:shadow-[var(--primary)]/10"
+        >
+          <div class="flex items-start gap-4">
+            <div class="flex h-12 w-12 shrink-0 items-center justify-center rounded-lg bg-[var(--primary)]/10 text-[var(--primary)]">
+              <Icon name={series.icon || 'material-symbols:folder'} class="h-6 w-6" />
+            </div>
+            <div class="flex-1">
+              <h2 class="text-xl font-semibold text-[var(--text-primary)] group-hover:text-[var(--primary)] transition-colors">
+                {series.name}
+              </h2>
+              <p class="mt-1 text-sm text-[var(--text-secondary)] line-clamp-2">
+                {series.description}
+              </p>
+              <div class="mt-3 flex items-center gap-2 text-xs text-[var(--text-tertiary)]">
+                <Icon name="material-symbols:article" class="h-4 w-4" />
+                <span>{series.postCount} {series.postCount === 1 ? 'post' : 'posts'}</span>
+              </div>
+            </div>
+          </div>
+        </a>
+      ))}
+    </div>
+
+    {seriesWithCounts.length === 0 && (
+      <div class="rounded-xl bg-[var(--card-bg)] p-8 text-center">
+        <p class="text-[var(--text-secondary)]">No series yet. Check back soon!</p>
+      </div>
+    )}
+  </div>
+</MainGridLayout>

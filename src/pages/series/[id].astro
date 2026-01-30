@@ -1,0 +1,82 @@
+---
+/**
+ * Series Detail Page
+ *
+ * @description Shows all posts in a specific series.
+ *
+ * @route /series/[id]/
+ */
+
+import MainGridLayout from '@layouts/MainGridLayout.astro';
+import PostCard from '@components/card/PostCard.astro';
+import { getSortedSeries, getSeriesById } from '@/data/series';
+import { getSortedPosts } from '@utils/content-utils';
+import { getUrl } from '@utils/url-utils';
+import { Icon } from 'astro-icon/components';
+
+// Generate static paths for all series
+export async function getStaticPaths() {
+  const allSeries = getSortedSeries();
+  const allPosts = await getSortedPosts();
+
+  return allSeries.map((series) => {
+    const seriesPosts = allPosts.filter(post => post.data.series === series.id);
+    return {
+      params: { id: series.id },
+      props: { series, posts: seriesPosts },
+    };
+  });
+}
+
+const { series, posts } = Astro.props;
+---
+
+<MainGridLayout title={`${series.name} Series`} description={series.description}>
+  <div class="space-y-6">
+    <!-- Series Header -->
+    <div class="mb-8">
+      <a
+        href={getUrl('/series/')}
+        class="mb-4 inline-flex items-center gap-1 text-sm text-[var(--text-secondary)] hover:text-[var(--primary)] transition-colors"
+      >
+        <Icon name="material-symbols:arrow-back" class="h-4 w-4" />
+        Back to Series
+      </a>
+      
+      <div class="flex items-start gap-4">
+        <div class="flex h-16 w-16 shrink-0 items-center justify-center rounded-xl bg-[var(--primary)]/10 text-[var(--primary)]">
+          <Icon name={series.icon || 'material-symbols:folder'} class="h-8 w-8" />
+        </div>
+        <div>
+          <h1 class="text-3xl font-bold text-[var(--text-primary)] md:text-4xl">
+            {series.name}
+          </h1>
+          <p class="mt-2 text-lg text-[var(--text-secondary)]">
+            {series.description}
+          </p>
+          <p class="mt-2 text-sm text-[var(--text-tertiary)]">
+            {posts.length} {posts.length === 1 ? 'post' : 'posts'} in this series
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Posts List -->
+    {posts.length > 0 ? (
+      <div class="space-y-4">
+        {posts.map((post, index) => (
+          <div class="relative">
+            <div class="absolute -left-8 top-6 hidden h-8 w-8 items-center justify-center rounded-full bg-[var(--primary)]/10 text-sm font-medium text-[var(--primary)] md:flex">
+              {index + 1}
+            </div>
+            <PostCard post={post} />
+          </div>
+        ))}
+      </div>
+    ) : (
+      <div class="rounded-xl bg-[var(--card-bg)] p-8 text-center">
+        <p class="text-[var(--text-secondary)]">No posts in this series yet.</p>
+      </div>
+    )}
+  </div>
+</MainGridLayout>

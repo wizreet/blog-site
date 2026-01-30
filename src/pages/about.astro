@@ -90,9 +90,9 @@ const otherProjects = projects.filter((p) => !p.featured);
         )
       }
 
-      <!-- Hidden Music Link (for those who know) -->
-      <p class="mt-6 text-sm text-[var(--text-tertiary)]">
-        🎸 Check out my <a href={getUrl('/music')} class="text-[oklch(var(--primary))] hover:underline">music videos</a>
+      <!-- Hidden Music Easter Egg - only visible on hover -->
+      <p class="mt-8 text-xs text-[var(--text-tertiary)] opacity-30 hover:opacity-100 transition-opacity duration-500 cursor-default select-none" title="🎵">
+        <span class="hover:text-[oklch(var(--primary))]">♪</span>
       </p>
     </section>
 
