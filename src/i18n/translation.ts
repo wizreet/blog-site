@@ -1,16 +1,14 @@
 /**
- * Translation System
+ * Translation System (Simplified)
  *
- * @description Translation utility for internationalization.
- * Supports English (en) and Nepali (ne).
+ * @description Simple translation utility - English only.
+ * Kept for API compatibility but only uses English.
  *
  * @module i18n/translation
  */
 
-import { siteConfig } from '@/config';
 import type I18nKey from './i18nKey';
 import { en } from './languages/en';
-import { ne } from './languages/ne';
 
 /**
  * Translation type - maps i18n keys to translated strings
@@ -20,33 +18,17 @@ export type Translation = {
 };
 
 /**
- * Language to translation map
- */
-const translationMap: Record<string, Translation> = {
-  en,
-  en_us: en,
-  en_gb: en,
-  ne,
-  ne_np: ne,
-};
-
-/**
- * Get translation for a key
+ * Get translation for a key (always returns English)
  *
  * @param key - Translation key from I18nKey enum
- * @returns Translated string
+ * @returns Translated string in English
  *
  * @example
  * import I18nKey from '@/i18n/i18nKey';
- * const homeText = i18n(I18nKey.home); // 'Home' or 'गृहपृष्ठ'
+ * const homeText = i18n(I18nKey.home); // 'Home'
  */
 export function i18n(key: I18nKey): string {
-  const lang = siteConfig.lang || 'en';
-  const normalizedLang = lang.toLowerCase().replace('-', '_');
-
-  // Get translation for current language, fallback to English
-  const translation = translationMap[normalizedLang] ?? translationMap.en ?? en;
-  return translation[key] ?? en[key] ?? key;
+  return en[key] ?? key;
 }
 
 /**
@@ -74,16 +56,13 @@ export function i18nWithVars(key: I18nKey, vars: Record<string, string | number>
  * Get all available languages
  */
 export function getAvailableLanguages(): Array<{ code: string; name: string }> {
-  return [
-    { code: 'en', name: 'English' },
-    { code: 'ne', name: 'नेपाली' },
-  ];
+  return [{ code: 'en', name: 'English' }];
 }
 
 /**
- * Check if a language is supported
+ * Check if a language is supported (always English)
  */
 export function isLanguageSupported(lang: string): boolean {
   const normalizedLang = lang.toLowerCase().replace('-', '_');
-  return normalizedLang in translationMap;
+  return normalizedLang.startsWith('en');
 }

@@ -58,13 +58,13 @@ function hasChildren(link: NavLink): boolean {
   id="navbar"
   class="fixed left-0 right-0 top-0 z-40 h-[var(--navbar-height)] border-b border-[var(--border-color)] bg-[var(--card-bg)]/80 backdrop-blur-lg transition-all duration-300"
 >
-  <nav class="container-page flex h-full items-center justify-between">
-    <!-- Left Actions: Sidebar Toggle -->
-    <div class="flex items-center gap-1">
+  <nav class="container-page flex h-full items-center justify-between gap-4">
+    <!-- Left: Sidebar Toggle + Site Title -->
+    <div class="flex items-center gap-2">
       <!-- Sidebar Toggle (Desktop) -->
       <button
         id="sidebar-toggle"
-        class="btn-plain hidden lg:flex items-center justify-center h-10 w-10 rounded-lg"
+        class="btn-plain hidden lg:flex items-center justify-center h-10 w-10 rounded-lg flex-shrink-0"
         aria-label="Toggle sidebar"
         aria-expanded="true"
         title="Toggle sidebar"
@@ -72,6 +72,14 @@ function hasChildren(link: NavLink): boolean {
         <Icon name="material-symbols:menu-open" class="sidebar-icon-open h-5 w-5" />
         <Icon name="material-symbols:menu" class="sidebar-icon-closed h-5 w-5 hidden" />
       </button>
+
+      <!-- Site Title/Logo -->
+      <a
+        href={getUrl('/')}
+        class="flex items-center gap-2 text-lg font-semibold text-[var(--text-primary)] hover:text-[oklch(var(--primary))] transition-colors"
+      >
+        <span class="truncate max-w-[180px] md:max-w-none">{siteConfig.title}</span>
+      </a>
     </div>
 
     <!-- Desktop Navigation -->
@@ -259,46 +267,92 @@ function hasChildren(link: NavLink): boolean {
 
     if (!toggle || !menu || !panel || !backdrop) return;
 
+    // Store references to avoid null checks in closures
+    const menuEl = menu;
+    const panelEl = panel;
+    const toggleEl = toggle;
+
     let isOpen = false;
 
     function openMenu() {
       isOpen = true;
-      menu.classList.remove('hidden');
-      menu.setAttribute('aria-hidden', 'false');
-      toggle.setAttribute('aria-expanded', 'true');
-      requestAnimationFrame(() => panel.classList.remove('translate-x-full'));
+      menuEl.classList.remove('hidden');
+      menuEl.setAttribute('aria-hidden', 'false');
+      toggleEl.setAttribute('aria-expanded', 'true');
+      // Use requestAnimationFrame for smoother animation
+      requestAnimationFrame(() => {
+        requestAnimationFrame(() => {
+          panelEl.classList.remove('translate-x-full');
+        });
+      });
       document.body.style.overflow = 'hidden';
     }
 
     function closeMenu() {
+      if (!isOpen) return;
       isOpen = false;
-      panel.classList.add('translate-x-full');
-      toggle.setAttribute('aria-expanded', 'false');
+      panelEl.classList.add('translate-x-full');
+      toggleEl.setAttribute('aria-expanded', 'false');
       setTimeout(() => {
-        menu.classList.add('hidden');
-        menu.setAttribute('aria-hidden', 'true');
+        if (!isOpen) {
+          menuEl.classList.add('hidden');
+          menuEl.setAttribute('aria-hidden', 'true');
+        }
       }, 300);
       document.body.style.overflow = '';
     }
 
-    toggle.addEventListener('click', () => isOpen ? closeMenu() : openMenu());
-    backdrop.addEventListener('click', closeMenu);
-    document.addEventListener('keydown', (e) => { if (e.key === 'Escape' && isOpen) closeMenu(); });
+    // Remove old listeners by cloning elements
+    const newToggle = toggleEl.cloneNode(true) as HTMLElement;
+    toggleEl.parentNode?.replaceChild(newToggle, toggleEl);
+
+    const newBackdrop = backdrop.cloneNode(true) as HTMLElement;
+    backdrop.parentNode?.replaceChild(newBackdrop, backdrop);
+
+    // Add fresh listeners
+    newToggle.addEventListener('click', (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      isOpen ? closeMenu() : openMenu();
+    });
+
+    newBackdrop.addEventListener('click', (e) => {
+      e.preventDefault();
+      closeMenu();
+    });
+
+    // Escape key handler
+    const handleEscape = (e: KeyboardEvent) => {
+      if (e.key === 'Escape' && isOpen) {
+        closeMenu();
+      }
+    };
+    document.removeEventListener('keydown', handleEscape);
+    document.addEventListener('keydown', handleEscape);
 
     // Mobile dropdowns
     document.querySelectorAll('.mobile-dropdown button').forEach((btn) => {
-      btn.addEventListener('click', () => {
-        const content = btn.nextElementSibling;
-        const icon = btn.querySelector('svg:last-child') as HTMLElement;
-        const isExpanded = btn.getAttribute('aria-expanded') === 'true';
-        btn.setAttribute('aria-expanded', (!isExpanded).toString());
+      const newBtn = btn.cloneNode(true) as HTMLElement;
+      btn.parentNode?.replaceChild(newBtn, btn);
+
+      newBtn.addEventListener('click', (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        const content = newBtn.nextElementSibling;
+        const icon = newBtn.querySelector('svg:last-child') as HTMLElement;
+        const isExpanded = newBtn.getAttribute('aria-expanded') === 'true';
+        newBtn.setAttribute('aria-expanded', (!isExpanded).toString());
         content?.classList.toggle('hidden');
         if (icon) icon.style.transform = isExpanded ? '' : 'rotate(180deg)';
       });
     });
 
     // Close on link click
-    menu.querySelectorAll('a').forEach((link) => link.addEventListener('click', closeMenu));
+    menuEl.querySelectorAll('a').forEach((link) => {
+      link.addEventListener('click', () => {
+        closeMenu();
+      });
+    });
   }
 
   // Sidebar toggle functionality
@@ -332,17 +386,50 @@ function hasChildren(link: NavLink): boolean {
     // Initialize state
     updateSidebarState();
 
-    sidebarToggle.addEventListener('click', () => {
+    // Remove old listener by cloning
+    const newSidebarToggle = sidebarToggle.cloneNode(true) as HTMLElement;
+    sidebarToggle.parentNode?.replaceChild(newSidebarToggle, sidebarToggle);
+
+    newSidebarToggle.addEventListener('click', (e) => {
+      e.preventDefault();
+      e.stopPropagation();
       isCollapsed = !isCollapsed;
       localStorage.setItem('sidebar-collapsed', isCollapsed.toString());
-      updateSidebarState();
+
+      // Re-query elements after clone
+      const container = document.querySelector('.dashboard-container');
+      const openIcon = newSidebarToggle.querySelector('.sidebar-icon-open');
+      const closedIcon = newSidebarToggle.querySelector('.sidebar-icon-closed');
+
+      if (isCollapsed) {
+        container?.classList.add('sidebar-collapsed');
+        newSidebarToggle.setAttribute('aria-expanded', 'false');
+        openIcon?.classList.add('hidden');
+        closedIcon?.classList.remove('hidden');
+      } else {
+        container?.classList.remove('sidebar-collapsed');
+        newSidebarToggle.setAttribute('aria-expanded', 'true');
+        openIcon?.classList.remove('hidden');
+        closedIcon?.classList.add('hidden');
+      }
     });
   }
 
-  initNavbar();
-  initSidebarToggle();
+  // Initialize on page load
+  document.addEventListener('DOMContentLoaded', () => {
+    initNavbar();
+    initSidebarToggle();
+  });
+
+  // Re-initialize after Astro page transitions
   document.addEventListener('astro:after-swap', () => {
     initNavbar();
     initSidebarToggle();
   });
+
+  // Fallback: also init immediately in case DOMContentLoaded already fired
+  if (document.readyState === 'complete' || document.readyState === 'interactive') {
+    initNavbar();
+    initSidebarToggle();
+  }
 </script>
