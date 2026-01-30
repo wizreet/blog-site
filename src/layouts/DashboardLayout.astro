@@ -69,8 +69,8 @@ const hasRightSlot = Astro.slots.has('right-sidebar');
 >
   <Navbar />
 
-  <div 
-    class="dashboard-container" 
+  <div
+    class="dashboard-container"
     data-hide-left={hideLeftSidebar ? 'true' : 'false'}
     data-hide-right={hideRightSidebar ? 'true' : 'false'}
   >
@@ -278,7 +278,7 @@ const hasRightSlot = Astro.slots.has('right-sidebar');
    */
   const SidebarManager = {
     STORAGE_KEY: 'sidebar-state',
-    
+
     getState(): { leftCollapsed: boolean; rightCollapsed: boolean } {
       try {
         const stored = localStorage.getItem(this.STORAGE_KEY);
@@ -307,7 +307,7 @@ const hasRightSlot = Astro.slots.has('right-sidebar');
       if (!container) return;
 
       const state = this.getState();
-      
+
       if (state.leftCollapsed) {
         container.setAttribute('data-left-collapsed', 'true');
       } else {

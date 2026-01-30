@@ -425,7 +425,9 @@
     grid-template-columns: 240px 1fr !important;
   }
 
-  html[data-left-collapsed='true'][data-right-collapsed='true'] .dashboard-container .dashboard-grid {
+  html[data-left-collapsed='true'][data-right-collapsed='true']
+    .dashboard-container
+    .dashboard-grid {
     grid-template-columns: 1fr !important;
   }
 }

@@ -39,7 +39,7 @@ allPosts.forEach((post) => {
     if (!postsBySeries.has(id)) postsBySeries.set(id, []);
     postsBySeries.get(id)!.push(post);
   }
-  
+
   const cat = post.data.category?.toLowerCase() || 'uncategorized';
   if (!postsByCategory.has(cat)) postsByCategory.set(cat, []);
   postsByCategory.get(cat)!.push(post);
@@ -487,7 +487,7 @@ allPosts.forEach((post) => {
     const wrapper = document.getElementById('right-sidebar-wrapper');
     const toggleBtn = document.getElementById('right-sidebar-toggle');
     const content = document.getElementById('right-sidebar-content');
-    
+
     if (!wrapper || !toggleBtn) return;
 
     // Prevent double initialization
@@ -515,16 +515,16 @@ allPosts.forEach((post) => {
 
     // Accordion functionality
     const accordionItems = wrapper.querySelectorAll('[data-accordion]');
-    
+
     accordionItems.forEach((item) => {
       const header = item.querySelector('.accordion-header');
       const panel = item.querySelector('.accordion-panel');
-      
+
       if (!header || !panel) return;
-      
+
       header.addEventListener('click', () => {
         const isOpen = header.getAttribute('aria-expanded') === 'true';
-        
+
         // Close all other panels
         accordionItems.forEach((other) => {
           if (other !== item) {
@@ -532,7 +532,7 @@ allPosts.forEach((post) => {
             other.querySelector('.accordion-panel')?.classList.remove('open');
           }
         });
-        
+
         // Toggle current
         header.setAttribute('aria-expanded', isOpen ? 'false' : 'true');
         panel.classList.toggle('open', !isOpen);
@@ -581,14 +581,14 @@ allPosts.forEach((post) => {
   } else {
     initRightSidebar();
   }
-  
+
   document.addEventListener('astro:after-swap', () => {
     // Reset init flag for new page
     const wrapper = document.getElementById('right-sidebar-wrapper');
     wrapper?.removeAttribute('data-init');
     initRightSidebar();
   });
-  
+
   document.addEventListener('swup:contentReplaced', () => {
     const wrapper = document.getElementById('right-sidebar-wrapper');
     wrapper?.removeAttribute('data-init');
