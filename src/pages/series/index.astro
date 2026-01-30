@@ -1,0 +1,484 @@
+---
+/**
+ * Series Index Page
+ *
+ * @description Beautiful series listing page with cards and progress indicators.
+ *
+ * @route /series/
+ */
+
+import DashboardLayout from '@layouts/DashboardLayout.astro';
+import { getSeriesWithCounts, getPostsBySeries } from '@utils/content-utils';
+import { getUrl } from '@utils/url-utils';
+import { Icon } from 'astro-icon/components';
+import { i18n, I18nKey } from '@i18n/index';
+
+// Get all series with post counts
+const allSeries = await getSeriesWithCounts();
+
+// Filter to series that have posts and get posts for each
+const seriesWithPosts = await Promise.all(
+  allSeries
+    .filter((s) => s.postCount > 0)
+    .map(async (series) => {
+      const posts = await getPostsBySeries(series.id);
+      return {
+        ...series,
+        posts: posts.slice(0, 3), // Get first 3 posts for preview
+      };
+    })
+);
+---
+
+<DashboardLayout
+  title={i18n(I18nKey.series)}
+  description={i18n(I18nKey.seriesDescription)}
+>
+  <div class="series-page">
+    {/* Page Header */}
+    <header class="page-header">
+      <div class="header-content">
+        <div class="header-icon">
+          <Icon name="material-symbols:library-books" class="icon" />
+        </div>
+        <div class="header-text">
+          <h1 class="page-title">{i18n(I18nKey.series)}</h1>
+          <p class="page-subtitle">{i18n(I18nKey.seriesDescription)}</p>
+        </div>
+      </div>
+      <div class="header-stats">
+        <div class="stat">
+          <span class="stat-value">{seriesWithPosts.length}</span>
+          <span class="stat-label">Series</span>
+        </div>
+        <div class="stat">
+          <span class="stat-value">{seriesWithPosts.reduce((acc, s) => acc + s.postCount, 0)}</span>
+          <span class="stat-label">Total Posts</span>
+        </div>
+      </div>
+    </header>
+
+    {/* Series Grid */}
+    <div class="series-grid">
+      {seriesWithPosts.map((series) => (
+        <article class="series-card">
+          <header class="card-header">
+            <div class="card-icon">
+              <Icon name="material-symbols:book-2-outline" class="icon" />
+            </div>
+            <div class="card-meta">
+              <span class:list={['status-badge', series.status]}>
+                {series.status === 'completed'
+                  ? i18n(I18nKey.completed)
+                  : series.status === 'ongoing'
+                    ? i18n(I18nKey.ongoing)
+                    : i18n(I18nKey.paused)}
+              </span>
+              <span class="post-count">{series.postCount} posts</span>
+            </div>
+          </header>
+
+          <div class="card-body">
+            <h2 class="series-title">
+              <a href={getUrl(`/series/${series.id}/`)}>{series.title}</a>
+            </h2>
+            <p class="series-description">{series.description}</p>
+          </div>
+
+          {/* Post Preview List */}
+          <div class="post-preview">
+            {series.posts.map((post, idx) => (
+              <a href={getUrl(`/posts/${post.id}/`)} class="preview-item">
+                <span class="preview-num">{idx + 1}</span>
+                <span class="preview-title">{post.data.title}</span>
+              </a>
+            ))}
+            {series.postCount > 3 && (
+              <a href={getUrl(`/series/${series.id}/`)} class="preview-more">
+                <Icon name="material-symbols:add" class="w-3 h-3" />
+                <span>{series.postCount - 3} more posts</span>
+              </a>
+            )}
+          </div>
+
+          <footer class="card-footer">
+            <a href={getUrl(`/series/${series.id}/`)} class="view-series-btn">
+              <span>View Series</span>
+              <Icon name="material-symbols:arrow-forward" class="w-4 h-4" />
+            </a>
+          </footer>
+        </article>
+      ))}
+    </div>
+
+    {/* Empty State */}
+    {seriesWithPosts.length === 0 && (
+      <div class="empty-state">
+        <div class="empty-icon">
+          <Icon name="material-symbols:library-books-outline" class="w-12 h-12" />
+        </div>
+        <h2 class="empty-title">No series yet</h2>
+        <p class="empty-text">Series will appear here when posts are grouped together.</p>
+      </div>
+    )}
+  </div>
+</DashboardLayout>
+
+<style>
+  .series-page {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+  }
+
+  /* Page Header */
+  .page-header {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+    padding: 1.5rem;
+    background: linear-gradient(135deg, oklch(var(--primary) / 0.08), oklch(var(--primary) / 0.02));
+    border: 1px solid oklch(var(--primary) / 0.15);
+    border-radius: 16px;
+  }
+
+  .header-content {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+  }
+
+  .header-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 56px;
+    height: 56px;
+    border-radius: 14px;
+    background: oklch(var(--primary) / 0.15);
+    flex-shrink: 0;
+  }
+
+  .header-icon .icon {
+    width: 28px;
+    height: 28px;
+    color: oklch(var(--primary));
+  }
+
+  .header-text {
+    flex: 1;
+  }
+
+  .page-title {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--text-primary);
+    margin-bottom: 0.25rem;
+  }
+
+  .page-subtitle {
+    font-size: 0.875rem;
+    color: var(--text-secondary);
+  }
+
+  .header-stats {
+    display: flex;
+    gap: 2rem;
+    padding-top: 1rem;
+    border-top: 1px solid var(--border-color);
+  }
+
+  .stat {
+    display: flex;
+    flex-direction: column;
+    gap: 0.125rem;
+  }
+
+  .stat-value {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: oklch(var(--primary));
+  }
+
+  .stat-label {
+    font-size: 0.75rem;
+    color: var(--text-tertiary);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+
+  /* Series Grid */
+  .series-grid {
+    display: grid;
+    gap: 1.25rem;
+    grid-template-columns: 1fr;
+  }
+
+  @media (min-width: 768px) {
+    .series-grid {
+      grid-template-columns: repeat(2, 1fr);
+    }
+  }
+
+  /* Series Card */
+  .series-card {
+    display: flex;
+    flex-direction: column;
+    background: var(--card-bg);
+    border: 1px solid var(--border-color);
+    border-radius: 16px;
+    overflow: hidden;
+    transition: all 0.25s ease;
+  }
+
+  .series-card:hover {
+    border-color: oklch(var(--primary) / 0.3);
+    box-shadow: 0 8px 24px oklch(var(--primary) / 0.1);
+    transform: translateY(-2px);
+  }
+
+  .card-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 1rem 1.25rem;
+    background: oklch(var(--primary) / 0.03);
+    border-bottom: 1px solid var(--border-color);
+  }
+
+  .card-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    height: 40px;
+    border-radius: 10px;
+    background: oklch(var(--primary) / 0.12);
+  }
+
+  .card-icon .icon {
+    width: 20px;
+    height: 20px;
+    color: oklch(var(--primary));
+  }
+
+  .card-meta {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+  }
+
+  .status-badge {
+    font-size: 0.6875rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+    padding: 0.25rem 0.625rem;
+    border-radius: 6px;
+    background: var(--btn-regular-bg);
+    color: var(--text-tertiary);
+  }
+
+  .status-badge.completed {
+    background: rgba(34, 197, 94, 0.12);
+    color: #22c55e;
+  }
+
+  .status-badge.ongoing {
+    background: oklch(var(--primary) / 0.12);
+    color: oklch(var(--primary));
+  }
+
+  .status-badge.paused {
+    background: rgba(245, 158, 11, 0.12);
+    color: #f59e0b;
+  }
+
+  .post-count {
+    font-size: 0.75rem;
+    color: var(--text-tertiary);
+  }
+
+  .card-body {
+    padding: 1.25rem;
+  }
+
+  .series-title {
+    font-size: 1.125rem;
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+  }
+
+  .series-title a {
+    color: var(--text-primary);
+    text-decoration: none;
+    transition: color 0.15s;
+  }
+
+  .series-card:hover .series-title a {
+    color: oklch(var(--primary));
+  }
+
+  .series-description {
+    font-size: 0.875rem;
+    color: var(--text-secondary);
+    line-height: 1.5;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+
+  /* Post Preview */
+  .post-preview {
+    padding: 0 1.25rem;
+    margin-bottom: 0.5rem;
+  }
+
+  .preview-item {
+    display: flex;
+    align-items: center;
+    gap: 0.625rem;
+    padding: 0.5rem 0;
+    text-decoration: none;
+    border-bottom: 1px solid var(--border-color);
+    transition: all 0.15s;
+  }
+
+  .preview-item:last-of-type {
+    border-bottom: none;
+  }
+
+  .preview-item:hover {
+    padding-left: 0.25rem;
+  }
+
+  .preview-item:hover .preview-title {
+    color: oklch(var(--primary));
+  }
+
+  .preview-num {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 1.375rem;
+    height: 1.375rem;
+    font-size: 0.6875rem;
+    font-weight: 600;
+    border-radius: 4px;
+    background: var(--border-color);
+    color: var(--text-tertiary);
+    flex-shrink: 0;
+  }
+
+  .preview-title {
+    font-size: 0.8125rem;
+    color: var(--text-secondary);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    transition: color 0.15s;
+  }
+
+  .preview-more {
+    display: flex;
+    align-items: center;
+    gap: 0.375rem;
+    padding: 0.5rem 0;
+    font-size: 0.75rem;
+    font-weight: 500;
+    color: oklch(var(--primary));
+    text-decoration: none;
+    transition: opacity 0.15s;
+  }
+
+  .preview-more:hover {
+    opacity: 0.8;
+  }
+
+  .card-footer {
+    margin-top: auto;
+    padding: 1rem 1.25rem;
+    background: var(--page-bg);
+    border-top: 1px solid var(--border-color);
+  }
+
+  .view-series-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    width: 100%;
+    padding: 0.625rem 1rem;
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: oklch(var(--primary));
+    background: oklch(var(--primary) / 0.1);
+    border-radius: 8px;
+    text-decoration: none;
+    transition: all 0.2s;
+  }
+
+  .view-series-btn:hover {
+    background: oklch(var(--primary) / 0.15);
+    transform: translateY(-1px);
+  }
+
+  /* Empty State */
+  .empty-state {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    padding: 4rem 2rem;
+    background: var(--card-bg);
+    border: 1px solid var(--border-color);
+    border-radius: 16px;
+  }
+
+  .empty-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 80px;
+    height: 80px;
+    margin-bottom: 1.5rem;
+    border-radius: 20px;
+    background: var(--btn-regular-bg);
+    color: var(--text-tertiary);
+  }
+
+  .empty-title {
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: var(--text-primary);
+    margin-bottom: 0.5rem;
+  }
+
+  .empty-text {
+    font-size: 0.9375rem;
+    color: var(--text-secondary);
+  }
+
+  /* Responsive */
+  @media (min-width: 768px) {
+    .page-header {
+      flex-direction: row;
+      align-items: center;
+      justify-content: space-between;
+      padding: 2rem;
+    }
+
+    .header-stats {
+      padding-top: 0;
+      border-top: none;
+      border-left: 1px solid var(--border-color);
+      padding-left: 2rem;
+    }
+
+    .page-title {
+      font-size: 1.75rem;
+    }
+  }
+</style>

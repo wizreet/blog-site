@@ -166,6 +166,19 @@ const themeColorDark = '#1a1a2e';
         if (hue) {
           document.documentElement.style.setProperty('--hue', hue);
         }
+
+        // Apply sidebar collapsed states immediately to prevent flash on hard refresh
+        try {
+          const sidebarState = JSON.parse(localStorage.getItem('sidebar-state') || '{}');
+          if (sidebarState.leftCollapsed) {
+            document.documentElement.setAttribute('data-left-collapsed', 'true');
+          }
+          if (sidebarState.rightCollapsed) {
+            document.documentElement.setAttribute('data-right-collapsed', 'true');
+          }
+        } catch (e) {
+          // Ignore parse errors
+        }
       })();
     </script>
 

@@ -395,3 +395,37 @@
     color: #666;
   }
 }
+
+/* ============================================================================
+   Sidebar Flash Prevention (applied via html data attributes before JS loads)
+   ============================================================================ */
+
+@media (min-width: 768px) {
+  html[data-right-collapsed='true'] .dashboard-container .right-sidebar,
+  html[data-right-collapsed='true'] .dashboard-container [data-sidebar='right'] {
+    display: none !important;
+  }
+
+  html[data-right-collapsed='true'] .dashboard-container .dashboard-grid {
+    grid-template-columns: 1fr !important;
+  }
+}
+
+@media (min-width: 1024px) {
+  html[data-left-collapsed='true'] .dashboard-container .left-sidebar,
+  html[data-left-collapsed='true'] .dashboard-container [data-sidebar='left'] {
+    display: none !important;
+  }
+
+  html[data-left-collapsed='true'] .dashboard-container .dashboard-grid {
+    grid-template-columns: 1fr 260px !important;
+  }
+
+  html[data-right-collapsed='true'] .dashboard-container .dashboard-grid {
+    grid-template-columns: 240px 1fr !important;
+  }
+
+  html[data-left-collapsed='true'][data-right-collapsed='true'] .dashboard-container .dashboard-grid {
+    grid-template-columns: 1fr !important;
+  }
+}

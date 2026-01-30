@@ -2,33 +2,8 @@
 /**
  * Dashboard Layout
  *
- * @description Three-column blog-focused layout with navigation dashboard.
- *
- * Structure:
- * ┌─────────────┬─────────────────────────────────┬─────────────┐
- * │   Left      │        Main Content             │   Right     │
- * │  Sidebar    │                                 │  Sidebar    │
- * │             │                                 │             │
- * │  - Series   │                                 │  - Profile  │
- * │  - Cats     │                                 │  - TOC      │
- * │  - Tags     │                                 │             │
- * └─────────────┴─────────────────────────────────┴─────────────┘
- *
- * Responsive:
- * - Desktop (lg+): Three columns
- * - Tablet (md): Two columns (main + right)
- * - Mobile: Single column with collapsible nav
- *
- * @slot default - Main content area
- * @slot left-sidebar - Override left sidebar content
- * @slot right-sidebar - Override right sidebar content
- *
- * @example
- * ```astro
- * <DashboardLayout title="All Posts">
- *   <PostList posts={posts} />
- * </DashboardLayout>
- * ```
+ * @description Clean three-column layout with proper sidebar toggle management.
+ * No left gap when hideLeftSidebar is true, proper state persistence.
  */
 
 import Layout from './Layout.astro';
@@ -37,41 +12,25 @@ import Footer from '@components/Footer.astro';
 import BackToTop from '@components/BackToTop.astro';
 import LeftSidebar from '@components/dashboard/LeftSidebar.astro';
 import RightSidebar from '@components/dashboard/RightSidebar.astro';
-import type { MarkdownHeading } from 'astro';
 import TOC from '@components/widget/TOC.astro';
+import type { MarkdownHeading } from 'astro';
 
 interface Props {
-  /** Page title for SEO and browser tab */
   title?: string;
-  /** Page description for SEO */
   description?: string;
-  /** Open Graph image URL */
   ogImage?: string;
-  /** Canonical URL */
   url?: string;
-  /** Article publish date */
   publishDate?: Date;
-  /** Article modified date */
   modifiedDate?: Date;
-  /** Is this an article page? */
   isArticle?: boolean;
-  /** Robots meta directive */
   robots?: string;
-  /** Hide left sidebar */
   hideLeftSidebar?: boolean;
-  /** Hide right sidebar */
   hideRightSidebar?: boolean;
-  /** Show TOC on left sidebar (for post pages) */
   showTocOnLeft?: boolean;
-  /** Headings for TOC */
   headings?: MarkdownHeading[];
-  /** Additional class for main content */
   contentClass?: string;
-  /** Active category for highlighting */
   activeCategory?: string;
-  /** Active series for highlighting */
   activeSeries?: string;
-  /** Active post slug for highlighting */
   activePost?: string;
 }
 
@@ -94,7 +53,6 @@ const {
   activePost,
 } = Astro.props;
 
-// Check for custom sidebar slots
 const hasLeftSlot = Astro.slots.has('left-sidebar');
 const hasRightSlot = Astro.slots.has('right-sidebar');
 ---
@@ -109,16 +67,18 @@ const hasRightSlot = Astro.slots.has('right-sidebar');
   isArticle={isArticle}
   robots={robots}
 >
-  <!-- Navigation -->
   <Navbar />
 
-  <!-- Main Layout Container -->
-  <div class="dashboard-container">
+  <div 
+    class="dashboard-container" 
+    data-hide-left={hideLeftSidebar ? 'true' : 'false'}
+    data-hide-right={hideRightSidebar ? 'true' : 'false'}
+  >
     <div class="dashboard-grid">
-      {/* Left Sidebar - TOC for posts, Navigation for other pages */}
+      {/* Left Sidebar */}
       {!hideLeftSidebar && (
-        <aside class="left-sidebar" aria-label={showTocOnLeft ? "Table of contents" : "Navigation"}>
-          <div class="sidebar-content">
+        <aside class="left-sidebar" data-sidebar="left">
+          <div class="sidebar-inner">
             {hasLeftSlot ? (
               <slot name="left-sidebar" />
             ) : showTocOnLeft ? (
@@ -134,23 +94,18 @@ const hasRightSlot = Astro.slots.has('right-sidebar');
         </aside>
       )}
 
-      {/* Main Content Area */}
+      {/* Main Content */}
       <main
         id="main-content"
-        class:list={[
-          'main-content',
-          { 'no-left': hideLeftSidebar },
-          { 'no-right': hideRightSidebar },
-          contentClass,
-        ]}
+        class:list={['main-content', contentClass]}
       >
         <slot />
       </main>
 
-      {/* Right Sidebar - Profile & Categories */}
+      {/* Right Sidebar */}
       {!hideRightSidebar && (
-        <aside class="right-sidebar" aria-label="Page info">
-          <div class="sidebar-content">
+        <aside class="right-sidebar" data-sidebar="right">
+          <div class="sidebar-inner">
             {hasRightSlot ? (
               <slot name="right-sidebar" />
             ) : (
@@ -162,15 +117,11 @@ const hasRightSlot = Astro.slots.has('right-sidebar');
     </div>
   </div>
 
-  <!-- Footer -->
   <Footer />
-
-  <!-- Back to Top Button -->
   <BackToTop />
 </Layout>
 
 <style>
-  /* Dashboard Container */
   .dashboard-container {
     width: 100%;
     min-height: calc(100vh - var(--navbar-height) - 4rem);
@@ -178,38 +129,21 @@ const hasRightSlot = Astro.slots.has('right-sidebar');
     padding-bottom: 1.5rem;
   }
 
-  /* Three-column Grid */
   .dashboard-grid {
     display: grid;
-    gap: 1rem;
+    gap: 1.25rem;
     max-width: 1400px;
     margin: 0 auto;
-    padding: 0 0.75rem;
-
-    /* Mobile: Single column */
+    padding: 0 1rem;
     grid-template-columns: 1fr;
-    grid-template-areas: 'main';
   }
 
-  /* Left Sidebar */
-  .left-sidebar {
-    display: none;
-  }
-
-  /* Main Content */
-  .main-content {
-    grid-area: main;
-    min-width: 0;
-    width: 100%;
-  }
-
-  /* Right Sidebar */
+  .left-sidebar,
   .right-sidebar {
     display: none;
   }
 
-  /* Sidebar Content Container */
-  .sidebar-content {
+  .sidebar-inner {
     position: sticky;
     top: calc(var(--navbar-height) + 1rem);
     max-height: calc(100vh - var(--navbar-height) - 2rem);
@@ -218,137 +152,202 @@ const hasRightSlot = Astro.slots.has('right-sidebar');
     scrollbar-color: var(--border-color) transparent;
   }
 
-  .sidebar-content::-webkit-scrollbar {
+  .sidebar-inner::-webkit-scrollbar {
     width: 4px;
   }
 
-  .sidebar-content::-webkit-scrollbar-track {
-    background: transparent;
-  }
-
-  .sidebar-content::-webkit-scrollbar-thumb {
+  .sidebar-inner::-webkit-scrollbar-thumb {
     background: var(--border-color);
     border-radius: 2px;
   }
 
-  /* Tablet: Two columns (main + right) */
+  /* Tablet: Main + Right */
   @media (min-width: 768px) {
     .dashboard-container {
-      padding: calc(var(--navbar-height) + 1.25rem) 1rem 1.5rem;
+      padding: calc(var(--navbar-height) + 1.25rem) 1.25rem 1.5rem;
     }
 
     .dashboard-grid {
-      gap: 1.25rem;
-      padding: 0 1rem;
       grid-template-columns: 1fr 260px;
-      grid-template-areas: 'main right';
     }
 
     .right-sidebar {
       display: block;
-      grid-area: right;
+    }
+
+    /* When right is hidden via prop */
+    .dashboard-container[data-hide-right='true'] .dashboard-grid {
+      grid-template-columns: 1fr;
+    }
+
+    /* When right is collapsed via toggle */
+    .dashboard-container[data-right-collapsed='true'] .right-sidebar {
+      display: none;
+    }
+
+    .dashboard-container[data-right-collapsed='true'] .dashboard-grid {
+      grid-template-columns: 1fr;
     }
   }
 
-  /* Desktop: Three columns */
+  /* Desktop: Left + Main + Right */
   @media (min-width: 1024px) {
     .dashboard-container {
-      padding: calc(var(--navbar-height) + 1.5rem) 1.25rem 1.5rem;
+      padding: calc(var(--navbar-height) + 1.5rem) 1.5rem 1.5rem;
     }
 
     .dashboard-grid {
-      gap: 1.5rem;
-      padding: 0;
       grid-template-columns: 240px 1fr 260px;
-      grid-template-areas: 'left main right';
     }
 
     .left-sidebar {
       display: block;
-      grid-area: left;
     }
 
-    .main-content.no-left {
-      grid-column: 1 / 3;
+    /* When left is hidden via prop - no gap on left */
+    .dashboard-container[data-hide-left='true'] .dashboard-grid {
+      grid-template-columns: 1fr 260px;
     }
 
-    .main-content.no-right {
-      grid-column: 2 / 4;
+    /* When right is hidden via prop */
+    .dashboard-container[data-hide-right='true'] .dashboard-grid {
+      grid-template-columns: 240px 1fr;
     }
 
-    .main-content.no-left.no-right {
-      grid-column: 1 / 4;
+    /* When both hidden via props */
+    .dashboard-container[data-hide-left='true'][data-hide-right='true'] .dashboard-grid {
+      grid-template-columns: 1fr;
+      max-width: 900px;
+    }
+
+    /* Collapsed states via toggle */
+    .dashboard-container[data-left-collapsed='true'] .left-sidebar {
+      display: none;
+    }
+
+    .dashboard-container[data-left-collapsed='true'] .dashboard-grid {
+      grid-template-columns: 1fr 260px;
+    }
+
+    .dashboard-container[data-right-collapsed='true'] .right-sidebar {
+      display: none;
+    }
+
+    .dashboard-container[data-right-collapsed='true'] .dashboard-grid {
+      grid-template-columns: 240px 1fr;
+    }
+
+    /* Combined prop + collapsed states */
+    .dashboard-container[data-hide-left='true'][data-right-collapsed='true'] .dashboard-grid,
+    .dashboard-container[data-left-collapsed='true'][data-hide-right='true'] .dashboard-grid,
+    .dashboard-container[data-left-collapsed='true'][data-right-collapsed='true'] .dashboard-grid {
+      grid-template-columns: 1fr;
+      max-width: 900px;
     }
   }
 
-  /* Large Desktop: Wider layout */
+  /* Large Desktop */
   @media (min-width: 1280px) {
     .dashboard-grid {
       max-width: 1440px;
       grid-template-columns: 260px 1fr 280px;
     }
-  }
 
-  /* Sidebar collapsed state - Left */
-  @media (min-width: 1024px) {
-    .dashboard-container.left-sidebar-collapsed .left-sidebar {
-      display: none;
-    }
-
-    .dashboard-container.left-sidebar-collapsed .dashboard-grid {
-      grid-template-columns: 1fr 260px;
-      grid-template-areas: 'main right';
-    }
-
-    .dashboard-container.left-sidebar-collapsed .main-content {
-      grid-column: 1 / 2;
-    }
-  }
-
-  @media (min-width: 1280px) {
-    .dashboard-container.left-sidebar-collapsed .dashboard-grid {
+    .dashboard-container[data-hide-left='true'] .dashboard-grid {
       grid-template-columns: 1fr 280px;
     }
-  }
 
-  /* Sidebar collapsed state - Right */
-  @media (min-width: 768px) {
-    .dashboard-container.right-sidebar-collapsed .right-sidebar {
-      display: none;
+    .dashboard-container[data-hide-right='true'] .dashboard-grid {
+      grid-template-columns: 260px 1fr;
     }
 
-    .dashboard-container.right-sidebar-collapsed .dashboard-grid {
-      grid-template-columns: 1fr;
-      grid-template-areas: 'main';
-    }
-  }
-
-  @media (min-width: 1024px) {
-    .dashboard-container.right-sidebar-collapsed .dashboard-grid {
-      grid-template-columns: 240px 1fr;
-      grid-template-areas: 'left main';
+    .dashboard-container[data-left-collapsed='true'] .dashboard-grid {
+      grid-template-columns: 1fr 280px;
     }
 
-    .dashboard-container.right-sidebar-collapsed .main-content {
-      grid-column: 2 / 3;
-    }
-  }
-
-  @media (min-width: 1280px) {
-    .dashboard-container.right-sidebar-collapsed .dashboard-grid {
+    .dashboard-container[data-right-collapsed='true'] .dashboard-grid {
       grid-template-columns: 260px 1fr;
     }
   }
-
-  /* Both sidebars collapsed */
-  @media (min-width: 1024px) {
-    .dashboard-container.left-sidebar-collapsed.right-sidebar-collapsed .dashboard-grid {
-      grid-template-columns: 1fr;
-      grid-template-areas: 'main';
-    }
-
-    .dashboard-container.left-sidebar-collapsed.right-sidebar-collapsed .main-content {
-      grid-column: 1 / 2;
-    }
-  }
 </style>
+
+<script>
+  /**
+   * Sidebar State Manager
+   * Clean, professional implementation with no race conditions
+   */
+  const SidebarManager = {
+    STORAGE_KEY: 'sidebar-state',
+    
+    getState(): { leftCollapsed: boolean; rightCollapsed: boolean } {
+      try {
+        const stored = localStorage.getItem(this.STORAGE_KEY);
+        if (stored) {
+          return JSON.parse(stored);
+        }
+      } catch (e) {
+        console.warn('Failed to read sidebar state:', e);
+      }
+      return { leftCollapsed: false, rightCollapsed: false };
+    },
+
+    setState(state: { leftCollapsed?: boolean; rightCollapsed?: boolean }) {
+      const current = this.getState();
+      const newState = { ...current, ...state };
+      try {
+        localStorage.setItem(this.STORAGE_KEY, JSON.stringify(newState));
+      } catch (e) {
+        console.warn('Failed to save sidebar state:', e);
+      }
+      return newState;
+    },
+
+    applyToDOM() {
+      const container = document.querySelector('.dashboard-container');
+      if (!container) return;
+
+      const state = this.getState();
+      
+      if (state.leftCollapsed) {
+        container.setAttribute('data-left-collapsed', 'true');
+      } else {
+        container.removeAttribute('data-left-collapsed');
+      }
+
+      if (state.rightCollapsed) {
+        container.setAttribute('data-right-collapsed', 'true');
+      } else {
+        container.removeAttribute('data-right-collapsed');
+      }
+    },
+
+    toggleLeft() {
+      const state = this.getState();
+      this.setState({ leftCollapsed: !state.leftCollapsed });
+      this.applyToDOM();
+    },
+
+    toggleRight() {
+      const state = this.getState();
+      this.setState({ rightCollapsed: !state.rightCollapsed });
+      this.applyToDOM();
+    }
+  };
+
+  // Make available globally for sidebar toggle buttons
+  (window as any).SidebarManager = SidebarManager;
+
+  // Apply state on load
+  function initSidebarState() {
+    SidebarManager.applyToDOM();
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initSidebarState);
+  } else {
+    initSidebarState();
+  }
+
+  document.addEventListener('astro:after-swap', initSidebarState);
+  document.addEventListener('swup:contentReplaced', initSidebarState);
+</script>

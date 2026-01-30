@@ -2,27 +2,20 @@
 /**
  * Right Sidebar Component
  *
- * @description Shows series and categories navigation with collapse toggle.
- *
- * Features:
- * - Series list with post counts
- * - Categories list with post counts
- * - Collapse toggle button
- *
- * @example
- * ```astro
- * <RightSidebar />
- * ```
+ * Clean, professional implementation with:
+ * - Always-visible toggle button
+ * - Accordion behavior for series/categories
+ * - Expandable posts list
+ * - Proper state management
  */
 
 import { Icon } from 'astro-icon/components';
-import { getCategoryList, getSeriesWithCounts } from '@utils/content-utils';
-import { getUrl } from '@utils/url-utils';
+import { getCategoryList, getSeriesWithCounts, getSortedPosts } from '@utils/content-utils';
+import { getUrl, getPostUrl } from '@utils/url-utils';
 import { i18n, I18nKey } from '@i18n/index';
 import type { MarkdownHeading } from 'astro';
 
 interface Props {
-  /** Headings for table of contents (optional) */
   headings?: MarkdownHeading[];
 }
 
@@ -31,44 +24,55 @@ const { headings = [] } = Astro.props;
 // Fetch data
 const categories = await getCategoryList();
 const seriesWithCounts = await getSeriesWithCounts();
+const allPosts = await getSortedPosts();
 
-// Only show series that have posts
 const seriesWithPosts = seriesWithCounts.filter((s) => s.postCount > 0);
-
-// Filter to h2 and h3 only for TOC
 const tocHeadings = headings.filter((h) => h.depth >= 2 && h.depth <= 3);
+
+// Group posts
+const postsBySeries = new Map<string, typeof allPosts>();
+const postsByCategory = new Map<string, typeof allPosts>();
+
+allPosts.forEach((post) => {
+  if (post.data.series?.id) {
+    const id = post.data.series.id;
+    if (!postsBySeries.has(id)) postsBySeries.set(id, []);
+    postsBySeries.get(id)!.push(post);
+  }
+  
+  const cat = post.data.category?.toLowerCase() || 'uncategorized';
+  if (!postsByCategory.has(cat)) postsByCategory.set(cat, []);
+  postsByCategory.get(cat)!.push(post);
+});
 ---
 
-<div class="sidebar-wrapper">
-  {/* Collapse Toggle Header */}
+<div class="right-sidebar-wrapper" id="right-sidebar-wrapper">
+  {/* Toggle Button - Fixed position, always visible */}
   <button
+    class="toggle-btn"
     id="right-sidebar-toggle"
-    class="sidebar-toggle-btn"
-    aria-label="Collapse sidebar"
-    title="Collapse sidebar"
+    type="button"
+    aria-label="Toggle right sidebar"
+    title="Toggle sidebar"
   >
-    <Icon name="material-symbols:chevron-right" class="toggle-icon" />
+    <Icon name="material-symbols:dock-to-right" class="icon-show" />
+    <Icon name="material-symbols:close" class="icon-hide" />
   </button>
 
-  <div class="right-sidebar-content">
-    {/* Table of Contents (if headings provided) */}
+  {/* Sidebar Content */}
+  <div class="sidebar-content" id="right-sidebar-content">
+    {/* TOC */}
     {tocHeadings.length > 0 && (
-      <section class="nav-section">
+      <section class="sidebar-section">
         <header class="section-header">
-          <Icon name="material-symbols:list" class="section-icon" />
-          <span class="section-title">{i18n(I18nKey.tableOfContents)}</span>
+          <Icon name="material-symbols:list" class="header-icon" />
+          <span class="header-title">{i18n(I18nKey.tableOfContents)}</span>
         </header>
-        <nav class="section-body toc-nav">
-          <ul class="toc-list" role="list">
-            {tocHeadings.map((heading) => (
-              <li class:list={['toc-item', `depth-${heading.depth}`]}>
-                <a
-                  href={`#${heading.slug}`}
-                  class="toc-link"
-                  data-toc-link
-                >
-                  {heading.text}
-                </a>
+        <nav class="toc-nav">
+          <ul class="toc-list">
+            {tocHeadings.map((h) => (
+              <li class:list={['toc-item', `depth-${h.depth}`]}>
+                <a href={`#${h.slug}`} class="toc-link" data-toc-link>{h.text}</a>
               </li>
             ))}
           </ul>
@@ -76,98 +80,142 @@ const tocHeadings = headings.filter((h) => h.depth >= 2 && h.depth <= 3);
       </section>
     )}
 
-    {/* Series Section */}
+    {/* Series */}
     {seriesWithPosts.length > 0 && (
-      <section class="nav-section">
+      <section class="sidebar-section">
         <header class="section-header">
-          <Icon name="material-symbols:library-books" class="section-icon" />
-          <span class="section-title">{i18n(I18nKey.series)}</span>
-          <span class="section-count">{seriesWithPosts.length}</span>
+          <Icon name="material-symbols:library-books" class="header-icon" />
+          <span class="header-title">{i18n(I18nKey.series)}</span>
+          <span class="header-count">{seriesWithPosts.length}</span>
         </header>
-        <div class="section-body">
-          {seriesWithPosts.map((series) => (
-            <a
-              href={getUrl(`/series/${series.id}/`)}
-              class="nav-link"
-            >
-              <Icon name="material-symbols:book-2-outline" class="nav-icon" />
-              <span class="nav-name">{series.title}</span>
-              <span class:list={['status-badge', series.status]}>{series.postCount}</span>
-            </a>
-          ))}
+        <div class="section-content">
+          {seriesWithPosts.map((series) => {
+            const posts = postsBySeries.get(series.id) || [];
+            return (
+              <div class="accordion-item" data-accordion>
+                <button class="accordion-header" type="button" aria-expanded="false">
+                  <Icon name="material-symbols:book-2-outline" class="item-icon" />
+                  <span class="item-name">{series.title}</span>
+                  <span class:list={['item-badge', series.status]}>{series.postCount}</span>
+                  <Icon name="material-symbols:chevron-right" class="chevron" />
+                </button>
+                <div class="accordion-panel">
+                  {posts.map((post, i) => (
+                    <a href={getPostUrl(post.id)} class="panel-link">
+                      <span class="link-num">{i + 1}</span>
+                      <span class="link-text">{post.data.title}</span>
+                    </a>
+                  ))}
+                  <a href={getUrl(`/series/${series.id}/`)} class="panel-view-all">
+                    View all →
+                  </a>
+                </div>
+              </div>
+            );
+          })}
         </div>
       </section>
     )}
 
-    {/* Categories Section */}
-    <section class="nav-section">
+    {/* Categories */}
+    <section class="sidebar-section">
       <header class="section-header">
-        <Icon name="material-symbols:folder-open" class="section-icon" />
-        <span class="section-title">{i18n(I18nKey.categories)}</span>
-        <span class="section-count">{categories.length}</span>
+        <Icon name="material-symbols:folder-open" class="header-icon" />
+        <span class="header-title">{i18n(I18nKey.categories)}</span>
+        <span class="header-count">{categories.length}</span>
       </header>
-      <div class="section-body">
-        {categories.map((category) => (
-          <a
-            href={getUrl(`/posts/category/${category.name.toLowerCase()}/`)}
-            class="nav-link"
-          >
-            <Icon name="material-symbols:label-outline" class="nav-icon" />
-            <span class="nav-name">{category.name}</span>
-            <span class="count-badge">{category.count}</span>
-          </a>
-        ))}
+      <div class="section-content">
+        {categories.map((cat) => {
+          const posts = postsByCategory.get(cat.name.toLowerCase()) || [];
+          return (
+            <div class="accordion-item" data-accordion>
+              <button class="accordion-header" type="button" aria-expanded="false">
+                <Icon name="material-symbols:label-outline" class="item-icon" />
+                <span class="item-name">{cat.name}</span>
+                <span class="item-badge">{cat.count}</span>
+                <Icon name="material-symbols:chevron-right" class="chevron" />
+              </button>
+              <div class="accordion-panel">
+                {posts.slice(0, 5).map((post) => (
+                  <a href={getPostUrl(post.id)} class="panel-link">
+                    <span class="link-text">{post.data.title}</span>
+                  </a>
+                ))}
+                <a href={getUrl(`/posts/category/${cat.name.toLowerCase()}/`)} class="panel-view-all">
+                  {posts.length > 5 ? `View all ${posts.length} →` : 'View category →'}
+                </a>
+              </div>
+            </div>
+          );
+        })}
       </div>
     </section>
   </div>
 </div>
 
 <style>
-  .sidebar-wrapper {
+  .right-sidebar-wrapper {
     position: relative;
   }
 
-  .sidebar-toggle-btn {
-    position: absolute;
-    top: 0.5rem;
-    left: -0.5rem;
-    z-index: 10;
-    display: flex;
+  /* Toggle Button */
+  .toggle-btn {
+    position: fixed;
+    top: calc(var(--navbar-height) + 1rem);
+    right: 1rem;
+    z-index: 100;
+    display: none;
     align-items: center;
     justify-content: center;
-    width: 1.5rem;
-    height: 1.5rem;
+    width: 2.25rem;
+    height: 2.25rem;
+    padding: 0;
     border: 1px solid var(--border-color);
-    border-radius: 50%;
+    border-radius: 8px;
     background: var(--card-bg);
-    color: var(--text-tertiary);
+    color: var(--text-secondary);
     cursor: pointer;
-    transition: all 0.15s;
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.12);
+    transition: all 0.2s ease;
   }
 
-  .sidebar-toggle-btn:hover {
-    color: var(--text-primary);
-    background: var(--btn-hover-bg);
+  .toggle-btn:hover {
+    border-color: oklch(var(--primary) / 0.5);
+    color: oklch(var(--primary));
+    background: oklch(var(--primary) / 0.05);
   }
 
-  .toggle-icon {
-    width: 1rem;
-    height: 1rem;
+  .toggle-btn .icon-show,
+  .toggle-btn .icon-hide {
+    width: 1.25rem;
+    height: 1.25rem;
   }
 
-  .right-sidebar-content {
+  .toggle-btn .icon-hide {
+    display: none;
+  }
+
+  /* When sidebar is visible, show close icon */
+  .toggle-btn.sidebar-visible .icon-show {
+    display: none;
+  }
+  .toggle-btn.sidebar-visible .icon-hide {
+    display: block;
+  }
+
+  /* Sidebar Content */
+  .sidebar-content {
     display: flex;
     flex-direction: column;
     gap: 0.75rem;
   }
 
   /* Section */
-  .nav-section {
+  .sidebar-section {
     background: var(--card-bg);
-    border-radius: 0.75rem;
-    overflow: hidden;
     border: 1px solid var(--border-color);
+    border-radius: 12px;
+    overflow: hidden;
   }
 
   .section-header {
@@ -179,13 +227,14 @@ const tocHeadings = headings.filter((h) => h.depth >= 2 && h.depth <= 3);
     border-bottom: 1px solid var(--border-color);
   }
 
-  .section-icon {
+  .header-icon {
     width: 1rem;
     height: 1rem;
     color: oklch(var(--primary));
+    flex-shrink: 0;
   }
 
-  .section-title {
+  .header-title {
     flex: 1;
     font-size: 0.75rem;
     font-weight: 600;
@@ -194,84 +243,178 @@ const tocHeadings = headings.filter((h) => h.depth >= 2 && h.depth <= 3);
     color: var(--text-primary);
   }
 
-  .section-count {
+  .header-count {
     font-size: 0.625rem;
     font-weight: 600;
-    padding: 0.125rem 0.375rem;
-    border-radius: 9999px;
+    padding: 0.125rem 0.5rem;
+    border-radius: 10px;
     background: oklch(var(--primary) / 0.12);
     color: oklch(var(--primary));
   }
 
-  .section-body {
-    padding: 0.375rem;
+  .section-content {
+    padding: 0.5rem;
   }
 
-  /* Nav Links */
-  .nav-link {
+  /* Accordion */
+  .accordion-item {
+    margin-bottom: 0.25rem;
+  }
+
+  .accordion-item:last-child {
+    margin-bottom: 0;
+  }
+
+  .accordion-header {
     display: flex;
     align-items: center;
     gap: 0.5rem;
+    width: 100%;
     padding: 0.5rem 0.625rem;
-    border-radius: 0.375rem;
-    text-decoration: none;
+    border: none;
+    border-radius: 6px;
+    background: transparent;
+    font-family: inherit;
     font-size: 0.8125rem;
     color: var(--text-secondary);
-    transition: all 0.15s;
+    text-align: left;
+    cursor: pointer;
+    transition: all 0.15s ease;
   }
 
-  .nav-link:hover {
+  .accordion-header:hover {
     background: var(--btn-hover-bg);
     color: var(--text-primary);
   }
 
-  .nav-icon {
+  .accordion-header[aria-expanded='true'] {
+    background: oklch(var(--primary) / 0.08);
+    color: oklch(var(--primary));
+  }
+
+  .item-icon {
     width: 1rem;
     height: 1rem;
     flex-shrink: 0;
     opacity: 0.7;
   }
 
-  .nav-link:hover .nav-icon {
+  .accordion-header:hover .item-icon,
+  .accordion-header[aria-expanded='true'] .item-icon {
     opacity: 1;
     color: oklch(var(--primary));
   }
 
-  .nav-name {
+  .item-name {
     flex: 1;
+    white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
-    white-space: nowrap;
   }
 
-  .count-badge {
+  .item-badge {
     font-size: 0.6875rem;
     padding: 0.0625rem 0.375rem;
-    border-radius: 9999px;
+    border-radius: 8px;
     background: var(--btn-regular-bg);
     color: var(--text-tertiary);
+    flex-shrink: 0;
   }
 
-  .status-badge {
-    font-size: 0.6875rem;
-    padding: 0.0625rem 0.375rem;
-    border-radius: 9999px;
-    background: var(--btn-regular-bg);
-    color: var(--text-tertiary);
-  }
-
-  .status-badge.ongoing {
-    background: oklch(0.7 0.15 145 / 0.15);
+  .item-badge.ongoing {
+    background: oklch(0.65 0.15 145 / 0.15);
     color: oklch(0.5 0.15 145);
   }
 
-  .status-badge.completed {
+  .item-badge.completed {
     background: oklch(var(--primary) / 0.15);
     color: oklch(var(--primary));
   }
 
-  /* TOC Nav */
+  .accordion-header[aria-expanded='true'] .item-badge {
+    background: oklch(var(--primary) / 0.15);
+    color: oklch(var(--primary));
+  }
+
+  .chevron {
+    width: 0.875rem;
+    height: 0.875rem;
+    flex-shrink: 0;
+    color: var(--text-tertiary);
+    transition: transform 0.2s ease;
+  }
+
+  .accordion-header[aria-expanded='true'] .chevron {
+    transform: rotate(90deg);
+    color: oklch(var(--primary));
+  }
+
+  /* Panel */
+  .accordion-panel {
+    display: none;
+    padding: 0.25rem 0 0.25rem 1.5rem;
+    margin-left: 0.5rem;
+    border-left: 2px solid var(--border-color);
+  }
+
+  .accordion-panel.open {
+    display: block;
+  }
+
+  .panel-link {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.375rem 0.5rem;
+    border-radius: 4px;
+    text-decoration: none;
+    font-size: 0.75rem;
+    color: var(--text-secondary);
+    transition: all 0.15s ease;
+  }
+
+  .panel-link:hover {
+    background: var(--btn-hover-bg);
+    color: var(--text-primary);
+  }
+
+  .link-num {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 1.125rem;
+    height: 1.125rem;
+    font-size: 0.625rem;
+    font-weight: 600;
+    border-radius: 4px;
+    background: var(--border-color);
+    color: var(--text-tertiary);
+    flex-shrink: 0;
+  }
+
+  .link-text {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .panel-view-all {
+    display: block;
+    padding: 0.375rem 0.5rem;
+    font-size: 0.6875rem;
+    font-weight: 500;
+    color: oklch(var(--primary));
+    text-decoration: none;
+    transition: opacity 0.15s ease;
+  }
+
+  .panel-view-all:hover {
+    opacity: 0.8;
+  }
+
+  /* TOC */
   .toc-nav {
+    padding: 0.5rem;
     max-height: 40vh;
     overflow-y: auto;
   }
@@ -282,21 +425,17 @@ const tocHeadings = headings.filter((h) => h.depth >= 2 && h.depth <= 3);
     margin: 0;
   }
 
-  .toc-item {
-    margin: 0;
-  }
-
   .toc-link {
     display: block;
     padding: 0.375rem 0.625rem;
     font-size: 0.8125rem;
     color: var(--text-secondary);
     text-decoration: none;
-    border-radius: 0.375rem;
-    transition: all 0.15s;
+    border-radius: 4px;
+    transition: all 0.15s ease;
+    white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
-    white-space: nowrap;
   }
 
   .toc-link:hover {
@@ -310,95 +449,149 @@ const tocHeadings = headings.filter((h) => h.depth >= 2 && h.depth <= 3);
     font-weight: 500;
   }
 
-  /* Indentation for heading levels */
   .toc-item.depth-3 .toc-link {
     padding-left: 1.25rem;
     font-size: 0.75rem;
   }
+
+  /* Responsive */
+  @media (min-width: 768px) {
+    .toggle-btn {
+      display: flex;
+    }
+
+    /* Position relative to sidebar */
+    .toggle-btn {
+      right: calc(260px + 1.5rem);
+    }
+
+    /* When collapsed */
+    :global([data-right-collapsed='true']) .toggle-btn {
+      right: 1rem;
+    }
+
+    :global([data-right-collapsed='true']) .sidebar-content {
+      display: none;
+    }
+  }
+
+  @media (min-width: 1280px) {
+    .toggle-btn {
+      right: calc(280px + 1.5rem);
+    }
+  }
 </style>
 
 <script>
-  /**
-   * Right Sidebar Functionality
-   */
   function initRightSidebar() {
-    // TOC Active State Tracking
-    const tocLinks = document.querySelectorAll('[data-toc-link]');
+    const wrapper = document.getElementById('right-sidebar-wrapper');
+    const toggleBtn = document.getElementById('right-sidebar-toggle');
+    const content = document.getElementById('right-sidebar-content');
+    
+    if (!wrapper || !toggleBtn) return;
+
+    // Prevent double initialization
+    if (wrapper.hasAttribute('data-init')) return;
+    wrapper.setAttribute('data-init', 'true');
+
+    // Update toggle button state
+    const updateToggleState = () => {
+      const container = document.querySelector('.dashboard-container');
+      const isCollapsed = container?.hasAttribute('data-right-collapsed');
+      toggleBtn.classList.toggle('sidebar-visible', !isCollapsed);
+    };
+
+    // Initial state
+    updateToggleState();
+
+    // Toggle click handler
+    toggleBtn.addEventListener('click', () => {
+      const SidebarManager = (window as any).SidebarManager;
+      if (SidebarManager) {
+        SidebarManager.toggleRight();
+        updateToggleState();
+      }
+    });
+
+    // Accordion functionality
+    const accordionItems = wrapper.querySelectorAll('[data-accordion]');
+    
+    accordionItems.forEach((item) => {
+      const header = item.querySelector('.accordion-header');
+      const panel = item.querySelector('.accordion-panel');
+      
+      if (!header || !panel) return;
+      
+      header.addEventListener('click', () => {
+        const isOpen = header.getAttribute('aria-expanded') === 'true';
+        
+        // Close all other panels
+        accordionItems.forEach((other) => {
+          if (other !== item) {
+            other.querySelector('.accordion-header')?.setAttribute('aria-expanded', 'false');
+            other.querySelector('.accordion-panel')?.classList.remove('open');
+          }
+        });
+        
+        // Toggle current
+        header.setAttribute('aria-expanded', isOpen ? 'false' : 'true');
+        panel.classList.toggle('open', !isOpen);
+      });
+    });
+
+    // TOC active state tracking
+    const tocLinks = wrapper.querySelectorAll('[data-toc-link]');
     if (tocLinks.length > 0) {
-      const headings = Array.from(tocLinks).map((link) => {
-        const id = link.getAttribute('href')?.slice(1);
-        return id ? document.getElementById(id) : null;
-      }).filter(Boolean) as HTMLElement[];
+      const headings = Array.from(tocLinks)
+        .map((link) => {
+          const id = link.getAttribute('href')?.slice(1);
+          return id ? document.getElementById(id) : null;
+        })
+        .filter(Boolean) as HTMLElement[];
 
       if (headings.length > 0) {
-        const observerOptions = {
-          rootMargin: '-80px 0px -80% 0px',
-          threshold: 0,
-        };
-
         let activeLink: Element | null = null;
 
-        const observer = new IntersectionObserver((entries) => {
-          entries.forEach((entry) => {
-            if (entry.isIntersecting) {
-              const id = entry.target.getAttribute('id');
-              const link = document.querySelector(`[data-toc-link][href="#${id}"]`);
+        const observer = new IntersectionObserver(
+          (entries) => {
+            entries.forEach((entry) => {
+              if (entry.isIntersecting) {
+                const id = entry.target.getAttribute('id');
+                const link = wrapper.querySelector(`[data-toc-link][href="#${id}"]`);
 
-              if (activeLink) {
-                activeLink.classList.remove('active');
+                if (activeLink) activeLink.classList.remove('active');
+                if (link) {
+                  link.classList.add('active');
+                  activeLink = link;
+                }
               }
+            });
+          },
+          { rootMargin: '-80px 0px -80% 0px', threshold: 0 }
+        );
 
-              if (link) {
-                link.classList.add('active');
-                activeLink = link;
-              }
-            }
-          });
-        }, observerOptions);
-
-        headings.forEach((heading) => observer.observe(heading));
+        headings.forEach((h) => observer.observe(h));
       }
-    }
-
-    // Right sidebar collapse toggle
-    const rightToggle = document.getElementById('right-sidebar-toggle');
-    const dashboardContainer = document.querySelector('.dashboard-container');
-
-    if (rightToggle && dashboardContainer) {
-      const savedState = localStorage.getItem('right-sidebar-collapsed');
-      let isCollapsed = savedState === 'true';
-
-      // Apply initial state
-      if (isCollapsed) {
-        dashboardContainer.classList.add('right-sidebar-collapsed');
-      }
-
-      // Clone to remove old listeners
-      const newToggle = rightToggle.cloneNode(true) as HTMLElement;
-      rightToggle.parentNode?.replaceChild(newToggle, rightToggle);
-
-      newToggle.addEventListener('click', (e) => {
-        e.preventDefault();
-        isCollapsed = !isCollapsed;
-        localStorage.setItem('right-sidebar-collapsed', isCollapsed.toString());
-
-        const container = document.querySelector('.dashboard-container');
-        if (isCollapsed) {
-          container?.classList.add('right-sidebar-collapsed');
-        } else {
-          container?.classList.remove('right-sidebar-collapsed');
-        }
-      });
     }
   }
 
-  // Initialize on page load and transitions
-  document.addEventListener('DOMContentLoaded', initRightSidebar);
-  document.addEventListener('astro:after-swap', initRightSidebar);
-  document.addEventListener('swup:contentReplaced', initRightSidebar);
-
-  // Fallback
-  if (document.readyState === 'complete' || document.readyState === 'interactive') {
+  // Initialize
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initRightSidebar);
+  } else {
     initRightSidebar();
   }
+  
+  document.addEventListener('astro:after-swap', () => {
+    // Reset init flag for new page
+    const wrapper = document.getElementById('right-sidebar-wrapper');
+    wrapper?.removeAttribute('data-init');
+    initRightSidebar();
+  });
+  
+  document.addEventListener('swup:contentReplaced', () => {
+    const wrapper = document.getElementById('right-sidebar-wrapper');
+    wrapper?.removeAttribute('data-init');
+    initRightSidebar();
+  });
 </script>
