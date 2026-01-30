@@ -39,8 +39,11 @@ export default function Search() {
     }
 
     try {
+      // Dynamically construct URL to avoid Vite static analysis
+      const baseUrl = import.meta.env.BASE_URL || '/';
+      const pagefindUrl = `${baseUrl}pagefind/pagefind.js`;
       // @ts-ignore - Pagefind is loaded from the built output
-      const pf = await import(/* @vite-ignore */ '/pagefind/pagefind.js');
+      const pf = await import(/* @vite-ignore */ pagefindUrl);
       await pf.init();
       setPagefind(pf);
       return pf;
