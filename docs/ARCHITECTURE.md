@@ -22,11 +22,11 @@ The site uses a responsive three-column layout optimized for blog reading and na
 
 ### Responsive Breakpoints
 
-| Screen Size | Layout |
-|-------------|--------|
-| Desktop (lg+) | Three columns |
-| Tablet (md) | Two columns (main + right) |
-| Mobile | Single column with collapsible nav |
+| Screen Size   | Layout                             |
+| ------------- | ---------------------------------- |
+| Desktop (lg+) | Three columns                      |
+| Tablet (md)   | Two columns (main + right)         |
+| Mobile        | Single column with collapsible nav |
 
 ## 📁 Directory Structure
 
@@ -87,7 +87,7 @@ src/
 The main layout component for all pages.
 
 ```astro
-<DashboardLayout 
+<DashboardLayout
   title="Page Title"
   description="Page description"
   headings={headings}          // Optional: for TOC
@@ -100,21 +100,22 @@ The main layout component for all pages.
 
 **Props:**
 
-| Prop | Type | Description |
-|------|------|-------------|
-| `title` | `string` | Page title for SEO |
-| `description` | `string` | Page description for SEO |
-| `headings` | `MarkdownHeading[]` | Article headings for TOC |
-| `hideLeftSidebar` | `boolean` | Hide left navigation |
-| `hideRightSidebar` | `boolean` | Hide right sidebar |
-| `activeCategory` | `string` | Highlight category in sidebar |
-| `activeSeries` | `string` | Highlight series in sidebar |
+| Prop               | Type                | Description                   |
+| ------------------ | ------------------- | ----------------------------- |
+| `title`            | `string`            | Page title for SEO            |
+| `description`      | `string`            | Page description for SEO      |
+| `headings`         | `MarkdownHeading[]` | Article headings for TOC      |
+| `hideLeftSidebar`  | `boolean`           | Hide left navigation          |
+| `hideRightSidebar` | `boolean`           | Hide right sidebar            |
+| `activeCategory`   | `string`            | Highlight category in sidebar |
+| `activeSeries`     | `string`            | Highlight series in sidebar   |
 
 ### LeftSidebar
 
 Navigation dashboard with categories and series.
 
 **Features:**
+
 - Hierarchical category list with post counts
 - Series list with status badges (ongoing/completed/paused)
 - Active state highlighting
@@ -125,6 +126,7 @@ Navigation dashboard with categories and series.
 Profile and Table of Contents.
 
 **Features:**
+
 - Author profile with avatar and social links
 - Dynamic TOC generated from headings
 - Scroll-tracking for active heading
@@ -135,6 +137,7 @@ Profile and Table of Contents.
 Blog post preview card with proper styling.
 
 **Features:**
+
 - Featured image support
 - Category badge
 - Reading time and date
@@ -149,6 +152,7 @@ The site supports multiple languages with Nepali (ne) and English (en).
 ### Adding Translations
 
 1. Add key to `src/i18n/i18nKey.ts`:
+
 ```typescript
 enum I18nKey {
   myNewKey = 'myNewKey',
@@ -156,6 +160,7 @@ enum I18nKey {
 ```
 
 2. Add translations to each language file:
+
 ```typescript
 // src/i18n/languages/en.ts
 [I18nKey.myNewKey]: 'My new text',
@@ -165,6 +170,7 @@ enum I18nKey {
 ```
 
 3. Use in components:
+
 ```astro
 ---
 import { i18n, I18nKey } from '@i18n/index';
@@ -180,16 +186,16 @@ Location: `src/content/posts/*.md`
 
 ```yaml
 ---
-title: "Post Title"
+title: 'Post Title'
 published: 2025-01-01
-description: "Post description"
-category: "Web Development"
-tags: ["astro", "typescript"]
+description: 'Post description'
+category: 'Web Development'
+tags: ['astro', 'typescript']
 series:
-  id: "getting-started"
+  id: 'getting-started'
   part: 1
-encrypted: false       # Optional: password protection
-password: ""          # Required if encrypted
+encrypted: false # Optional: password protection
+password: '' # Required if encrypted
 ---
 ```
 
@@ -214,6 +220,7 @@ export const series: Series[] = [
 ### CSS Guidelines
 
 1. **Use CSS custom properties** for colors:
+
    ```css
    color: var(--text-primary);
    background: oklch(var(--primary) / 0.1);
@@ -252,12 +259,12 @@ The site is deployed to GitHub Pages via GitHub Actions.
 
 ## 📊 Page Routes
 
-| Route | Page | Description |
-|-------|------|-------------|
-| `/` | Home | Recent posts, welcome message |
-| `/posts/` | Posts Index | All posts grouped by year |
-| `/posts/[slug]/` | Post Detail | Single blog post with TOC |
-| `/posts/category/[category]/` | Category | Posts filtered by category |
-| `/series/` | Series Index | All series with status |
-| `/series/[id]/` | Series Detail | Posts in a series |
-| `/about/` | About | Profile, skills, timeline |
+| Route                         | Page          | Description                   |
+| ----------------------------- | ------------- | ----------------------------- |
+| `/`                           | Home          | Recent posts, welcome message |
+| `/posts/`                     | Posts Index   | All posts grouped by year     |
+| `/posts/[slug]/`              | Post Detail   | Single blog post with TOC     |
+| `/posts/category/[category]/` | Category      | Posts filtered by category    |
+| `/series/`                    | Series Index  | All series with status        |
+| `/series/[id]/`               | Series Detail | Posts in a series             |
+| `/about/`                     | About         | Profile, skills, timeline     |

@@ -68,6 +68,8 @@ interface Props {
   activeCategory?: string;
   /** Active series for highlighting */
   activeSeries?: string;
+  /** Active post slug for highlighting */
+  activePost?: string;
 }
 
 const {
@@ -85,6 +87,7 @@ const {
   contentClass = '',
   activeCategory,
   activeSeries,
+  activePost,
 } = Astro.props;
 
 // Check for custom sidebar slots
@@ -118,6 +121,7 @@ const hasRightSlot = Astro.slots.has('right-sidebar');
               <LeftSidebar
                 activeCategory={activeCategory}
                 activeSeries={activeSeries}
+                activePost={activePost}
               />
             )}
           </div>

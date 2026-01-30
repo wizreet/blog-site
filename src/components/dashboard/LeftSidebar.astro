@@ -2,25 +2,20 @@
 /**
  * Left Sidebar Component
  *
- * @description Navigation dashboard for the left sidebar.
- * Contains hierarchical categories and series navigation.
+ * @description Navigation dashboard with accordion-style expandable sections.
+ * Series first, then categories. Clicking expands to show posts inline.
  *
  * Features:
- * - Hierarchical category tree
- * - Series list with progress
+ * - Accordion navigation (only one section expanded at a time)
+ * - Series at top, categories below
+ * - Posts shown inline when section is expanded
  * - Active state highlighting
- * - Collapsible sections
- *
- * @example
- * ```astro
- * <LeftSidebar activeCategory="Web Development" />
- * ```
+ * - Smooth animations
  */
 
 import { Icon } from 'astro-icon/components';
-import { getCategoryList, getSeriesWithCounts } from '@utils/content-utils';
-import { seriesData } from '@data/series';
-import { getUrl } from '@utils/url-utils';
+import { getCategoryList, getSeriesWithCounts, getSortedPosts } from '@utils/content-utils';
+import { getUrl, getPostUrl } from '@utils/url-utils';
 import { i18n, I18nKey } from '@i18n/index';
 
 interface Props {
@@ -28,194 +23,328 @@ interface Props {
   activeCategory?: string;
   /** Currently active series ID */
   activeSeries?: string;
+  /** Currently viewed post slug */
+  activePost?: string;
 }
 
-const { activeCategory, activeSeries } = Astro.props;
+const { activeCategory, activeSeries, activePost } = Astro.props;
 
 // Fetch data
 const categories = await getCategoryList();
 const seriesWithCounts = await getSeriesWithCounts();
+const allPosts = await getSortedPosts();
 
 // Only show series that have posts
 const activeSeries_ = seriesWithCounts.filter((s) => s.postCount > 0);
+
+// Group posts by category
+const postsByCategory = new Map<string, typeof allPosts>();
+categories.forEach((cat) => {
+  const posts = allPosts.filter(
+    (p) => p.data.category?.toLowerCase() === cat.name.toLowerCase()
+  );
+  postsByCategory.set(cat.name.toLowerCase(), posts);
+});
+
+// Group posts by series
+const postsBySeries = new Map<string, typeof allPosts>();
+activeSeries_.forEach((series) => {
+  const posts = allPosts.filter((p) => p.data.series?.id === series.id);
+  postsBySeries.set(series.id, posts);
+});
 ---
 
-<nav class="left-sidebar-nav" aria-label="Blog navigation">
-  {/* Categories Section */}
-  <section class="nav-section">
-    <header class="section-header">
-      <Icon name="material-symbols:folder-open" class="section-icon" />
-      <h2 class="section-title">{i18n(I18nKey.categories)}</h2>
-      <span class="section-count">{categories.length}</span>
-    </header>
-
-    <ul class="nav-list" role="list">
-      {/* All Posts Link */}
-      <li>
-        <a
-          href={getUrl('/posts/')}
-          class:list={[
-            'nav-item',
-            { active: !activeCategory },
-          ]}
-          aria-current={!activeCategory ? 'page' : undefined}
-        >
-          <Icon name="material-symbols:article" class="item-icon" />
-          <span class="item-text">{i18n(I18nKey.allPosts)}</span>
-        </a>
-      </li>
-
-      {/* Category List */}
-      {categories.map((category) => (
-        <li>
-          <a
-            href={getUrl(`/posts/category/${encodeURIComponent(category.name.toLowerCase())}/`)}
-            class:list={[
-              'nav-item',
-              { active: activeCategory?.toLowerCase() === category.name.toLowerCase() },
-            ]}
-            aria-current={activeCategory?.toLowerCase() === category.name.toLowerCase() ? 'page' : undefined}
-          >
-            <Icon name="material-symbols:label" class="item-icon" />
-            <span class="item-text">{category.name}</span>
-            <span class="item-count">{category.count}</span>
-          </a>
-        </li>
-      ))}
-    </ul>
-  </section>
-
-  {/* Series Section */}
+<nav class="sidebar-nav" aria-label="Blog navigation">
+  {/* Series Section - At Top */}
   {activeSeries_.length > 0 && (
     <section class="nav-section">
       <header class="section-header">
         <Icon name="material-symbols:library-books" class="section-icon" />
-        <h2 class="section-title">{i18n(I18nKey.series)}</h2>
-        <span class="section-count">{activeSeries_.length}</span>
+        <span class="section-title">{i18n(I18nKey.series)}</span>
+        <span class="section-badge">{activeSeries_.length}</span>
       </header>
 
-      <ul class="nav-list" role="list">
-        {activeSeries_.map((series) => (
-          <li>
-            <a
-              href={getUrl(`/series/${series.id}/`)}
-              class:list={[
-                'nav-item series-item',
-                { active: activeSeries === series.id },
-              ]}
-              aria-current={activeSeries === series.id ? 'page' : undefined}
-            >
-              <div class="series-info">
-                <Icon name="material-symbols:book-2" class="item-icon" />
-                <span class="item-text">{series.title}</span>
+      <div class="section-content">
+        {activeSeries_.map((series) => {
+          const seriesPosts = postsBySeries.get(series.id) || [];
+          const isActive = activeSeries === series.id;
+          return (
+            <div class="accordion-item" data-accordion-group="series">
+              <button
+                class:list={['accordion-trigger', { active: isActive }]}
+                data-accordion-trigger
+                aria-expanded={isActive ? 'true' : 'false'}
+              >
+                <div class="trigger-content">
+                  <Icon name="material-symbols:book-2-outline" class="trigger-icon" />
+                  <span class="trigger-text">{series.title}</span>
+                </div>
+                <div class="trigger-meta">
+                  <span class:list={['status-dot', series.status]} title={series.status} />
+                  <span class="trigger-count">{series.postCount}</span>
+                  <Icon name="material-symbols:chevron-right" class="chevron-icon" />
+                </div>
+              </button>
+              <div class="accordion-panel" data-accordion-panel>
+                <ul class="post-list">
+                  {seriesPosts.map((post, idx) => (
+                    <li>
+                      <a
+                        href={getPostUrl(post.id)}
+                        class:list={['post-link', { active: activePost === post.id }]}
+                      >
+                        <span class="post-number">{idx + 1}</span>
+                        <span class="post-title">{post.data.title}</span>
+                      </a>
+                    </li>
+                  ))}
+                </ul>
+                <a href={getUrl(`/series/${series.id}/`)} class="view-all-link">
+                  {i18n(I18nKey.viewAll)} →
+                </a>
               </div>
-              <div class="series-meta">
-                <span class:list={['series-status', series.status]}>
-                  {series.status === 'completed' ? '✓' : series.status === 'ongoing' ? '◦' : '⏸'}
-                </span>
-                <span class="item-count">{series.postCount}</span>
-              </div>
-            </a>
-          </li>
-        ))}
-
-        {/* View All Series Link */}
-        <li>
-          <a href={getUrl('/series/')} class="nav-item view-all">
-            <Icon name="material-symbols:arrow-forward" class="item-icon" />
-            <span class="item-text">{i18n(I18nKey.viewAll)}</span>
-          </a>
-        </li>
-      </ul>
+            </div>
+          );
+        })}
+      </div>
     </section>
   )}
+
+  {/* Categories Section */}
+  <section class="nav-section">
+    <header class="section-header">
+      <Icon name="material-symbols:folder-open" class="section-icon" />
+      <span class="section-title">{i18n(I18nKey.categories)}</span>
+      <span class="section-badge">{categories.length}</span>
+    </header>
+
+    <div class="section-content">
+      {/* All Posts - Always visible */}
+      <a
+        href={getUrl('/posts/')}
+        class:list={['all-posts-link', { active: !activeCategory && !activeSeries }]}
+      >
+        <Icon name="material-symbols:article-outline" class="trigger-icon" />
+        <span class="trigger-text">{i18n(I18nKey.allPosts)}</span>
+        <span class="trigger-count">{allPosts.length}</span>
+      </a>
+
+      {/* Category Accordions */}
+      {categories.map((category) => {
+        const categoryPosts = postsByCategory.get(category.name.toLowerCase()) || [];
+        const isActive = activeCategory?.toLowerCase() === category.name.toLowerCase();
+        return (
+          <div class="accordion-item" data-accordion-group="category">
+            <button
+              class:list={['accordion-trigger', { active: isActive }]}
+              data-accordion-trigger
+              aria-expanded={isActive ? 'true' : 'false'}
+            >
+              <div class="trigger-content">
+                <Icon name="material-symbols:label-outline" class="trigger-icon" />
+                <span class="trigger-text">{category.name}</span>
+              </div>
+              <div class="trigger-meta">
+                <span class="trigger-count">{category.count}</span>
+                <Icon name="material-symbols:chevron-right" class="chevron-icon" />
+              </div>
+            </button>
+            <div class="accordion-panel" data-accordion-panel>
+              <ul class="post-list">
+                {categoryPosts.slice(0, 5).map((post) => (
+                  <li>
+                    <a
+                      href={getPostUrl(post.id)}
+                      class:list={['post-link', { active: activePost === post.id }]}
+                    >
+                      <span class="post-title">{post.data.title}</span>
+                    </a>
+                  </li>
+                ))}
+              </ul>
+              {categoryPosts.length > 5 && (
+                <a
+                  href={getUrl(`/posts/category/${encodeURIComponent(category.name.toLowerCase())}/`)}
+                  class="view-all-link"
+                >
+                  +{categoryPosts.length - 5} more →
+                </a>
+              )}
+              {categoryPosts.length <= 5 && categoryPosts.length > 0 && (
+                <a
+                  href={getUrl(`/posts/category/${encodeURIComponent(category.name.toLowerCase())}/`)}
+                  class="view-all-link"
+                >
+                  {i18n(I18nKey.viewAll)} →
+                </a>
+              )}
+            </div>
+          </div>
+        );
+      })}
+    </div>
+  </section>
 </nav>
 
 <style>
-  .left-sidebar-nav {
+  .sidebar-nav {
     display: flex;
     flex-direction: column;
-    gap: 1.5rem;
+    gap: 1rem;
   }
 
-  /* Section Styles */
+  /* Section Container */
   .nav-section {
     background: var(--card-bg);
     border: 1px solid var(--border-color);
-    border-radius: 12px;
+    border-radius: 0.75rem;
     overflow: hidden;
   }
 
+  /* Section Header */
   .section-header {
     display: flex;
     align-items: center;
     gap: 0.5rem;
-    padding: 1rem 1rem 0.75rem;
+    padding: 0.875rem 1rem;
+    background: oklch(var(--primary) / 0.04);
     border-bottom: 1px solid var(--border-color);
-    background: oklch(var(--primary) / 0.03);
   }
 
   .section-icon {
     width: 1.125rem;
     height: 1.125rem;
     color: oklch(var(--primary));
-    flex-shrink: 0;
   }
 
   .section-title {
+    flex: 1;
     font-size: 0.8125rem;
     font-weight: 600;
     color: var(--text-primary);
     text-transform: uppercase;
-    letter-spacing: 0.025em;
-    flex: 1;
+    letter-spacing: 0.04em;
   }
 
-  .section-count {
-    font-size: 0.75rem;
-    font-weight: 500;
-    color: var(--text-tertiary);
-    background: var(--border-color);
+  .section-badge {
+    font-size: 0.6875rem;
+    font-weight: 600;
+    color: oklch(var(--primary));
+    background: oklch(var(--primary) / 0.12);
     padding: 0.125rem 0.5rem;
     border-radius: 9999px;
   }
 
-  /* Navigation List */
-  .nav-list {
-    list-style: none;
+  /* Section Content */
+  .section-content {
     padding: 0.5rem;
-    margin: 0;
   }
 
-  /* Navigation Item */
-  .nav-item {
+  /* All Posts Link */
+  .all-posts-link {
     display: flex;
     align-items: center;
     gap: 0.625rem;
     padding: 0.625rem 0.75rem;
-    border-radius: 8px;
+    border-radius: 0.5rem;
     text-decoration: none;
     color: var(--text-secondary);
     font-size: 0.875rem;
     transition: all 0.15s ease;
+    margin-bottom: 0.25rem;
   }
 
-  .nav-item:hover {
+  .all-posts-link:hover {
     background: var(--btn-hover-bg);
     color: var(--text-primary);
   }
 
-  .nav-item.active {
+  .all-posts-link.active {
     background: oklch(var(--primary) / 0.1);
     color: oklch(var(--primary));
     font-weight: 500;
   }
 
-  .nav-item.active .item-icon {
+  .all-posts-link .trigger-icon {
+    width: 1rem;
+    height: 1rem;
+    color: var(--text-tertiary);
+    transition: color 0.15s ease;
+  }
+
+  .all-posts-link:hover .trigger-icon,
+  .all-posts-link.active .trigger-icon {
     color: oklch(var(--primary));
   }
 
-  .item-icon {
+  .all-posts-link .trigger-text {
+    flex: 1;
+  }
+
+  .all-posts-link .trigger-count {
+    font-size: 0.75rem;
+    color: var(--text-tertiary);
+    background: var(--btn-regular-bg);
+    padding: 0.125rem 0.5rem;
+    border-radius: 9999px;
+  }
+
+  .all-posts-link.active .trigger-count {
+    background: oklch(var(--primary) / 0.15);
+    color: oklch(var(--primary));
+  }
+
+  /* Accordion Item */
+  .accordion-item {
+    border-radius: 0.5rem;
+    overflow: hidden;
+  }
+
+  .accordion-item + .accordion-item {
+    margin-top: 0.125rem;
+  }
+
+  /* Accordion Trigger */
+  .accordion-trigger {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+    padding: 0.625rem 0.75rem;
+    border: none;
+    border-radius: 0.5rem;
+    background: transparent;
+    cursor: pointer;
+    font-family: inherit;
+    font-size: 0.875rem;
+    color: var(--text-secondary);
+    transition: all 0.15s ease;
+  }
+
+  .accordion-trigger:hover {
+    background: var(--btn-hover-bg);
+    color: var(--text-primary);
+  }
+
+  .accordion-trigger.active {
+    background: oklch(var(--primary) / 0.1);
+    color: oklch(var(--primary));
+    font-weight: 500;
+  }
+
+  .accordion-trigger[aria-expanded='true'] {
+    background: oklch(var(--primary) / 0.08);
+    color: oklch(var(--primary));
+  }
+
+  .trigger-content {
+    display: flex;
+    align-items: center;
+    gap: 0.625rem;
+    min-width: 0;
+  }
+
+  .trigger-icon {
     width: 1rem;
     height: 1rem;
     flex-shrink: 0;
@@ -223,76 +352,213 @@ const activeSeries_ = seriesWithCounts.filter((s) => s.postCount > 0);
     transition: color 0.15s ease;
   }
 
-  .nav-item:hover .item-icon {
+  .accordion-trigger:hover .trigger-icon,
+  .accordion-trigger.active .trigger-icon,
+  .accordion-trigger[aria-expanded='true'] .trigger-icon {
     color: oklch(var(--primary));
   }
 
-  .item-text {
+  .trigger-text {
     flex: 1;
+    text-align: left;
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
   }
 
-  .item-count {
+  .trigger-meta {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    flex-shrink: 0;
+  }
+
+  .trigger-count {
     font-size: 0.75rem;
     color: var(--text-tertiary);
     background: var(--btn-regular-bg);
     padding: 0.125rem 0.5rem;
     border-radius: 9999px;
-    transition: all 0.15s ease;
   }
 
-  .nav-item:hover .item-count,
-  .nav-item.active .item-count {
+  .accordion-trigger.active .trigger-count,
+  .accordion-trigger[aria-expanded='true'] .trigger-count {
     background: oklch(var(--primary) / 0.15);
     color: oklch(var(--primary));
   }
 
-  /* Series Item */
-  .series-item {
-    flex-direction: column;
-    align-items: stretch;
-    gap: 0.375rem;
-  }
-
-  .series-info {
-    display: flex;
-    align-items: center;
-    gap: 0.625rem;
-  }
-
-  .series-meta {
-    display: flex;
-    align-items: center;
-    justify-content: flex-end;
-    gap: 0.5rem;
-    padding-left: 1.625rem;
-  }
-
-  .series-status {
-    font-size: 0.75rem;
+  .chevron-icon {
+    width: 1rem;
+    height: 1rem;
     color: var(--text-tertiary);
+    transition: transform 0.2s ease;
   }
 
-  .series-status.completed {
-    color: #22c55e;
-  }
-
-  .series-status.ongoing {
+  .accordion-trigger[aria-expanded='true'] .chevron-icon {
+    transform: rotate(90deg);
     color: oklch(var(--primary));
   }
 
-  /* View All Link */
-  .view-all {
-    margin-top: 0.25rem;
-    border-top: 1px solid var(--border-color);
-    padding-top: 0.75rem;
-    font-size: 0.8125rem;
+  /* Status Dot */
+  .status-dot {
+    width: 0.5rem;
+    height: 0.5rem;
+    border-radius: 9999px;
+    background: var(--text-tertiary);
   }
 
-  .view-all .item-icon {
-    width: 0.875rem;
-    height: 0.875rem;
+  .status-dot.completed {
+    background: #22c55e;
+  }
+
+  .status-dot.ongoing {
+    background: oklch(var(--primary));
+  }
+
+  .status-dot.paused {
+    background: #f59e0b;
+  }
+
+  /* Accordion Panel */
+  .accordion-panel {
+    display: none;
+    padding: 0.5rem 0.75rem 0.75rem 2.375rem;
+  }
+
+  .accordion-panel[data-expanded='true'] {
+    display: block;
+  }
+
+  /* Post List */
+  .post-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 0.125rem;
+  }
+
+  .post-link {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.375rem 0.5rem;
+    border-radius: 0.375rem;
+    text-decoration: none;
+    color: var(--text-secondary);
+    font-size: 0.8125rem;
+    transition: all 0.15s ease;
+  }
+
+  .post-link:hover {
+    background: var(--btn-hover-bg);
+    color: var(--text-primary);
+  }
+
+  .post-link.active {
+    background: oklch(var(--primary) / 0.1);
+    color: oklch(var(--primary));
+    font-weight: 500;
+  }
+
+  .post-number {
+    font-size: 0.6875rem;
+    font-weight: 600;
+    color: var(--text-tertiary);
+    background: var(--border-color);
+    width: 1.25rem;
+    height: 1.25rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 0.25rem;
+    flex-shrink: 0;
+  }
+
+  .post-link.active .post-number {
+    background: oklch(var(--primary) / 0.2);
+    color: oklch(var(--primary));
+  }
+
+  .post-title {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  /* View All Link */
+  .view-all-link {
+    display: block;
+    margin-top: 0.5rem;
+    padding: 0.375rem 0.5rem;
+    font-size: 0.75rem;
+    color: oklch(var(--primary));
+    text-decoration: none;
+    border-radius: 0.375rem;
+    transition: background 0.15s ease;
+  }
+
+  .view-all-link:hover {
+    background: oklch(var(--primary) / 0.08);
   }
 </style>
+
+<script>
+  // Accordion functionality
+  function initAccordion() {
+    const triggers = document.querySelectorAll('[data-accordion-trigger]');
+
+    triggers.forEach((trigger) => {
+      // Remove existing listeners by cloning
+      const newTrigger = trigger.cloneNode(true);
+      trigger.parentNode?.replaceChild(newTrigger, trigger);
+
+      newTrigger.addEventListener('click', () => {
+        const item = newTrigger.closest('.accordion-item');
+        const panel = item?.querySelector('[data-accordion-panel]');
+        const group = item?.getAttribute('data-accordion-group');
+        const isExpanded = newTrigger.getAttribute('aria-expanded') === 'true';
+
+        // Close all other panels in the same group
+        if (group) {
+          const groupItems = document.querySelectorAll(
+            `.accordion-item[data-accordion-group="${group}"]`
+          );
+          groupItems.forEach((otherItem) => {
+            if (otherItem !== item) {
+              const otherTrigger = otherItem.querySelector('[data-accordion-trigger]');
+              const otherPanel = otherItem.querySelector('[data-accordion-panel]');
+              otherTrigger?.setAttribute('aria-expanded', 'false');
+              otherPanel?.removeAttribute('data-expanded');
+            }
+          });
+        }
+
+        // Toggle current panel
+        if (isExpanded) {
+          newTrigger.setAttribute('aria-expanded', 'false');
+          panel?.removeAttribute('data-expanded');
+        } else {
+          newTrigger.setAttribute('aria-expanded', 'true');
+          panel?.setAttribute('data-expanded', 'true');
+        }
+      });
+    });
+
+    // Auto-expand active items
+    const activeItems = document.querySelectorAll('.accordion-trigger.active');
+    activeItems.forEach((trigger) => {
+      const item = trigger.closest('.accordion-item');
+      const panel = item?.querySelector('[data-accordion-panel]');
+      trigger.setAttribute('aria-expanded', 'true');
+      panel?.setAttribute('data-expanded', 'true');
+    });
+  }
+
+  // Initialize on page load
+  initAccordion();
+
+  // Re-initialize after Swup page transition
+  document.addEventListener('swup:contentReplaced', initAccordion);
+</script>

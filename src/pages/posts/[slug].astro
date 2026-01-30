@@ -57,6 +57,9 @@ const imageUrl = image ? (typeof image === 'string' ? image : image.src) : undef
   ogImage={imageUrl ?? undefined}
   url={getPostUrl(post.id)}
   headings={headings}
+  activePost={post.id}
+  activeCategory={post.data.category ?? undefined}
+  activeSeries={post.data.series?.id}
 >
   <article class="card-base overflow-hidden">
     <!-- Post Header -->

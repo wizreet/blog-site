@@ -28,16 +28,22 @@ const currentPath = Astro.url.pathname;
 
 /**
  * Check if a nav link is active
+ * Handles base URL prefix and trailing slashes
  */
 function isActiveLink(href: string): boolean {
-  const normalizedPath = currentPath.replace(/\/$/, '') || '/';
-  const normalizedHref = href.replace(/\/$/, '') || '/';
+  // Normalize paths by removing trailing slashes
+  const normalizedPath = currentPath.replace(/\/+$/, '') || '/';
+  const normalizedHref = href.replace(/\/+$/, '') || '/';
 
-  if (normalizedHref === '/' || normalizedHref === getUrl('/')) {
-    return normalizedPath === '/' || normalizedPath === getUrl('/').replace(/\/$/, '');
+  // Home is only active when exactly on home page
+  if (normalizedHref === '/' || normalizedHref === getUrl('/').replace(/\/+$/, '')) {
+    return normalizedPath === '/' || normalizedPath === getUrl('/').replace(/\/+$/, '');
   }
 
-  return normalizedPath.startsWith(normalizedHref);
+  // For other links, check if current path starts with the link path
+  // But only if it's a proper path segment (not partial match)
+  return normalizedPath === normalizedHref ||
+    normalizedPath.startsWith(normalizedHref + '/');
 }
 
 /**
