@@ -282,4 +282,26 @@ const hasRightSlot = Astro.slots.has('right-sidebar');
       grid-template-columns: 280px 1fr 300px;
     }
   }
+
+  /* Sidebar collapsed state */
+  @media (min-width: 1024px) {
+    .dashboard-container.sidebar-collapsed .left-sidebar {
+      display: none;
+    }
+
+    .dashboard-container.sidebar-collapsed .dashboard-grid {
+      grid-template-columns: 1fr 280px;
+      grid-template-areas: 'main right';
+    }
+
+    .dashboard-container.sidebar-collapsed .main-content {
+      grid-column: 1 / 2;
+    }
+  }
+
+  @media (min-width: 1280px) {
+    .dashboard-container.sidebar-collapsed .dashboard-grid {
+      grid-template-columns: 1fr 300px;
+    }
+  }
 </style>

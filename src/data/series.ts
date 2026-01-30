@@ -12,6 +12,20 @@ import type { Series } from '@/types/config';
  */
 export const seriesData: Series[] = [
   {
+    id: 'documentation',
+    title: 'Documentation & Guides',
+    description:
+      'Comprehensive documentation on markdown, code formatting, and content creation features available on this blog.',
+    status: 'ongoing',
+  },
+  {
+    id: 'astro-tutorials',
+    title: 'Astro Tutorials',
+    description:
+      'Learn Astro from setup to deployment. Step-by-step tutorials for building modern static sites.',
+    status: 'ongoing',
+  },
+  {
     id: 'getting-started',
     title: 'Getting Started with Web Development',
     description:
@@ -26,12 +40,6 @@ export const seriesData: Series[] = [
     status: 'ongoing',
   },
   // Add more series as needed
-  // {
-  //   id: 'series-slug',
-  //   title: 'Series Title',
-  //   description: 'A description of what this series covers.',
-  //   status: 'ongoing', // 'ongoing', 'completed', 'hiatus'
-  // },
 ];
 
 // Alias for backward compatibility

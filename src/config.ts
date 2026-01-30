@@ -136,7 +136,7 @@ export const navBarConfig: NavBarConfig = {
  */
 export const profileConfig: ProfileConfig = {
   // Avatar image path (relative to src/assets/ or absolute URL)
-  avatar: '/images/avatar.png',
+  avatar: '/blog-site/images/avatar.png',
 
   // Display name
   name: 'Reetwiz Amatya',

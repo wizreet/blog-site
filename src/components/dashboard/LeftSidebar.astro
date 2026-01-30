@@ -2,15 +2,8 @@
 /**
  * Left Sidebar Component
  *
- * @description Navigation dashboard with accordion-style expandable sections.
- * Series first, then categories. Clicking expands to show posts inline.
- *
- * Features:
- * - Accordion navigation (only one section expanded at a time)
- * - Series at top, categories below
- * - Posts shown inline when section is expanded
- * - Active state highlighting
- * - Smooth animations
+ * @description Navigation dashboard showing all posts organized by series and categories.
+ * No "View All" links - everything is shown directly.
  */
 
 import { Icon } from 'astro-icon/components';
@@ -19,11 +12,8 @@ import { getUrl, getPostUrl } from '@utils/url-utils';
 import { i18n, I18nKey } from '@i18n/index';
 
 interface Props {
-  /** Currently active category slug */
   activeCategory?: string;
-  /** Currently active series ID */
   activeSeries?: string;
-  /** Currently viewed post slug */
   activePost?: string;
 }
 
@@ -35,7 +25,7 @@ const seriesWithCounts = await getSeriesWithCounts();
 const allPosts = await getSortedPosts();
 
 // Only show series that have posts
-const activeSeries_ = seriesWithCounts.filter((s) => s.postCount > 0);
+const seriesWithPosts = seriesWithCounts.filter((s) => s.postCount > 0);
 
 // Group posts by category
 const postsByCategory = new Map<string, typeof allPosts>();
@@ -48,61 +38,51 @@ categories.forEach((cat) => {
 
 // Group posts by series
 const postsBySeries = new Map<string, typeof allPosts>();
-activeSeries_.forEach((series) => {
+seriesWithPosts.forEach((series) => {
   const posts = allPosts.filter((p) => p.data.series?.id === series.id);
   postsBySeries.set(series.id, posts);
 });
 ---
 
-<nav class="sidebar-nav" aria-label="Blog navigation">
-  {/* Series Section - At Top */}
-  {activeSeries_.length > 0 && (
+<nav class="sidebar-nav" aria-label={i18n(I18nKey.categories)}>
+  <!-- Series Section -->
+  {seriesWithPosts.length > 0 && (
     <section class="nav-section">
       <header class="section-header">
         <Icon name="material-symbols:library-books" class="section-icon" />
         <span class="section-title">{i18n(I18nKey.series)}</span>
-        <span class="section-badge">{activeSeries_.length}</span>
+        <span class="section-count">{seriesWithPosts.length}</span>
       </header>
 
-      <div class="section-content">
-        {activeSeries_.map((series) => {
+      <div class="section-body">
+        {seriesWithPosts.map((series) => {
           const seriesPosts = postsBySeries.get(series.id) || [];
           const isActive = activeSeries === series.id;
           return (
-            <div class="accordion-item" data-accordion-group="series">
+            <div class="nav-group" data-group="series">
               <button
-                class:list={['accordion-trigger', { active: isActive }]}
-                data-accordion-trigger
+                class:list={['group-header', { active: isActive }]}
+                data-toggle
                 aria-expanded={isActive ? 'true' : 'false'}
               >
-                <div class="trigger-content">
-                  <Icon name="material-symbols:book-2-outline" class="trigger-icon" />
-                  <span class="trigger-text">{series.title}</span>
-                </div>
-                <div class="trigger-meta">
-                  <span class:list={['status-dot', series.status]} title={series.status} />
-                  <span class="trigger-count">{series.postCount}</span>
-                  <Icon name="material-symbols:chevron-right" class="chevron-icon" />
-                </div>
+                <Icon name="material-symbols:book-2-outline" class="group-icon" />
+                <span class="group-name">{series.title}</span>
+                <span class:list={['status-badge', series.status]}>{series.postCount}</span>
+                <Icon name="material-symbols:chevron-right" class="chevron" />
               </button>
-              <div class="accordion-panel" data-accordion-panel>
-                <ul class="post-list">
-                  {seriesPosts.map((post, idx) => (
-                    <li>
-                      <a
-                        href={getPostUrl(post.id)}
-                        class:list={['post-link', { active: activePost === post.id }]}
-                      >
-                        <span class="post-number">{idx + 1}</span>
-                        <span class="post-title">{post.data.title}</span>
-                      </a>
-                    </li>
-                  ))}
-                </ul>
-                <a href={getUrl(`/series/${series.id}/`)} class="view-all-link">
-                  {i18n(I18nKey.viewAll)} →
-                </a>
-              </div>
+              <ul class="post-list" data-panel>
+                {seriesPosts.map((post, idx) => (
+                  <li>
+                    <a
+                      href={getPostUrl(post.id)}
+                      class:list={['post-item', { active: activePost === post.id }]}
+                    >
+                      <span class="post-num">{idx + 1}</span>
+                      <span class="post-name">{post.data.title}</span>
+                    </a>
+                  </li>
+                ))}
+              </ul>
             </div>
           );
         })}
@@ -110,75 +90,53 @@ activeSeries_.forEach((series) => {
     </section>
   )}
 
-  {/* Categories Section */}
+  <!-- Categories Section -->
   <section class="nav-section">
     <header class="section-header">
       <Icon name="material-symbols:folder-open" class="section-icon" />
       <span class="section-title">{i18n(I18nKey.categories)}</span>
-      <span class="section-badge">{categories.length}</span>
+      <span class="section-count">{categories.length}</span>
     </header>
 
-    <div class="section-content">
-      {/* All Posts - Always visible */}
+    <div class="section-body">
+      <!-- All Posts -->
       <a
         href={getUrl('/posts/')}
-        class:list={['all-posts-link', { active: !activeCategory && !activeSeries }]}
+        class:list={['all-link', { active: !activeCategory && !activeSeries }]}
       >
-        <Icon name="material-symbols:article-outline" class="trigger-icon" />
-        <span class="trigger-text">{i18n(I18nKey.allPosts)}</span>
-        <span class="trigger-count">{allPosts.length}</span>
+        <Icon name="material-symbols:article-outline" class="group-icon" />
+        <span class="group-name">{i18n(I18nKey.allPosts)}</span>
+        <span class="count-badge">{allPosts.length}</span>
       </a>
 
-      {/* Category Accordions */}
+      <!-- Categories -->
       {categories.map((category) => {
         const categoryPosts = postsByCategory.get(category.name.toLowerCase()) || [];
         const isActive = activeCategory?.toLowerCase() === category.name.toLowerCase();
         return (
-          <div class="accordion-item" data-accordion-group="category">
+          <div class="nav-group" data-group="category">
             <button
-              class:list={['accordion-trigger', { active: isActive }]}
-              data-accordion-trigger
+              class:list={['group-header', { active: isActive }]}
+              data-toggle
               aria-expanded={isActive ? 'true' : 'false'}
             >
-              <div class="trigger-content">
-                <Icon name="material-symbols:label-outline" class="trigger-icon" />
-                <span class="trigger-text">{category.name}</span>
-              </div>
-              <div class="trigger-meta">
-                <span class="trigger-count">{category.count}</span>
-                <Icon name="material-symbols:chevron-right" class="chevron-icon" />
-              </div>
+              <Icon name="material-symbols:label-outline" class="group-icon" />
+              <span class="group-name">{category.name}</span>
+              <span class="count-badge">{category.count}</span>
+              <Icon name="material-symbols:chevron-right" class="chevron" />
             </button>
-            <div class="accordion-panel" data-accordion-panel>
-              <ul class="post-list">
-                {categoryPosts.slice(0, 5).map((post) => (
-                  <li>
-                    <a
-                      href={getPostUrl(post.id)}
-                      class:list={['post-link', { active: activePost === post.id }]}
-                    >
-                      <span class="post-title">{post.data.title}</span>
-                    </a>
-                  </li>
-                ))}
-              </ul>
-              {categoryPosts.length > 5 && (
-                <a
-                  href={getUrl(`/posts/category/${encodeURIComponent(category.name.toLowerCase())}/`)}
-                  class="view-all-link"
-                >
-                  +{categoryPosts.length - 5} more →
-                </a>
-              )}
-              {categoryPosts.length <= 5 && categoryPosts.length > 0 && (
-                <a
-                  href={getUrl(`/posts/category/${encodeURIComponent(category.name.toLowerCase())}/`)}
-                  class="view-all-link"
-                >
-                  {i18n(I18nKey.viewAll)} →
-                </a>
-              )}
-            </div>
+            <ul class="post-list" data-panel>
+              {categoryPosts.map((post) => (
+                <li>
+                  <a
+                    href={getPostUrl(post.id)}
+                    class:list={['post-item', { active: activePost === post.id }]}
+                  >
+                    <span class="post-name">{post.data.title}</span>
+                  </a>
+                </li>
+              ))}
+            </ul>
           </div>
         );
       })}
@@ -190,375 +148,313 @@ activeSeries_.forEach((series) => {
   .sidebar-nav {
     display: flex;
     flex-direction: column;
-    gap: 1rem;
+    gap: 0.75rem;
   }
 
-  /* Section Container */
+  /* Section */
   .nav-section {
     background: var(--card-bg);
-    border: 1px solid var(--border-color);
     border-radius: 0.75rem;
     overflow: hidden;
+    border: 1px solid var(--border-color);
   }
 
-  /* Section Header */
   .section-header {
     display: flex;
     align-items: center;
     gap: 0.5rem;
-    padding: 0.875rem 1rem;
-    background: oklch(var(--primary) / 0.04);
+    padding: 0.75rem 1rem;
+    background: oklch(var(--primary) / 0.05);
     border-bottom: 1px solid var(--border-color);
   }
 
   .section-icon {
-    width: 1.125rem;
-    height: 1.125rem;
+    width: 1rem;
+    height: 1rem;
     color: oklch(var(--primary));
   }
 
   .section-title {
     flex: 1;
-    font-size: 0.8125rem;
+    font-size: 0.75rem;
     font-weight: 600;
-    color: var(--text-primary);
     text-transform: uppercase;
-    letter-spacing: 0.04em;
+    letter-spacing: 0.05em;
+    color: var(--text-primary);
   }
 
-  .section-badge {
-    font-size: 0.6875rem;
+  .section-count {
+    font-size: 0.625rem;
     font-weight: 600;
-    color: oklch(var(--primary));
-    background: oklch(var(--primary) / 0.12);
-    padding: 0.125rem 0.5rem;
+    padding: 0.125rem 0.375rem;
     border-radius: 9999px;
+    background: oklch(var(--primary) / 0.12);
+    color: oklch(var(--primary));
   }
 
-  /* Section Content */
-  .section-content {
-    padding: 0.5rem;
+  .section-body {
+    padding: 0.375rem;
   }
 
   /* All Posts Link */
-  .all-posts-link {
+  .all-link {
     display: flex;
     align-items: center;
-    gap: 0.625rem;
-    padding: 0.625rem 0.75rem;
-    border-radius: 0.5rem;
+    gap: 0.5rem;
+    padding: 0.5rem 0.625rem;
+    border-radius: 0.375rem;
     text-decoration: none;
+    font-size: 0.8125rem;
     color: var(--text-secondary);
-    font-size: 0.875rem;
-    transition: all 0.15s ease;
+    transition: all 0.15s;
     margin-bottom: 0.25rem;
   }
 
-  .all-posts-link:hover {
+  .all-link:hover {
     background: var(--btn-hover-bg);
     color: var(--text-primary);
   }
 
-  .all-posts-link.active {
+  .all-link.active {
     background: oklch(var(--primary) / 0.1);
     color: oklch(var(--primary));
-    font-weight: 500;
   }
 
-  .all-posts-link .trigger-icon {
+  .all-link .group-icon {
     width: 1rem;
     height: 1rem;
-    color: var(--text-tertiary);
-    transition: color 0.15s ease;
+    color: inherit;
+    opacity: 0.7;
   }
 
-  .all-posts-link:hover .trigger-icon,
-  .all-posts-link.active .trigger-icon {
-    color: oklch(var(--primary));
-  }
-
-  .all-posts-link .trigger-text {
+  .all-link .group-name {
     flex: 1;
   }
 
-  .all-posts-link .trigger-count {
-    font-size: 0.75rem;
-    color: var(--text-tertiary);
-    background: var(--btn-regular-bg);
-    padding: 0.125rem 0.5rem;
+  .all-link .count-badge {
+    font-size: 0.6875rem;
+    padding: 0.0625rem 0.375rem;
     border-radius: 9999px;
+    background: var(--btn-regular-bg);
+    color: var(--text-tertiary);
   }
 
-  .all-posts-link.active .trigger-count {
+  .all-link.active .count-badge {
     background: oklch(var(--primary) / 0.15);
     color: oklch(var(--primary));
   }
 
-  /* Accordion Item */
-  .accordion-item {
-    border-radius: 0.5rem;
+  /* Nav Group */
+  .nav-group {
+    border-radius: 0.375rem;
     overflow: hidden;
   }
 
-  .accordion-item + .accordion-item {
-    margin-top: 0.125rem;
-  }
-
-  /* Accordion Trigger */
-  .accordion-trigger {
+  .group-header {
     display: flex;
     align-items: center;
-    justify-content: space-between;
+    gap: 0.5rem;
     width: 100%;
-    padding: 0.625rem 0.75rem;
+    padding: 0.5rem 0.625rem;
     border: none;
-    border-radius: 0.5rem;
+    border-radius: 0.375rem;
     background: transparent;
-    cursor: pointer;
     font-family: inherit;
-    font-size: 0.875rem;
+    font-size: 0.8125rem;
     color: var(--text-secondary);
-    transition: all 0.15s ease;
+    cursor: pointer;
+    transition: all 0.15s;
   }
 
-  .accordion-trigger:hover {
+  .group-header:hover {
     background: var(--btn-hover-bg);
     color: var(--text-primary);
   }
 
-  .accordion-trigger.active {
+  .group-header.active {
     background: oklch(var(--primary) / 0.1);
     color: oklch(var(--primary));
-    font-weight: 500;
   }
 
-  .accordion-trigger[aria-expanded='true'] {
+  .group-header[aria-expanded='true'] {
     background: oklch(var(--primary) / 0.08);
     color: oklch(var(--primary));
   }
 
-  .trigger-content {
-    display: flex;
-    align-items: center;
-    gap: 0.625rem;
-    min-width: 0;
-  }
-
-  .trigger-icon {
+  .group-icon {
     width: 1rem;
     height: 1rem;
     flex-shrink: 0;
-    color: var(--text-tertiary);
-    transition: color 0.15s ease;
+    color: inherit;
+    opacity: 0.7;
   }
 
-  .accordion-trigger:hover .trigger-icon,
-  .accordion-trigger.active .trigger-icon,
-  .accordion-trigger[aria-expanded='true'] .trigger-icon {
+  .group-header:hover .group-icon,
+  .group-header.active .group-icon,
+  .group-header[aria-expanded='true'] .group-icon {
+    opacity: 1;
     color: oklch(var(--primary));
   }
 
-  .trigger-text {
+  .group-name {
     flex: 1;
     text-align: left;
+    white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
-    white-space: nowrap;
   }
 
-  .trigger-meta {
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-    flex-shrink: 0;
-  }
-
-  .trigger-count {
-    font-size: 0.75rem;
-    color: var(--text-tertiary);
-    background: var(--btn-regular-bg);
-    padding: 0.125rem 0.5rem;
+  .count-badge {
+    font-size: 0.6875rem;
+    padding: 0.0625rem 0.375rem;
     border-radius: 9999px;
+    background: var(--btn-regular-bg);
+    color: var(--text-tertiary);
   }
 
-  .accordion-trigger.active .trigger-count,
-  .accordion-trigger[aria-expanded='true'] .trigger-count {
+  .group-header.active .count-badge,
+  .group-header[aria-expanded='true'] .count-badge {
     background: oklch(var(--primary) / 0.15);
     color: oklch(var(--primary));
   }
 
-  .chevron-icon {
-    width: 1rem;
-    height: 1rem;
+  .status-badge {
+    font-size: 0.6875rem;
+    padding: 0.0625rem 0.375rem;
+    border-radius: 9999px;
+    background: var(--btn-regular-bg);
     color: var(--text-tertiary);
-    transition: transform 0.2s ease;
   }
 
-  .accordion-trigger[aria-expanded='true'] .chevron-icon {
+  .status-badge.completed {
+    background: oklch(0.45 0.12 145 / 0.15);
+    color: oklch(0.55 0.15 145);
+  }
+
+  .status-badge.ongoing {
+    background: oklch(var(--primary) / 0.15);
+    color: oklch(var(--primary));
+  }
+
+  .chevron {
+    width: 0.875rem;
+    height: 0.875rem;
+    color: var(--text-tertiary);
+    transition: transform 0.2s;
+    flex-shrink: 0;
+  }
+
+  .group-header[aria-expanded='true'] .chevron {
     transform: rotate(90deg);
     color: oklch(var(--primary));
   }
 
-  /* Status Dot */
-  .status-dot {
-    width: 0.5rem;
-    height: 0.5rem;
-    border-radius: 9999px;
-    background: var(--text-tertiary);
-  }
-
-  .status-dot.completed {
-    background: #22c55e;
-  }
-
-  .status-dot.ongoing {
-    background: oklch(var(--primary));
-  }
-
-  .status-dot.paused {
-    background: #f59e0b;
-  }
-
-  /* Accordion Panel */
-  .accordion-panel {
+  /* Post List */
+  .post-list {
     display: none;
-    padding: 0.5rem 0.75rem 0.75rem 2.375rem;
+    list-style: none;
+    margin: 0;
+    padding: 0.25rem 0 0.25rem 1.5rem;
+    border-left: 2px solid var(--border-color);
+    margin-left: 0.75rem;
   }
 
-  .accordion-panel[data-expanded='true'] {
+  .post-list[data-expanded='true'] {
     display: block;
   }
 
-  /* Post List */
-  .post-list {
-    list-style: none;
-    padding: 0;
-    margin: 0;
-    display: flex;
-    flex-direction: column;
-    gap: 0.125rem;
-  }
-
-  .post-link {
+  .post-item {
     display: flex;
     align-items: center;
-    gap: 0.5rem;
+    gap: 0.375rem;
     padding: 0.375rem 0.5rem;
-    border-radius: 0.375rem;
+    border-radius: 0.25rem;
     text-decoration: none;
+    font-size: 0.75rem;
     color: var(--text-secondary);
-    font-size: 0.8125rem;
-    transition: all 0.15s ease;
+    transition: all 0.15s;
+    white-space: nowrap;
+    overflow: hidden;
   }
 
-  .post-link:hover {
+  .post-item:hover {
     background: var(--btn-hover-bg);
     color: var(--text-primary);
   }
 
-  .post-link.active {
+  .post-item.active {
     background: oklch(var(--primary) / 0.1);
     color: oklch(var(--primary));
-    font-weight: 500;
   }
 
-  .post-number {
-    font-size: 0.6875rem;
-    font-weight: 600;
-    color: var(--text-tertiary);
-    background: var(--border-color);
-    width: 1.25rem;
-    height: 1.25rem;
+  .post-num {
+    width: 1.125rem;
+    height: 1.125rem;
     display: flex;
     align-items: center;
     justify-content: center;
+    font-size: 0.625rem;
+    font-weight: 600;
     border-radius: 0.25rem;
+    background: var(--border-color);
+    color: var(--text-tertiary);
     flex-shrink: 0;
   }
 
-  .post-link.active .post-number {
+  .post-item.active .post-num {
     background: oklch(var(--primary) / 0.2);
     color: oklch(var(--primary));
   }
 
-  .post-title {
+  .post-name {
     overflow: hidden;
     text-overflow: ellipsis;
-    white-space: nowrap;
-  }
-
-  /* View All Link */
-  .view-all-link {
-    display: block;
-    margin-top: 0.5rem;
-    padding: 0.375rem 0.5rem;
-    font-size: 0.75rem;
-    color: oklch(var(--primary));
-    text-decoration: none;
-    border-radius: 0.375rem;
-    transition: background 0.15s ease;
-  }
-
-  .view-all-link:hover {
-    background: oklch(var(--primary) / 0.08);
   }
 </style>
 
 <script>
-  // Accordion functionality
-  function initAccordion() {
-    const triggers = document.querySelectorAll('[data-accordion-trigger]');
-
-    triggers.forEach((trigger) => {
-      // Remove existing listeners by cloning
-      const newTrigger = trigger.cloneNode(true);
-      trigger.parentNode?.replaceChild(newTrigger, trigger);
-
-      newTrigger.addEventListener('click', () => {
-        const item = newTrigger.closest('.accordion-item');
-        const panel = item?.querySelector('[data-accordion-panel]');
-        const group = item?.getAttribute('data-accordion-group');
-        const isExpanded = newTrigger.getAttribute('aria-expanded') === 'true';
-
-        // Close all other panels in the same group
-        if (group) {
-          const groupItems = document.querySelectorAll(
-            `.accordion-item[data-accordion-group="${group}"]`
-          );
-          groupItems.forEach((otherItem) => {
-            if (otherItem !== item) {
-              const otherTrigger = otherItem.querySelector('[data-accordion-trigger]');
-              const otherPanel = otherItem.querySelector('[data-accordion-panel]');
-              otherTrigger?.setAttribute('aria-expanded', 'false');
-              otherPanel?.removeAttribute('data-expanded');
+  function initSidebar() {
+    const toggles = document.querySelectorAll('[data-toggle]');
+    
+    toggles.forEach((btn) => {
+      const newBtn = btn.cloneNode(true) as HTMLElement;
+      btn.parentNode?.replaceChild(newBtn, btn);
+      
+      newBtn.addEventListener('click', () => {
+        const group = newBtn.closest('.nav-group');
+        const panel = group?.querySelector('[data-panel]');
+        const groupType = group?.getAttribute('data-group');
+        const isOpen = newBtn.getAttribute('aria-expanded') === 'true';
+        
+        // Close others in same group type
+        if (groupType) {
+          document.querySelectorAll(`.nav-group[data-group="${groupType}"]`).forEach((g) => {
+            if (g !== group) {
+              g.querySelector('[data-toggle]')?.setAttribute('aria-expanded', 'false');
+              g.querySelector('[data-panel]')?.removeAttribute('data-expanded');
             }
           });
         }
-
-        // Toggle current panel
-        if (isExpanded) {
-          newTrigger.setAttribute('aria-expanded', 'false');
+        
+        // Toggle current
+        newBtn.setAttribute('aria-expanded', isOpen ? 'false' : 'true');
+        if (isOpen) {
           panel?.removeAttribute('data-expanded');
         } else {
-          newTrigger.setAttribute('aria-expanded', 'true');
           panel?.setAttribute('data-expanded', 'true');
         }
       });
     });
-
-    // Auto-expand active items
-    const activeItems = document.querySelectorAll('.accordion-trigger.active');
-    activeItems.forEach((trigger) => {
-      const item = trigger.closest('.accordion-item');
-      const panel = item?.querySelector('[data-accordion-panel]');
-      trigger.setAttribute('aria-expanded', 'true');
+    
+    // Auto-expand active
+    document.querySelectorAll('.group-header.active').forEach((btn) => {
+      const group = btn.closest('.nav-group');
+      const panel = group?.querySelector('[data-panel]');
+      btn.setAttribute('aria-expanded', 'true');
       panel?.setAttribute('data-expanded', 'true');
     });
   }
-
-  // Initialize on page load
-  initAccordion();
-
-  // Re-initialize after Swup page transition
-  document.addEventListener('swup:contentReplaced', initAccordion);
+  
+  initSidebar();
+  document.addEventListener('swup:contentReplaced', initSidebar);
 </script>

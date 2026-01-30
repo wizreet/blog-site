@@ -18,6 +18,7 @@ import { siteConfig, getNavLinks } from '@/config';
 import { getUrl } from '@utils/url-utils';
 import ThemeSwitch from '@components/ThemeSwitch.tsx';
 import Search from '@components/Search.tsx';
+import LanguageSwitcher from '@components/LanguageSwitcher.tsx';
 import type { NavLink } from '@/types/config';
 
 // Get resolved navigation links (converts presets to actual links)
@@ -59,14 +60,30 @@ function hasChildren(link: NavLink): boolean {
   class="fixed left-0 right-0 top-0 z-40 h-[var(--navbar-height)] border-b border-[var(--border-color)] bg-[var(--card-bg)]/80 backdrop-blur-lg transition-all duration-300"
 >
   <nav class="container-page flex h-full items-center justify-between">
-    <!-- Logo / Site Title -->
-    <a
-      href={getUrl('/')}
-      class="btn-plain scale-animation flex h-11 items-center gap-2 rounded-lg px-3 text-xl font-bold active:scale-95"
-    >
-      <Icon name="material-symbols:home-outline" class="h-6 w-6" />
-      <span class="hidden sm:inline">{siteConfig.title}</span>
-    </a>
+    <!-- Left Actions: Sidebar Toggle + Home -->
+    <div class="flex items-center gap-1">
+      <!-- Sidebar Toggle (Desktop) -->
+      <button
+        id="sidebar-toggle"
+        class="btn-plain hidden lg:flex items-center justify-center h-10 w-10 rounded-lg"
+        aria-label="Toggle sidebar"
+        aria-expanded="true"
+        title="Toggle sidebar"
+      >
+        <Icon name="material-symbols:menu-open" class="sidebar-icon-open h-5 w-5" />
+        <Icon name="material-symbols:menu" class="sidebar-icon-closed h-5 w-5 hidden" />
+      </button>
+
+      <!-- Home Button -->
+      <a
+        href={getUrl('/')}
+        class="btn-plain scale-animation flex h-10 w-10 items-center justify-center rounded-lg active:scale-95"
+        aria-label="Home"
+        title="Home"
+      >
+        <Icon name="material-symbols:home-outline" class="h-5 w-5" />
+      </a>
+    </div>
 
     <!-- Desktop Navigation -->
     <div class="hidden items-center gap-1 md:flex">
@@ -125,6 +142,9 @@ function hasChildren(link: NavLink): boolean {
     <div class="flex items-center gap-1">
       <!-- Search Button -->
       <Search client:load />
+
+      <!-- Language Switcher -->
+      <LanguageSwitcher client:load />
 
       <!-- Theme Toggle -->
       <ThemeSwitch client:load />
@@ -295,6 +315,48 @@ function hasChildren(link: NavLink): boolean {
     menu.querySelectorAll('a').forEach((link) => link.addEventListener('click', closeMenu));
   }
 
+  // Sidebar toggle functionality
+  function initSidebarToggle() {
+    const sidebarToggle = document.getElementById('sidebar-toggle');
+    const dashboardContainer = document.querySelector('.dashboard-container');
+    
+    if (!sidebarToggle || !dashboardContainer) return;
+
+    // Check localStorage for saved preference
+    const savedState = localStorage.getItem('sidebar-collapsed');
+    let isCollapsed = savedState === 'true';
+
+    function updateSidebarState() {
+      const openIcon = sidebarToggle?.querySelector('.sidebar-icon-open');
+      const closedIcon = sidebarToggle?.querySelector('.sidebar-icon-closed');
+
+      if (isCollapsed) {
+        dashboardContainer?.classList.add('sidebar-collapsed');
+        sidebarToggle?.setAttribute('aria-expanded', 'false');
+        openIcon?.classList.add('hidden');
+        closedIcon?.classList.remove('hidden');
+      } else {
+        dashboardContainer?.classList.remove('sidebar-collapsed');
+        sidebarToggle?.setAttribute('aria-expanded', 'true');
+        openIcon?.classList.remove('hidden');
+        closedIcon?.classList.add('hidden');
+      }
+    }
+
+    // Initialize state
+    updateSidebarState();
+
+    sidebarToggle.addEventListener('click', () => {
+      isCollapsed = !isCollapsed;
+      localStorage.setItem('sidebar-collapsed', isCollapsed.toString());
+      updateSidebarState();
+    });
+  }
+
   initNavbar();
-  document.addEventListener('astro:after-swap', initNavbar);
+  initSidebarToggle();
+  document.addEventListener('astro:after-swap', () => {
+    initNavbar();
+    initSidebarToggle();
+  });
 </script>
