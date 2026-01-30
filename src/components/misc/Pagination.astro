@@ -1,0 +1,155 @@
+---
+/**
+ * Pagination Component
+ *
+ * @description A pagination component for navigating through paged content.
+ * Shows page numbers with previous/next buttons.
+ */
+
+import { Icon } from 'astro-icon/components';
+import { i18n, I18nKey } from '@i18n/index';
+
+interface Props {
+  /** Current page number (1-indexed) */
+  currentPage: number;
+  /** Total number of pages */
+  totalPages: number;
+  /** Base URL for pagination (page number will be appended) */
+  baseUrl: string;
+  /** Number of page links to show around current page */
+  siblingCount?: number;
+}
+
+const { currentPage, totalPages, baseUrl, siblingCount = 1 } = Astro.props;
+
+/**
+ * Generate page URL
+ */
+function getPageUrl(page: number): string {
+  if (page === 1) {
+    return baseUrl;
+  }
+  return `${baseUrl}/${page}`;
+}
+
+/**
+ * Generate page numbers array with ellipsis
+ */
+function getPageNumbers(): (number | 'ellipsis')[] {
+  const pages: (number | 'ellipsis')[] = [];
+  const leftSiblingIndex = Math.max(currentPage - siblingCount, 1);
+  const rightSiblingIndex = Math.min(currentPage + siblingCount, totalPages);
+
+  const showLeftEllipsis = leftSiblingIndex > 2;
+  const showRightEllipsis = rightSiblingIndex < totalPages - 1;
+
+  // Always show first page
+  pages.push(1);
+
+  // Left ellipsis
+  if (showLeftEllipsis) {
+    pages.push('ellipsis');
+  } else if (leftSiblingIndex > 1) {
+    // Show page 2 if close to start
+    for (let i = 2; i < leftSiblingIndex; i++) {
+      pages.push(i);
+    }
+  }
+
+  // Sibling pages and current page
+  for (let i = leftSiblingIndex; i <= rightSiblingIndex; i++) {
+    if (i !== 1 && i !== totalPages) {
+      pages.push(i);
+    }
+  }
+
+  // Right ellipsis
+  if (showRightEllipsis) {
+    pages.push('ellipsis');
+  } else if (rightSiblingIndex < totalPages) {
+    // Show pages before last if close to end
+    for (let i = rightSiblingIndex + 1; i < totalPages; i++) {
+      pages.push(i);
+    }
+  }
+
+  // Always show last page (if more than 1 page)
+  if (totalPages > 1) {
+    pages.push(totalPages);
+  }
+
+  return pages;
+}
+
+const hasPrevious = currentPage > 1;
+const hasNext = currentPage < totalPages;
+const pageNumbers = getPageNumbers();
+---
+
+{
+  totalPages > 1 && (
+    <nav aria-label="Pagination" class="flex items-center justify-center gap-1">
+      {/* Previous Button */}
+      {hasPrevious ? (
+        <a
+          href={getPageUrl(currentPage - 1)}
+          class="flex h-10 items-center gap-1 rounded-lg px-3 text-sm text-[var(--text-secondary)] transition-colors hover:bg-[var(--btn-hover-bg)] hover:text-[var(--text-primary)]"
+          aria-label={i18n(I18nKey.prevPage)}
+        >
+          <Icon name="material-symbols:chevron-left" class="h-5 w-5" />
+          <span class="hidden sm:inline">{i18n(I18nKey.prevPage)}</span>
+        </a>
+      ) : (
+        <span class="flex h-10 cursor-not-allowed items-center gap-1 rounded-lg px-3 text-sm text-[var(--text-tertiary)] opacity-50">
+          <Icon name="material-symbols:chevron-left" class="h-5 w-5" />
+          <span class="hidden sm:inline">{i18n(I18nKey.prevPage)}</span>
+        </span>
+      )}
+
+      {/* Page Numbers */}
+      <div class="flex items-center gap-1">
+        {pageNumbers.map((page, index) =>
+          page === 'ellipsis' ? (
+            <span
+              key={`ellipsis-${index}`}
+              class="flex h-10 w-10 items-center justify-center text-[var(--text-tertiary)]"
+            >
+              ⋯
+            </span>
+          ) : (
+            <a
+              key={page}
+              href={getPageUrl(page)}
+              class:list={[
+                'flex h-10 min-w-10 items-center justify-center rounded-lg px-3 text-sm font-medium transition-colors',
+                page === currentPage
+                  ? 'bg-[oklch(var(--primary))] text-white'
+                  : 'text-[var(--text-secondary)] hover:bg-[var(--btn-hover-bg)] hover:text-[var(--text-primary)]',
+              ]}
+              aria-current={page === currentPage ? 'page' : undefined}
+            >
+              {page}
+            </a>
+          )
+        )}
+      </div>
+
+      {/* Next Button */}
+      {hasNext ? (
+        <a
+          href={getPageUrl(currentPage + 1)}
+          class="flex h-10 items-center gap-1 rounded-lg px-3 text-sm text-[var(--text-secondary)] transition-colors hover:bg-[var(--btn-hover-bg)] hover:text-[var(--text-primary)]"
+          aria-label={i18n(I18nKey.nextPage)}
+        >
+          <span class="hidden sm:inline">{i18n(I18nKey.nextPage)}</span>
+          <Icon name="material-symbols:chevron-right" class="h-5 w-5" />
+        </a>
+      ) : (
+        <span class="flex h-10 cursor-not-allowed items-center gap-1 rounded-lg px-3 text-sm text-[var(--text-tertiary)] opacity-50">
+          <span class="hidden sm:inline">{i18n(I18nKey.nextPage)}</span>
+          <Icon name="material-symbols:chevron-right" class="h-5 w-5" />
+        </span>
+      )}
+    </nav>
+  )
+}

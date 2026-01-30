@@ -1,0 +1,65 @@
+---
+/**
+ * Series Card Component
+ *
+ * @description A card component for displaying a blog series.
+ * Shows series info with post count and status.
+ */
+
+import { Icon } from 'astro-icon/components';
+import type { Series } from '@types/config';
+import { getSeriesUrl } from '@utils/url-utils';
+import { SERIES_STATUS_COLORS } from '@constants/constants';
+import { i18n, I18nKey } from '@i18n/index';
+
+interface Props {
+  /** Series data */
+  series: Series;
+  /** Number of posts in this series */
+  postCount?: number;
+}
+
+const { series, postCount = 0 } = Astro.props;
+
+const statusColors = SERIES_STATUS_COLORS[series.status] || SERIES_STATUS_COLORS.ongoing;
+---
+
+<article class="card-base group">
+  <a href={getSeriesUrl(series.id)} class="block p-5">
+    <!-- Status Badge -->
+    <div class="mb-2">
+      <span
+        class:list={[
+          'inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-xs font-medium',
+          statusColors,
+        ]}
+      >
+        <span class="h-1.5 w-1.5 rounded-full bg-current"></span>
+        {series.status.charAt(0).toUpperCase() + series.status.slice(1)}
+      </span>
+    </div>
+
+    <!-- Title -->
+    <h2 class="text-xl font-bold text-[var(--text-primary)] transition-colors group-hover:text-[oklch(var(--primary))]">
+      {series.title}
+    </h2>
+
+    <!-- Description -->
+    {
+      series.description && (
+        <p class="mt-2 line-clamp-2 text-[var(--text-secondary)]">
+          {series.description}
+        </p>
+      )
+    }
+
+    <!-- Meta -->
+    <div class="mt-3 flex items-center gap-4 text-sm text-[var(--text-tertiary)]">
+      <!-- Post Count -->
+      <div class="flex items-center gap-1">
+        <Icon name="material-symbols:article-outline" class="h-4 w-4" />
+        <span>{postCount} {postCount === 1 ? 'post' : 'posts'}</span>
+      </div>
+    </div>
+  </a>
+</article>

@@ -1,0 +1,123 @@
+---
+/**
+ * Main Grid Layout
+ *
+ * @description The primary layout for most pages.
+ * Implements a single-sidebar layout (Fuwari-style):
+ * - Left: Main content area
+ * - Right: Sidebar with widgets (Profile, Categories, Tags)
+ *
+ * @slot default - Main content
+ * @slot sidebar - Sidebar content (optional, uses default widgets if not provided)
+ *
+ * @example
+ * ```astro
+ * <MainGridLayout title="Blog">
+ *   <article>Post content here</article>
+ * </MainGridLayout>
+ * ```
+ */
+
+import Layout from './Layout.astro';
+import Navbar from '@components/Navbar.astro';
+import Footer from '@components/Footer.astro';
+import SideBar from '@components/SideBar.astro';
+import BackToTop from '@components/BackToTop.astro';
+
+interface Props {
+  /** Page title */
+  title?: string;
+  /** Page description for SEO */
+  description?: string;
+  /** Open Graph image URL */
+  ogImage?: string;
+  /** Page URL (canonical) */
+  url?: string;
+  /** Article publish date (for blog posts) */
+  publishDate?: Date;
+  /** Article modified date (for blog posts) */
+  modifiedDate?: Date;
+  /** Whether this is an article (blog post) */
+  isArticle?: boolean;
+  /** Robots meta directive */
+  robots?: string;
+  /** Hide sidebar on this page */
+  hideSidebar?: boolean;
+  /** Additional class for main content area */
+  contentClass?: string;
+}
+
+const {
+  title,
+  description,
+  ogImage,
+  url,
+  publishDate,
+  modifiedDate,
+  isArticle = false,
+  robots,
+  hideSidebar = false,
+  contentClass = '',
+} = Astro.props;
+
+// Check if custom sidebar content is provided
+const hasSidebarSlot = Astro.slots.has('sidebar');
+---
+
+<Layout
+  title={title}
+  description={description}
+  ogImage={ogImage}
+  url={url}
+  publishDate={publishDate}
+  modifiedDate={modifiedDate}
+  isArticle={isArticle}
+  robots={robots}
+>
+  <!-- Navigation -->
+  <Navbar />
+
+  <!-- Main Content Area -->
+  <div
+    class="container-page min-h-[calc(100vh-var(--navbar-height)-8rem)] pt-[var(--navbar-height)]"
+  >
+    <div class="py-6 lg:py-8">
+      {
+        hideSidebar ? (
+          /* Full-width layout (no sidebar) */
+          <main id="main-content" class:list={['w-full', contentClass]}>
+            <slot />
+          </main>
+        ) : (
+          /* Two-column layout with sidebar */
+          <div class="flex flex-col gap-6 lg:flex-row lg:gap-8">
+            {/* Main content (left) */}
+            <main
+              id="main-content"
+              class:list={['min-w-0 flex-1', contentClass]}
+            >
+              <slot />
+            </main>
+
+            {/* Sidebar (right) */}
+            <aside class="w-full shrink-0 lg:w-[var(--sidebar-width)]">
+              <div class="sticky top-[calc(var(--navbar-height)+1.5rem)]">
+                {hasSidebarSlot ? (
+                  <slot name="sidebar" />
+                ) : (
+                  <SideBar />
+                )}
+              </div>
+            </aside>
+          </div>
+        )
+      }
+    </div>
+  </div>
+
+  <!-- Footer -->
+  <Footer />
+
+  <!-- Back to Top Button -->
+  <BackToTop />
+</Layout>

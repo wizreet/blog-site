@@ -1,0 +1,56 @@
+---
+/**
+ * 404 Not Found Page
+ *
+ * @description Custom 404 error page with helpful navigation.
+ *
+ * @route /404
+ */
+
+import { Icon } from 'astro-icon/components';
+import Layout from '@layouts/Layout.astro';
+import { getUrl } from '@utils/url-utils';
+import { i18n, I18nKey } from '@i18n/index';
+---
+
+<Layout title="Page Not Found" robots="noindex, nofollow">
+  <div class="flex min-h-screen flex-col items-center justify-center px-4 py-16">
+    <div class="text-center">
+      <!-- Error Code -->
+      <h1 class="text-9xl font-bold text-[oklch(var(--primary)/0.2)]">404</h1>
+
+      <!-- Message -->
+      <h2 class="mt-4 text-2xl font-bold text-[var(--text-primary)]">
+        {i18n(I18nKey.notFound)}
+      </h2>
+
+      <p class="mt-2 text-[var(--text-secondary)]">
+        The page you're looking for doesn't exist or has been moved.
+      </p>
+
+      <!-- Actions -->
+      <div class="mt-8 flex flex-wrap items-center justify-center gap-4">
+        <a href={getUrl('/')} class="btn-primary flex items-center gap-2">
+          <Icon name="material-symbols:home-outline" class="h-5 w-5" />
+          Go Home
+        </a>
+
+        <button
+          onclick="history.back()"
+          class="btn-secondary flex items-center gap-2"
+        >
+          <Icon name="material-symbols:arrow-back" class="h-5 w-5" />
+          Go Back
+        </button>
+      </div>
+
+      <!-- Decorative Element -->
+      <div class="mt-12">
+        <Icon
+          name="material-symbols:explore-outline"
+          class="h-24 w-24 text-[var(--text-tertiary)] opacity-50"
+        />
+      </div>
+    </div>
+  </div>
+</Layout>

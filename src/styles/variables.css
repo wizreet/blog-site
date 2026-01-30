@@ -1,0 +1,205 @@
+/**
+ * CSS Custom Properties (Variables)
+ *
+ * @description Defines all CSS custom properties for theming.
+ * These variables control colors, spacing, and other design tokens.
+ */
+
+/* ============================================================================
+   Root Variables (Light Mode)
+   ============================================================================ */
+
+:root {
+  /* -------------------------------------------------------------------------
+     Layout
+     ------------------------------------------------------------------------- */
+  --page-width: 75rem; /* 1200px */
+  --content-width: 52rem; /* 832px */
+  --sidebar-width: 20rem; /* 320px */
+  --navbar-height: 4rem; /* 64px */
+
+  /* -------------------------------------------------------------------------
+     Border Radius
+     ------------------------------------------------------------------------- */
+  --radius-small: 0.375rem; /* 6px */
+  --radius-medium: 0.5rem; /* 8px */
+  --radius-large: 0.75rem; /* 12px */
+
+  /* -------------------------------------------------------------------------
+     Theme Colors (OKLCH for better color manipulation)
+     Using CSS custom properties with hue variable
+     ------------------------------------------------------------------------- */
+  --hue: 250; /* Default purple hue, configurable in config.ts */
+
+  /* Primary color: used for accents, links, buttons */
+  --primary: 0.55 0.2 var(--hue);
+
+  /* Secondary color: complementary to primary */
+  --secondary: 0.65 0.15 calc(var(--hue) + 30);
+
+  /* Accent color: for highlights */
+  --accent: 0.7 0.2 calc(var(--hue) - 30);
+
+  /* -------------------------------------------------------------------------
+     Background Colors (Light Mode)
+     ------------------------------------------------------------------------- */
+  --page-bg: oklch(0.97 0.005 var(--hue));
+  --card-bg: oklch(1 0 0); /* Pure white */
+  --code-bg: oklch(0.95 0.005 var(--hue));
+  --blockquote-bg: oklch(0.96 0.01 var(--hue));
+  --table-header-bg: oklch(0.95 0.01 var(--hue));
+
+  /* -------------------------------------------------------------------------
+     Text Colors (Light Mode)
+     ------------------------------------------------------------------------- */
+  --text-primary: oklch(0.2 0.02 var(--hue));
+  --text-secondary: oklch(0.4 0.02 var(--hue));
+  --text-tertiary: oklch(0.55 0.02 var(--hue));
+
+  /* -------------------------------------------------------------------------
+     Border Colors (Light Mode)
+     ------------------------------------------------------------------------- */
+  --border-color: oklch(0.9 0.01 var(--hue));
+
+  /* -------------------------------------------------------------------------
+     Button Colors (Light Mode)
+     ------------------------------------------------------------------------- */
+  --btn-regular-bg: oklch(0.94 0.01 var(--hue));
+  --btn-hover-bg: oklch(0.9 0.02 var(--hue));
+  --btn-active-bg: oklch(0.85 0.03 var(--hue));
+
+  /* -------------------------------------------------------------------------
+     Shadows (Light Mode)
+     ------------------------------------------------------------------------- */
+  --shadow-card: 0 1px 3px oklch(0.3 0.02 var(--hue) / 0.1);
+  --shadow-hover: 0 4px 12px oklch(0.3 0.02 var(--hue) / 0.15);
+  --shadow-elevated: 0 8px 24px oklch(0.3 0.02 var(--hue) / 0.2);
+
+  /* -------------------------------------------------------------------------
+     Scrollbar (Light Mode)
+     ------------------------------------------------------------------------- */
+  --scrollbar-track: oklch(0.95 0.01 var(--hue));
+  --scrollbar-thumb: oklch(0.8 0.02 var(--hue));
+  --scrollbar-thumb-hover: oklch(0.7 0.03 var(--hue));
+
+  /* -------------------------------------------------------------------------
+     Color Scheme
+     ------------------------------------------------------------------------- */
+  color-scheme: light;
+}
+
+/* ============================================================================
+   Dark Mode Variables
+   ============================================================================ */
+
+.dark {
+  /* -------------------------------------------------------------------------
+     Background Colors (Dark Mode)
+     ------------------------------------------------------------------------- */
+  --page-bg: oklch(0.16 0.015 var(--hue));
+  --card-bg: oklch(0.22 0.02 var(--hue));
+  --code-bg: oklch(0.18 0.015 var(--hue));
+  --blockquote-bg: oklch(0.2 0.02 var(--hue));
+  --table-header-bg: oklch(0.2 0.02 var(--hue));
+
+  /* -------------------------------------------------------------------------
+     Text Colors (Dark Mode)
+     ------------------------------------------------------------------------- */
+  --text-primary: oklch(0.93 0.01 var(--hue));
+  --text-secondary: oklch(0.75 0.01 var(--hue));
+  --text-tertiary: oklch(0.55 0.01 var(--hue));
+
+  /* -------------------------------------------------------------------------
+     Border Colors (Dark Mode)
+     ------------------------------------------------------------------------- */
+  --border-color: oklch(0.3 0.02 var(--hue));
+
+  /* -------------------------------------------------------------------------
+     Button Colors (Dark Mode)
+     ------------------------------------------------------------------------- */
+  --btn-regular-bg: oklch(0.28 0.02 var(--hue));
+  --btn-hover-bg: oklch(0.32 0.025 var(--hue));
+  --btn-active-bg: oklch(0.36 0.03 var(--hue));
+
+  /* -------------------------------------------------------------------------
+     Shadows (Dark Mode)
+     ------------------------------------------------------------------------- */
+  --shadow-card: 0 1px 3px oklch(0 0 0 / 0.2);
+  --shadow-hover: 0 4px 12px oklch(0 0 0 / 0.3);
+  --shadow-elevated: 0 8px 24px oklch(0 0 0 / 0.4);
+
+  /* -------------------------------------------------------------------------
+     Scrollbar (Dark Mode)
+     ------------------------------------------------------------------------- */
+  --scrollbar-track: oklch(0.2 0.02 var(--hue));
+  --scrollbar-thumb: oklch(0.35 0.02 var(--hue));
+  --scrollbar-thumb-hover: oklch(0.45 0.03 var(--hue));
+
+  /* -------------------------------------------------------------------------
+     Color Scheme
+     ------------------------------------------------------------------------- */
+  color-scheme: dark;
+}
+
+/* ============================================================================
+   Hue Override (when user customizes theme color)
+   ============================================================================ */
+
+/* These classes are dynamically added via JavaScript */
+.hue-0 {
+  --hue: 0;
+} /* Red */
+.hue-30 {
+  --hue: 30;
+} /* Orange */
+.hue-60 {
+  --hue: 60;
+} /* Yellow */
+.hue-90 {
+  --hue: 90;
+} /* Lime */
+.hue-120 {
+  --hue: 120;
+} /* Green */
+.hue-150 {
+  --hue: 150;
+} /* Teal */
+.hue-180 {
+  --hue: 180;
+} /* Cyan */
+.hue-210 {
+  --hue: 210;
+} /* Sky */
+.hue-240 {
+  --hue: 240;
+} /* Blue */
+.hue-250 {
+  --hue: 250;
+} /* Violet (Default) */
+.hue-270 {
+  --hue: 270;
+} /* Purple */
+.hue-300 {
+  --hue: 300;
+} /* Fuchsia */
+.hue-330 {
+  --hue: 330;
+} /* Pink */
+
+/* ============================================================================
+   Reduced Motion
+   ============================================================================ */
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+
+  html {
+    scroll-behavior: auto;
+  }
+}

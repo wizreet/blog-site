@@ -1,0 +1,197 @@
+---
+/**
+ * Archive Page
+ *
+ * @description Displays all posts organized by category, tag, or series.
+ * Uses dynamic routing to handle different filter types.
+ *
+ * @route /archive/[...path]
+ * Examples:
+ *   /archive - All posts grouped by year
+ *   /archive/category/[name] - Posts in category
+ *   /archive/tag/[name] - Posts with tag
+ *   /archive/series/[id] - Posts in series
+ */
+
+import { Icon } from 'astro-icon/components';
+import MainGridLayout from '@layouts/MainGridLayout.astro';
+import PostCard from '@components/card/PostCard.astro';
+import { getSortedPosts, getCategories, getTags } from '@utils/content-utils';
+import { getCategoryUrl, getTagUrl, getSeriesUrl, getUrl } from '@utils/url-utils';
+import { formatDate } from '@utils/date-utils';
+import { getSortedSeries } from '@data/series';
+import { i18n, I18nKey } from '@i18n/index';
+
+export async function getStaticPaths() {
+  const allPosts = await getSortedPosts();
+  const categories = await getCategories();
+  const tags = await getTags();
+  const series = getSortedSeries();
+
+  const paths = [
+    // Main archive page
+    { params: { path: undefined }, props: { type: 'all', value: null } },
+
+    // Category pages
+    ...categories.map((cat) => ({
+      params: { path: `category/${cat.name}` },
+      props: { type: 'category', value: cat.name },
+    })),
+
+    // Tag pages
+    ...tags.map((tag) => ({
+      params: { path: `tag/${tag.name}` },
+      props: { type: 'tag', value: tag.name },
+    })),
+
+    // Series pages
+    ...series.map((s) => ({
+      params: { path: `series/${s.id}` },
+      props: { type: 'series', value: s.id },
+    })),
+  ];
+
+  return paths;
+}
+
+interface Props {
+  type: 'all' | 'category' | 'tag' | 'series';
+  value: string | null;
+}
+
+const { type, value } = Astro.props;
+
+// Get posts based on filter type
+const allPosts = await getSortedPosts();
+let posts = allPosts;
+let pageTitle = i18n(I18nKey.archive);
+let pageDescription = 'Browse all posts';
+
+if (type === 'category' && value) {
+  posts = allPosts.filter((p) => p.data.category === value);
+  pageTitle = `${i18n(I18nKey.categories)}: ${value}`;
+  pageDescription = `Posts in category "${value}"`;
+} else if (type === 'tag' && value) {
+  posts = allPosts.filter((p) => p.data.tags?.some((t) => t === value));
+  pageTitle = `${i18n(I18nKey.tags)}: ${value}`;
+  pageDescription = `Posts tagged with "${value}"`;
+} else if (type === 'series' && value) {
+  const series = getSortedSeries().find((s) => s.id === value);
+  posts = allPosts.filter((p) => p.data.series?.id === value);
+  pageTitle = series?.title || value;
+  pageDescription = series?.description || `Posts in series "${value}"`;
+}
+
+// Group posts by year for display
+const postsByYear = new Map<number, typeof posts>();
+for (const post of posts) {
+  const year = post.data.published.getFullYear();
+  if (!postsByYear.has(year)) {
+    postsByYear.set(year, []);
+  }
+  postsByYear.get(year)!.push(post);
+}
+const years = Array.from(postsByYear.keys()).sort((a, b) => b - a);
+
+// Get categories and tags for sidebar
+const categories = await getCategories();
+const tags = await getTags();
+---
+
+<MainGridLayout title={pageTitle} description={pageDescription} hideSidebar={true}>
+  <div class="space-y-8">
+    <!-- Page Header -->
+    <header class="text-center">
+      <h1 class="text-3xl font-bold text-[var(--text-primary)] md:text-4xl">
+        {pageTitle}
+      </h1>
+      {
+        type !== 'all' && (
+          <a
+            href={getUrl('/archive')}
+            class="mt-4 inline-flex items-center gap-1 text-sm text-[var(--text-secondary)] transition-colors hover:text-[oklch(var(--primary))]"
+          >
+            <Icon name="material-symbols:arrow-back" class="h-4 w-4" />
+            {i18n(I18nKey.viewAll)}
+          </a>
+        )
+      }
+    </header>
+
+    <!-- Quick Filters (on main archive page) -->
+    {
+      type === 'all' && (
+        <div class="flex flex-wrap justify-center gap-6">
+          {/* Categories */}
+          <div class="text-center">
+            <h2 class="mb-2 text-sm font-semibold uppercase tracking-wider text-[var(--text-tertiary)]">
+              {i18n(I18nKey.categories)}
+            </h2>
+            <div class="flex flex-wrap justify-center gap-2">
+              {categories.slice(0, 5).map((cat) => (
+                <a
+                  href={getCategoryUrl(cat.name)}
+                  class="tag"
+                >
+                  {cat.name} ({cat.count})
+                </a>
+              ))}
+            </div>
+          </div>
+
+          {/* Tags */}
+          <div class="text-center">
+            <h2 class="mb-2 text-sm font-semibold uppercase tracking-wider text-[var(--text-tertiary)]">
+              {i18n(I18nKey.tags)}
+            </h2>
+            <div class="flex flex-wrap justify-center gap-2">
+              {tags.slice(0, 8).map((tag) => (
+                <a
+                  href={getTagUrl(tag.name)}
+                  class="tag"
+                >
+                  #{tag.name}
+                </a>
+              ))}
+            </div>
+          </div>
+        </div>
+      )
+    }
+
+    <!-- Posts by Year -->
+    <div class="space-y-8">
+      {
+        years.map((year) => (
+          <section>
+            <h2 class="mb-4 flex items-center gap-2 text-xl font-bold text-[var(--text-primary)]">
+              <Icon name="material-symbols:calendar-today-outline" class="h-5 w-5" />
+              {year}
+              <span class="text-sm font-normal text-[var(--text-tertiary)]">
+                ({postsByYear.get(year)?.length} posts)
+              </span>
+            </h2>
+            <div class="space-y-3">
+              {postsByYear.get(year)?.map((post) => (
+                <PostCard post={post} compact={true} />
+              ))}
+            </div>
+          </section>
+        ))
+      }
+    </div>
+
+    <!-- Empty State -->
+    {
+      posts.length === 0 && (
+        <div class="rounded-xl bg-[var(--card-bg)] p-8 text-center">
+          <Icon
+            name="material-symbols:inbox-outline"
+            class="mx-auto mb-4 h-12 w-12 text-[var(--text-tertiary)]"
+          />
+          <p class="text-[var(--text-secondary)]">No posts found.</p>
+        </div>
+      )
+    }
+  </div>
+</MainGridLayout>

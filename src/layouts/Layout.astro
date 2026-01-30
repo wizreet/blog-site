@@ -1,0 +1,225 @@
+---
+/**
+ * Base Layout
+ *
+ * @description The base HTML structure for all pages.
+ * Includes head, meta tags, theme script, and global styles.
+ *
+ * @slot default - The page content
+ *
+ * @example
+ * ```astro
+ * <Layout title="Home" description="Welcome to my portfolio">
+ *   <main>Content here</main>
+ * </Layout>
+ * ```
+ */
+
+import '@styles/main.css';
+import '@styles/scrollbar.css';
+import '@styles/markdown.css';
+import '@styles/toc.css';
+
+import { siteConfig, seoConfig } from '@/config';
+import { getUrl } from '@utils/url-utils';
+import { ViewTransitions } from 'astro:transitions';
+
+interface Props {
+  /** Page title (will be appended with site title) */
+  title?: string;
+  /** Page description for SEO */
+  description?: string;
+  /** Open Graph image URL */
+  ogImage?: string;
+  /** Page URL (canonical) */
+  url?: string;
+  /** Article publish date (for blog posts) */
+  publishDate?: Date;
+  /** Article modified date (for blog posts) */
+  modifiedDate?: Date;
+  /** Whether this is an article (blog post) */
+  isArticle?: boolean;
+  /** Robots meta directive */
+  robots?: string;
+}
+
+const {
+  title,
+  description = siteConfig.subtitle,
+  ogImage = seoConfig.defaultOgImage,
+  url = Astro.url.pathname,
+  publishDate,
+  modifiedDate,
+  isArticle = false,
+  robots = 'index, follow',
+} = Astro.props;
+
+// Construct full title
+const fullTitle = title ? `${title} | ${siteConfig.title}` : siteConfig.title;
+
+// Construct full URLs
+const canonicalUrl = new URL(url, Astro.site);
+const ogImageUrl = ogImage ? new URL(ogImage, Astro.site) : undefined;
+
+// Get theme colors for browser chrome
+const themeColorLight = '#ffffff';
+const themeColorDark = '#1a1a2e';
+---
+
+<!doctype html>
+<html lang={siteConfig.lang} class="scroll-smooth">
+  <head>
+    <!-- Essential Meta -->
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="generator" content={Astro.generator} />
+
+    <!-- Title and Description -->
+    <title>{fullTitle}</title>
+    <meta name="description" content={description} />
+    <meta name="author" content={siteConfig.title} />
+    <meta name="robots" content={robots} />
+
+    <!-- Canonical URL -->
+    <link rel="canonical" href={canonicalUrl} />
+
+    <!-- Favicon -->
+    <link rel="icon" type="image/svg+xml" href={getUrl('/favicon/favicon.svg')} />
+    <link rel="icon" type="image/x-icon" href={getUrl('/favicon/favicon.ico')} />
+    <link rel="apple-touch-icon" sizes="180x180" href={getUrl('/favicon/apple-touch-icon.png')} />
+    <link rel="manifest" href={getUrl('/favicon/site.webmanifest')} />
+
+    <!-- Theme Color -->
+    <meta name="theme-color" content={themeColorLight} media="(prefers-color-scheme: light)" />
+    <meta name="theme-color" content={themeColorDark} media="(prefers-color-scheme: dark)" />
+
+    <!-- Open Graph -->
+    <meta property="og:type" content={isArticle ? 'article' : 'website'} />
+    <meta property="og:site_name" content={siteConfig.title} />
+    <meta property="og:title" content={fullTitle} />
+    <meta property="og:description" content={description} />
+    <meta property="og:url" content={canonicalUrl} />
+    {ogImageUrl && <meta property="og:image" content={ogImageUrl} />}
+    <meta property="og:locale" content={siteConfig.lang.replace('-', '_')} />
+
+    <!-- Twitter Card -->
+    <meta name="twitter:card" content="summary_large_image" />
+    {seoConfig.twitterHandle && <meta name="twitter:site" content={seoConfig.twitterHandle} />}
+    <meta name="twitter:title" content={fullTitle} />
+    <meta name="twitter:description" content={description} />
+    {ogImageUrl && <meta name="twitter:image" content={ogImageUrl} />}
+
+    <!-- Article Meta (for blog posts) -->
+    {
+      isArticle && publishDate && (
+        <meta property="article:published_time" content={publishDate.toISOString()} />
+      )
+    }
+    {
+      isArticle && modifiedDate && (
+        <meta property="article:modified_time" content={modifiedDate.toISOString()} />
+      )
+    }
+    {isArticle && <meta property="article:author" content={siteConfig.title} />}
+
+    <!-- RSS Feed -->
+    <link
+      rel="alternate"
+      type="application/rss+xml"
+      title={`${siteConfig.title} RSS Feed`}
+      href={getUrl('/rss.xml')}
+    />
+
+    <!-- Preconnect for performance -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+
+    <!-- View Transitions (Astro native) -->
+    <ViewTransitions />
+
+    <!-- Theme Script (must be inline and run before paint to prevent FOUC) -->
+    <script is:inline>
+      (function () {
+        // Check for stored theme or system preference
+        const stored = localStorage.getItem('theme');
+        const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+
+        let theme;
+        if (stored === 'dark' || stored === 'light') {
+          theme = stored;
+        } else if (stored === 'auto' || !stored) {
+          theme = prefersDark ? 'dark' : 'light';
+        } else {
+          theme = prefersDark ? 'dark' : 'light';
+        }
+
+        // Apply theme class
+        document.documentElement.classList.toggle('dark', theme === 'dark');
+
+        // Store preference if not set
+        if (!stored) {
+          localStorage.setItem('theme', 'auto');
+        }
+
+        // Apply custom hue if stored
+        const hue = localStorage.getItem('hue');
+        if (hue) {
+          document.documentElement.style.setProperty('--hue', hue);
+        }
+      })();
+    </script>
+
+    <!-- Additional head content slot -->
+    <slot name="head" />
+  </head>
+  <body
+    class="min-h-screen bg-[var(--page-bg)] text-[var(--text-primary)] antialiased transition-colors duration-300"
+  >
+    <!-- Skip to main content (accessibility) -->
+    <a
+      href="#main-content"
+      class="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-50 focus:rounded-lg focus:bg-[oklch(var(--primary))] focus:px-4 focus:py-2 focus:text-white"
+    >
+      Skip to main content
+    </a>
+
+    <!-- Page content -->
+    <slot />
+
+    <!-- Theme change listener (for system preference changes) -->
+    <script>
+      // Listen for system theme changes when in auto mode
+      const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
+
+      function handleThemeChange(e: MediaQueryListEvent) {
+        const stored = localStorage.getItem('theme');
+        if (stored === 'auto' || !stored) {
+          document.documentElement.classList.toggle('dark', e.matches);
+        }
+      }
+
+      mediaQuery.addEventListener('change', handleThemeChange);
+
+      // Re-apply theme on view transition (Astro)
+      document.addEventListener('astro:after-swap', () => {
+        const stored = localStorage.getItem('theme');
+        const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+
+        let theme: string;
+        if (stored === 'dark' || stored === 'light') {
+          theme = stored;
+        } else {
+          theme = prefersDark ? 'dark' : 'light';
+        }
+
+        document.documentElement.classList.toggle('dark', theme === 'dark');
+
+        // Re-apply hue
+        const hue = localStorage.getItem('hue');
+        if (hue) {
+          document.documentElement.style.setProperty('--hue', hue);
+        }
+      });
+    </script>
+  </body>
+</html>

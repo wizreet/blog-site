@@ -1,0 +1,59 @@
+---
+/**
+ * Home Page
+ *
+ * @description The main landing page showing recent blog posts.
+ * Uses pagination and displays posts in a text-first card format.
+ *
+ * @route /
+ */
+
+import MainGridLayout from '@layouts/MainGridLayout.astro';
+import PostCard from '@components/card/PostCard.astro';
+import Pagination from '@components/misc/Pagination.astro';
+import { getSortedPosts } from '@utils/content-utils';
+import { getUrl } from '@utils/url-utils';
+import { PAGE_SIZE } from '@constants/constants';
+import { siteConfig } from '@/config';
+
+// Get all posts sorted by date
+const allPosts = await getSortedPosts();
+
+// First page posts
+const posts = allPosts.slice(0, PAGE_SIZE);
+
+// Calculate pagination
+const totalPages = Math.ceil(allPosts.length / PAGE_SIZE);
+---
+
+<MainGridLayout title={undefined} description={siteConfig.subtitle}>
+  <div class="space-y-6">
+    <!-- Page Header -->
+    <div class="mb-8">
+      <h1 class="text-3xl font-bold text-[var(--text-primary)] md:text-4xl">
+        {siteConfig.title}
+      </h1>
+      <p class="mt-2 text-lg text-[var(--text-secondary)]">
+        {siteConfig.subtitle}
+      </p>
+    </div>
+
+    <!-- Posts List -->
+    {
+      posts.length > 0 ? (
+        <div class="space-y-4">
+          {posts.map((post) => (
+            <PostCard post={post} />
+          ))}
+        </div>
+      ) : (
+        <div class="rounded-xl bg-[var(--card-bg)] p-8 text-center">
+          <p class="text-[var(--text-secondary)]">No posts yet. Check back soon!</p>
+        </div>
+      )
+    }
+
+    <!-- Pagination -->
+    {totalPages > 1 && <Pagination currentPage={1} totalPages={totalPages} baseUrl={getUrl('/')} />}
+  </div>
+</MainGridLayout>

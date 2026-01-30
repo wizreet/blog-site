@@ -1,0 +1,128 @@
+---
+/**
+ * Project Card Component
+ *
+ * @description A card component for displaying a project.
+ * Shows project info with tech stack and links.
+ */
+
+import { Icon } from 'astro-icon/components';
+import type { Project } from '@types/config';
+import { TECH_ICONS } from '@constants/icon';
+
+interface Props {
+  /** Project data */
+  project: Project;
+}
+
+const { project } = Astro.props;
+
+const { title, description, tech, links, image, featured } = project;
+---
+
+<article class:list={['card-base group', featured && 'ring-2 ring-[oklch(var(--primary)/0.3)]']}>
+  <!-- Image (optional) -->
+  {
+    image && (
+      <div class="aspect-video overflow-hidden">
+        <img
+          src={image}
+          alt={title}
+          class="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
+          loading="lazy"
+        />
+      </div>
+    )
+  }
+
+  <div class="p-5">
+    <!-- Featured Badge -->
+    {
+      featured && (
+        <div class="mb-2">
+          <span class="inline-flex items-center gap-1 rounded-full bg-[oklch(var(--primary)/0.1)] px-2 py-0.5 text-xs font-medium text-[oklch(var(--primary))]">
+            <Icon name="material-symbols:star" class="h-3 w-3" />
+            Featured
+          </span>
+        </div>
+      )
+    }
+
+    <!-- Title -->
+    <h3 class="text-lg font-bold text-[var(--text-primary)]">
+      {title}
+    </h3>
+
+    <!-- Description -->
+    {
+      description && (
+        <p class="mt-2 line-clamp-2 text-sm text-[var(--text-secondary)]">
+          {description}
+        </p>
+      )
+    }
+
+    <!-- Tech Stack -->
+    {
+      tech && tech.length > 0 && (
+        <div class="mt-3 flex flex-wrap gap-1.5">
+          {tech.slice(0, 6).map((item) => {
+            const iconName = TECH_ICONS[item.toLowerCase() as keyof typeof TECH_ICONS];
+            return (
+              <span class="inline-flex items-center gap-1 rounded-md bg-[var(--btn-regular-bg)] px-2 py-0.5 text-xs text-[var(--text-secondary)]">
+                {iconName && <Icon name={iconName} class="h-3 w-3" />}
+                {item}
+              </span>
+            );
+          })}
+          {tech.length > 6 && (
+            <span class="text-xs text-[var(--text-tertiary)]">
+              +{tech.length - 6}
+            </span>
+          )}
+        </div>
+      )
+    }
+
+    <!-- Links -->
+    {
+      links && (links.demo || links.github || links.docs) && (
+        <div class="mt-4 flex items-center gap-3">
+          {links.demo && (
+            <a
+              href={links.demo}
+              target="_blank"
+              rel="noopener noreferrer"
+              class="inline-flex items-center gap-1 text-sm text-[oklch(var(--primary))] transition-colors hover:underline"
+            >
+              <Icon name="material-symbols:open-in-new" class="h-4 w-4" />
+              Demo
+            </a>
+          )}
+          {links.github && (
+            <a
+              href={links.github}
+              target="_blank"
+              rel="noopener noreferrer"
+              class="inline-flex items-center gap-1 text-sm text-[var(--text-secondary)] transition-colors hover:text-[var(--text-primary)]"
+            >
+              <Icon name="fa6-brands:github" class="h-4 w-4" />
+              Code
+            </a>
+          )}
+          {links.docs && (
+            <a
+              href={links.docs}
+              target="_blank"
+              rel="noopener noreferrer"
+              class="inline-flex items-center gap-1 text-sm text-[var(--text-secondary)] transition-colors hover:text-[var(--text-primary)]"
+            >
+              <Icon name="material-symbols:description-outline" class="h-4 w-4" />
+              Docs
+            </a>
+          )}
+        </div>
+      )
+    }
+  </div>
+</article>

@@ -1,0 +1,30 @@
+---
+/**
+ * SideBar Component
+ *
+ * @description The default sidebar content with widgets.
+ * Displayed on the right side of the main content area.
+ *
+ * Widgets included:
+ * - Profile card
+ * - Categories widget
+ * - Tags widget
+ *
+ * Can be replaced by passing content to the sidebar slot in MainGridLayout.
+ */
+
+import Profile from '@components/widget/Profile.astro';
+import Categories from '@components/widget/Categories.astro';
+import Tags from '@components/widget/Tags.astro';
+---
+
+<div class="flex flex-col gap-4">
+  <!-- Profile Widget -->
+  <Profile />
+
+  <!-- Categories Widget -->
+  <Categories />
+
+  <!-- Tags Widget -->
+  <Tags />
+</div>

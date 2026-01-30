@@ -1,0 +1,88 @@
+---
+/**
+ * Footer Component
+ *
+ * @description The site footer that appears at the bottom of all pages.
+ * Features:
+ * - Copyright notice
+ * - Social links
+ * - Site info (powered by, theme credits)
+ * - Optional custom HTML from config
+ */
+
+import { Icon } from 'astro-icon/components';
+import { siteConfig, footerConfig, profileConfig } from '@/config';
+import { i18n, I18nKey } from '@i18n/index';
+import { SOCIAL_ICONS } from '@constants/icon';
+
+// Get current year for copyright
+const currentYear = new Date().getFullYear();
+
+// Social links from profile config
+const socialLinks = profileConfig.links || [];
+---
+
+<footer class="border-t border-[var(--border-color)] bg-[var(--card-bg)]">
+  <div class="container-page py-8">
+    <div class="flex flex-col items-center gap-4">
+      <!-- Social Links -->
+      {
+        socialLinks.length > 0 && (
+          <div class="flex items-center gap-3">
+            {socialLinks.map((link) => (
+              <a
+                href={link.url}
+                target="_blank"
+                rel="noopener noreferrer"
+                class="btn-plain"
+                aria-label={link.name}
+                title={link.name}
+              >
+                <Icon name={link.icon} class="h-5 w-5" />
+              </a>
+            ))}
+          </div>
+        )
+      }
+
+      <!-- Copyright -->
+      <p class="text-center text-sm text-[var(--text-secondary)]">
+        © {footerConfig.startYear && footerConfig.startYear !== currentYear
+          ? `${footerConfig.startYear} - ${currentYear}`
+          : currentYear}
+        {' '}
+        <a
+          href="/"
+          class="font-medium text-[var(--text-primary)] hover:text-[oklch(var(--primary))]"
+        >
+          {siteConfig.title}
+        </a>
+      </p>
+
+      <!-- Powered By -->
+      <p class="text-center text-xs text-[var(--text-tertiary)]">
+        {i18n(I18nKey.poweredBy)}{' '}
+        <a
+          href="https://astro.build"
+          target="_blank"
+          rel="noopener noreferrer"
+          class="hover:text-[var(--text-secondary)] hover:underline"
+        >
+          Astro
+        </a>
+        {' '}&{' '}
+        <a
+          href="https://tailwindcss.com"
+          target="_blank"
+          rel="noopener noreferrer"
+          class="hover:text-[var(--text-secondary)] hover:underline"
+        >
+          Tailwind CSS
+        </a>
+      </p>
+
+      <!-- Custom HTML from config -->
+      {footerConfig.customHtml && <Fragment set:html={footerConfig.customHtml} />}
+    </div>
+  </div>
+</footer>

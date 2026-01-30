@@ -1,0 +1,258 @@
+---
+/**
+ * About Page
+ *
+ * @description Personal about page with bio, skills, timeline, and projects.
+ *
+ * @route /about
+ */
+
+import { Icon } from 'astro-icon/components';
+import MainGridLayout from '@layouts/MainGridLayout.astro';
+import ProjectCard from '@components/card/ProjectCard.astro';
+import { profileConfig } from '@/config';
+import { projects } from '@data/projects';
+import { skills, getSkillsByCategory, getSkillCategories } from '@data/skills';
+import { timeline, getSortedTimeline } from '@data/timeline';
+import { friends, getSortedFriends } from '@data/friends';
+import { getUrl } from '@utils/url-utils';
+import { formatDate, formatDateRange } from '@utils/date-utils';
+import { i18n, I18nKey } from '@i18n/index';
+
+// Get content from spec folder if exists
+import { getCollection } from 'astro:content';
+let aboutContent = null;
+try {
+  const specs = await getCollection('spec');
+  const about = specs.find((s) => s.slug === 'about');
+  if (about) {
+    const { Content } = await about.render();
+    aboutContent = Content;
+  }
+} catch (e) {
+  // No spec collection or about content
+}
+
+// Data
+const sortedTimeline = getSortedTimeline();
+const sortedFriends = getSortedFriends();
+const skillCategories = getSkillCategories();
+const featuredProjects = projects.filter((p) => p.featured);
+const otherProjects = projects.filter((p) => !p.featured);
+---
+
+<MainGridLayout title={i18n(I18nKey.about)} description={profileConfig.bio} hideSidebar={true}>
+  <div class="mx-auto max-w-3xl space-y-12">
+    <!-- Profile Section -->
+    <section class="card-base p-8 text-center">
+      <!-- Avatar -->
+      <div class="flex justify-center">
+        {
+          profileConfig.avatar ? (
+            <img
+              src={getUrl(profileConfig.avatar)}
+              alt={profileConfig.name}
+              class="h-32 w-32 rounded-full border-4 border-[var(--border-color)] object-cover shadow-lg"
+            />
+          ) : (
+            <div class="flex h-32 w-32 items-center justify-center rounded-full bg-[oklch(var(--primary)/0.15)] text-5xl font-bold text-[oklch(var(--primary))]">
+              {profileConfig.name.charAt(0).toUpperCase()}
+            </div>
+          )
+        }
+      </div>
+
+      <!-- Name & Bio -->
+      <h1 class="mt-6 text-3xl font-bold text-[var(--text-primary)]">
+        {profileConfig.name}
+      </h1>
+
+      <p class="mt-2 text-lg text-[var(--text-secondary)]">
+        {profileConfig.bio}
+      </p>
+
+      <!-- Social Links -->
+      {
+        profileConfig.links && profileConfig.links.length > 0 && (
+          <div class="mt-6 flex flex-wrap items-center justify-center gap-3">
+            {profileConfig.links.map((link) => (
+              <a
+                href={link.url}
+                target="_blank"
+                rel="noopener noreferrer"
+                class="flex items-center gap-2 rounded-lg bg-[var(--btn-regular-bg)] px-4 py-2 text-sm text-[var(--text-secondary)] transition-colors hover:bg-[var(--btn-hover-bg)] hover:text-[oklch(var(--primary))]"
+              >
+                <Icon name={link.icon} class="h-4 w-4" />
+                <span>{link.name}</span>
+              </a>
+            ))}
+          </div>
+        )
+      }
+
+      <!-- Hidden Music Link (for those who know) -->
+      <p class="mt-6 text-sm text-[var(--text-tertiary)]">
+        🎸 Check out my <a href={getUrl('/music')} class="text-[oklch(var(--primary))] hover:underline">music videos</a>
+      </p>
+    </section>
+
+    <!-- About Content (from markdown if exists) -->
+    {
+      aboutContent && (
+        <section class="card-base p-8">
+          <div class="prose prose-lg max-w-none dark:prose-invert">
+            <aboutContent />
+          </div>
+        </section>
+      )
+    }
+
+    <!-- Skills Section -->
+    {
+      skills.length > 0 && (
+        <section class="card-base p-8">
+          <h2 class="mb-6 flex items-center gap-2 text-2xl font-bold text-[var(--text-primary)]">
+            <Icon name="material-symbols:code" class="h-6 w-6" />
+            {i18n(I18nKey.skills)}
+          </h2>
+
+          <div class="space-y-6">
+            {skillCategories.map((category) => {
+              const categorySkills = getSkillsByCategory(category);
+              if (categorySkills.length === 0) return null;
+
+              return (
+                <div>
+                  <h3 class="mb-3 text-sm font-semibold uppercase tracking-wider text-[var(--text-tertiary)]">
+                    {category}
+                  </h3>
+                  <div class="flex flex-wrap gap-2">
+                    {categorySkills.map((skill) => (
+                      <div class="flex items-center gap-2 rounded-lg bg-[var(--btn-regular-bg)] px-3 py-2">
+                        {skill.icon && <Icon name={skill.icon} class="h-5 w-5" />}
+                        <span class="text-sm font-medium">{skill.name}</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        </section>
+      )
+    }
+
+    <!-- Timeline Section -->
+    {
+      sortedTimeline.length > 0 && (
+        <section class="card-base p-8">
+          <h2 class="mb-6 flex items-center gap-2 text-2xl font-bold text-[var(--text-primary)]">
+            <Icon name="material-symbols:timeline" class="h-6 w-6" />
+            {i18n(I18nKey.timeline)}
+          </h2>
+
+          <div class="relative space-y-6 pl-6 before:absolute before:left-0 before:top-2 before:h-[calc(100%-16px)] before:w-0.5 before:bg-[var(--border-color)]">
+            {sortedTimeline.map((item) => (
+              <div class="relative">
+                {/* Dot */}
+                <div class="absolute -left-[25px] top-1.5 h-3 w-3 rounded-full bg-[oklch(var(--primary))]" />
+
+                {/* Content */}
+                <div>
+                  <h3 class="font-bold text-[var(--text-primary)]">{item.title}</h3>
+                  {item.organization && (
+                    <p class="text-sm text-[var(--text-secondary)]">
+                      {item.url ? (
+                        <a
+                          href={item.url}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          class="hover:text-[oklch(var(--primary))] hover:underline"
+                        >
+                          {item.organization}
+                        </a>
+                      ) : (
+                        item.organization
+                      )}
+                    </p>
+                  )}
+                  <p class="mt-1 text-xs text-[var(--text-tertiary)]">
+                    {formatDateRange(item.startDate, item.endDate)}
+                  </p>
+                  {item.description && (
+                    <p class="mt-2 text-sm text-[var(--text-secondary)]">
+                      {item.description}
+                    </p>
+                  )}
+                </div>
+              </div>
+            ))}
+          </div>
+        </section>
+      )
+    }
+
+    <!-- Projects Section -->
+    {
+      projects.length > 0 && (
+        <section>
+          <h2 class="mb-6 flex items-center gap-2 text-2xl font-bold text-[var(--text-primary)]">
+            <Icon name="material-symbols:folder-code-outline" class="h-6 w-6" />
+            {i18n(I18nKey.projects)}
+          </h2>
+
+          <div class="grid gap-4 md:grid-cols-2">
+            {featuredProjects.map((project) => (
+              <ProjectCard project={project} />
+            ))}
+            {otherProjects.map((project) => (
+              <ProjectCard project={project} />
+            ))}
+          </div>
+        </section>
+      )
+    }
+
+    <!-- Friends Section -->
+    {
+      sortedFriends.length > 0 && (
+        <section class="card-base p-8">
+          <h2 class="mb-6 flex items-center gap-2 text-2xl font-bold text-[var(--text-primary)]">
+            <Icon name="material-symbols:group-outline" class="h-6 w-6" />
+            {i18n(I18nKey.friends)}
+          </h2>
+
+          <div class="grid gap-4 sm:grid-cols-2">
+            {sortedFriends.map((friend) => (
+              <a
+                href={friend.url}
+                target="_blank"
+                rel="noopener noreferrer"
+                class="flex items-center gap-4 rounded-lg bg-[var(--btn-regular-bg)] p-4 transition-colors hover:bg-[var(--btn-hover-bg)]"
+              >
+                {friend.avatar ? (
+                  <img
+                    src={friend.avatar}
+                    alt={friend.name}
+                    class="h-12 w-12 rounded-full object-cover"
+                    loading="lazy"
+                  />
+                ) : (
+                  <div class="flex h-12 w-12 items-center justify-center rounded-full bg-[oklch(var(--primary)/0.15)] text-lg font-bold text-[oklch(var(--primary))]">
+                    {friend.name.charAt(0)}
+                  </div>
+                )}
+                <div>
+                  <h3 class="font-medium text-[var(--text-primary)]">{friend.name}</h3>
+                  {friend.description && (
+                    <p class="text-sm text-[var(--text-secondary)]">{friend.description}</p>
+                  )}
+                </div>
+              </a>
+            ))}
+          </div>
+        </section>
+      )
+    }
+  </div>
+</MainGridLayout>

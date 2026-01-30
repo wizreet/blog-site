@@ -1,0 +1,101 @@
+---
+/**
+ * Tab Card Component
+ *
+ * @description A card component for displaying a guitar tab.
+ * Shows tab info with difficulty, tuning, and links.
+ */
+
+import { Icon } from 'astro-icon/components';
+import type { CollectionEntry } from 'astro:content';
+import { getTabUrl } from '@utils/url-utils';
+import { formatDate } from '@utils/date-utils';
+import { DIFFICULTY_COLORS } from '@constants/constants';
+
+interface Props {
+  /** The tab entry from content collection */
+  tab: CollectionEntry<'tabs'>;
+}
+
+const { tab } = Astro.props;
+
+const { title, artist, difficulty, tuning, published, youtubeId, pdfUrl, gpUrl } = tab.data;
+
+const difficultyColors = DIFFICULTY_COLORS[difficulty] || DIFFICULTY_COLORS.intermediate;
+---
+
+<article class="card-base group">
+  <a href={getTabUrl(tab.slug)} class="block p-5">
+    <!-- Difficulty Badge -->
+    <div class="mb-2 flex items-center gap-2">
+      <span
+        class:list={[
+          'inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium',
+          difficultyColors,
+        ]}
+      >
+        {difficulty.charAt(0).toUpperCase() + difficulty.slice(1)}
+      </span>
+      {
+        tuning && tuning !== 'Standard' && (
+          <span class="text-xs text-[var(--text-tertiary)]">
+            {tuning}
+          </span>
+        )
+      }
+    </div>
+
+    <!-- Title -->
+    <h2 class="text-lg font-bold text-[var(--text-primary)] transition-colors group-hover:text-[oklch(var(--primary))]">
+      {title}
+    </h2>
+
+    <!-- Artist -->
+    {
+      artist && (
+        <p class="mt-1 text-sm text-[var(--text-secondary)]">
+          by {artist}
+        </p>
+      )
+    }
+
+    <!-- Meta & Download Links -->
+    <div class="mt-3 flex flex-wrap items-center justify-between gap-2">
+      <!-- Date -->
+      <div class="flex items-center gap-1 text-sm text-[var(--text-tertiary)]">
+        <Icon name="material-symbols:calendar-today-outline" class="h-4 w-4" />
+        <time datetime={published.toISOString()}>
+          {formatDate(published)}
+        </time>
+      </div>
+
+      <!-- Download Links -->
+      <div class="flex items-center gap-2">
+        {
+          youtubeId && (
+            <span class="flex items-center gap-1 text-xs text-[var(--text-tertiary)]">
+              <Icon name="fa6-brands:youtube" class="h-3.5 w-3.5" />
+              Video
+            </span>
+          )
+        }
+        {
+          pdfUrl && (
+            <span class="flex items-center gap-1 text-xs text-[var(--text-tertiary)]">
+              <Icon name="material-symbols:picture-as-pdf-outline" class="h-3.5 w-3.5" />
+              PDF
+            </span>
+          )
+        }
+        {
+          gpUrl && (
+            <span class="flex items-center gap-1 text-xs text-[var(--text-tertiary)]">
+              <Icon name="material-symbols:audio-file-outline" class="h-3.5 w-3.5" />
+              GP
+            </span>
+          )
+        }
+      </div>
+    </div>
+  </a>
+</article>

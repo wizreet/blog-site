@@ -1,0 +1,114 @@
+---
+/**
+ * Post Detail Page
+ *
+ * @description Displays a single blog post with full content.
+ * Includes TOC, series navigation, and license info.
+ *
+ * @route /posts/[slug]
+ */
+
+import { getCollection, render } from 'astro:content';
+import MainGridLayout from '@layouts/MainGridLayout.astro';
+import PostMeta from '@components/misc/PostMeta.astro';
+import SeriesNav from '@components/misc/SeriesNav.astro';
+import License from '@components/misc/License.astro';
+import TOC from '@components/widget/TOC.astro';
+import Profile from '@components/widget/Profile.astro';
+import { getPostUrl } from '@utils/url-utils';
+import { formatDate } from '@utils/date-utils';
+import { getSeriesById } from '@data/series';
+import { getSortedPosts } from '@utils/content-utils';
+import { i18n, I18nKey } from '@i18n/index';
+
+export async function getStaticPaths() {
+  const posts = await getCollection('posts');
+
+  return posts.map((post) => ({
+    params: { slug: post.id },
+    props: { post },
+  }));
+}
+
+const { post } = Astro.props;
+
+// Render the post content
+const { Content, headings } = await render(post);
+
+// Get series info if post is part of a series
+const series = post.data.series ? getSeriesById(post.data.series.id) : null;
+
+// Get other posts in the same series
+let seriesPosts: Awaited<ReturnType<typeof getSortedPosts>> = [];
+if (series) {
+  const allPosts = await getSortedPosts();
+  seriesPosts = allPosts.filter((p) => p.data.series?.id === series.id);
+}
+
+// SEO
+const { title, description, image, published, updated } = post.data;
+---
+
+<MainGridLayout
+  title={title}
+  description={description}
+  ogImage={image}
+  url={getPostUrl(post.slug)}
+  publishDate={published}
+  modifiedDate={updated}
+  isArticle={true}
+>
+  <article class="card-base overflow-hidden">
+    <!-- Post Header -->
+    <header class="border-b border-[var(--border-color)] p-6 md:p-8">
+      <h1 class="text-3xl font-bold text-[var(--text-primary)] md:text-4xl">
+        {title}
+      </h1>
+
+      {description && <p class="mt-3 text-lg text-[var(--text-secondary)]">{description}</p>}
+
+      <div class="mt-4">
+        <PostMeta post={post} />
+      </div>
+    </header>
+
+    <!-- Featured Image (if present) -->
+    {
+      image && (
+        <div class="aspect-video overflow-hidden">
+          <img src={image} alt={title} class="h-full w-full object-cover" loading="eager" />
+        </div>
+      )
+    }
+
+    <!-- Post Content -->
+    <div class="p-6 md:p-8">
+      <div class="prose prose-lg max-w-none dark:prose-invert">
+        <Content />
+      </div>
+    </div>
+
+    <!-- License -->
+    <div class="border-t border-[var(--border-color)] p-6 md:p-8">
+      <License post={post} />
+    </div>
+  </article>
+
+  <!-- Series Navigation (if part of series) -->
+  {series && seriesPosts.length > 1 && (
+    <div class="mt-6">
+      <SeriesNav series={series} posts={seriesPosts} currentSlug={post.slug} />
+    </div>
+  )}
+
+  <!-- Sidebar slot -->
+  <Fragment slot="sidebar">
+    <div class="flex flex-col gap-4">
+      <!-- TOC -->
+      {headings.length > 0 && <TOC headings={headings} />}
+
+      <!-- Profile -->
+      <Profile />
+    </div>
+  </Fragment>
+</MainGridLayout>

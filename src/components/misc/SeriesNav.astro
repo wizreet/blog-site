@@ -1,0 +1,123 @@
+---
+/**
+ * Series Navigation Component
+ *
+ * @description Displays navigation for posts within a series.
+ * Shows all posts in the series with the current one highlighted.
+ */
+
+import { Icon } from 'astro-icon/components';
+import type { CollectionEntry } from 'astro:content';
+import { getPostUrl, getSeriesUrl } from '@utils/url-utils';
+import { i18n, I18nKey } from '@i18n/index';
+import type { Series } from '@types/config';
+
+interface Props {
+  /** Series info */
+  series: Series;
+  /** All posts in the series */
+  posts: CollectionEntry<'posts'>[];
+  /** Current post slug */
+  currentSlug: string;
+}
+
+const { series, posts, currentSlug } = Astro.props;
+
+// Sort posts by part number
+const sortedPosts = [...posts].sort((a, b) => {
+  const partA = a.data.series?.part || 0;
+  const partB = b.data.series?.part || 0;
+  return partA - partB;
+});
+
+// Find current post index
+const currentIndex = sortedPosts.findIndex((p) => p.slug === currentSlug);
+const hasPrev = currentIndex > 0;
+const hasNext = currentIndex < sortedPosts.length - 1;
+const prevPost = hasPrev ? sortedPosts[currentIndex - 1] : null;
+const nextPost = hasNext ? sortedPosts[currentIndex + 1] : null;
+---
+
+<div class="card-base p-5">
+  <!-- Series Header -->
+  <div class="mb-4 flex items-center justify-between">
+    <a
+      href={getSeriesUrl(series.id)}
+      class="flex items-center gap-2 font-semibold text-[var(--text-primary)] transition-colors hover:text-[oklch(var(--primary))]"
+    >
+      <Icon name="material-symbols:collections-bookmark-outline" class="h-5 w-5" />
+      <span>{series.title}</span>
+    </a>
+    <span class="text-sm text-[var(--text-tertiary)]">
+      Part {currentIndex + 1} of {sortedPosts.length}
+    </span>
+  </div>
+
+  <!-- Posts List -->
+  <div class="space-y-1.5">
+    {
+      sortedPosts.map((post, index) => {
+        const isCurrent = post.slug === currentSlug;
+        const partNum = post.data.series?.part || index + 1;
+
+        return (
+          <a
+            href={getPostUrl(post.slug)}
+            class:list={[
+              'flex items-center gap-3 rounded-lg px-3 py-2 text-sm transition-colors',
+              isCurrent
+                ? 'bg-[oklch(var(--primary)/0.1)] text-[oklch(var(--primary))]'
+                : 'text-[var(--text-secondary)] hover:bg-[var(--btn-hover-bg)] hover:text-[var(--text-primary)]',
+            ]}
+          >
+            <span
+              class:list={[
+                'flex h-6 w-6 shrink-0 items-center justify-center rounded-full text-xs font-medium',
+                isCurrent
+                  ? 'bg-[oklch(var(--primary))] text-white'
+                  : 'bg-[var(--btn-regular-bg)] text-[var(--text-tertiary)]',
+              ]}
+            >
+              {partNum}
+            </span>
+            <span class="truncate">{post.data.title}</span>
+            {isCurrent && (
+              <Icon name="material-symbols:arrow-right-alt" class="ml-auto h-4 w-4 shrink-0" />
+            )}
+          </a>
+        );
+      })
+    }
+  </div>
+
+  <!-- Prev/Next Navigation -->
+  {
+    (prevPost || nextPost) && (
+      <div class="mt-4 flex items-center justify-between gap-4 border-t border-[var(--border-color)] pt-4">
+        {prevPost ? (
+          <a
+            href={getPostUrl(prevPost.slug)}
+            class="flex items-center gap-1 text-sm text-[var(--text-secondary)] transition-colors hover:text-[oklch(var(--primary))]"
+          >
+            <Icon name="material-symbols:chevron-left" class="h-5 w-5" />
+            <span class="truncate">{i18n(I18nKey.prevPost)}</span>
+          </a>
+        ) : (
+          <div />
+        )}
+
+        {nextPost ? (
+          <a
+            href={getPostUrl(nextPost.slug)}
+            class="flex items-center gap-1 text-sm text-[var(--text-secondary)] transition-colors hover:text-[oklch(var(--primary))]"
+          >
+            <span class="truncate">{i18n(I18nKey.nextPost)}</span>
+            <Icon name="material-symbols:chevron-right" class="h-5 w-5" />
+          </a>
+        ) : (
+          <div />
+        )}
+      </div>
+    )
+  }
+</div>

@@ -1,0 +1,102 @@
+---
+/**
+ * YouTube Embed Component
+ *
+ * @description Responsive YouTube video embed with lazy loading.
+ * Uses the privacy-enhanced youtube-nocookie.com domain.
+ */
+
+interface Props {
+  /** YouTube video ID */
+  videoId: string;
+  /** Video title for accessibility */
+  title?: string;
+  /** Enable autoplay (muted) */
+  autoplay?: boolean;
+  /** Start time in seconds */
+  start?: number;
+}
+
+const { videoId, title = 'YouTube video', autoplay = false, start } = Astro.props;
+
+// Build embed URL
+const params = new URLSearchParams();
+params.set('rel', '0'); // Don't show related videos
+params.set('modestbranding', '1'); // Minimal YouTube branding
+
+if (autoplay) {
+  params.set('autoplay', '1');
+  params.set('mute', '1'); // Required for autoplay
+}
+
+if (start) {
+  params.set('start', start.toString());
+}
+
+const embedUrl = `https://www.youtube-nocookie.com/embed/${videoId}?${params.toString()}`;
+const thumbnailUrl = `https://img.youtube.com/vi/${videoId}/maxresdefault.jpg`;
+---
+
+<div class="youtube-embed relative aspect-video overflow-hidden rounded-lg bg-black">
+  <!-- Lazy load: show thumbnail first, load iframe on click -->
+  <button
+    class="youtube-play-btn group absolute inset-0 flex cursor-pointer items-center justify-center"
+    data-embed-url={embedUrl}
+    aria-label={`Play: ${title}`}
+  >
+    <!-- Thumbnail -->
+    <img
+      src={thumbnailUrl}
+      alt={title}
+      class="absolute inset-0 h-full w-full object-cover transition-opacity duration-300"
+      loading="lazy"
+    />
+
+    <!-- Overlay -->
+    <div class="absolute inset-0 bg-black/30 transition-colors duration-300 group-hover:bg-black/10">
+    </div>
+
+    <!-- Play Button -->
+    <div
+      class="relative z-10 flex h-16 w-16 items-center justify-center rounded-full bg-red-600 text-white shadow-lg transition-transform duration-300 group-hover:scale-110"
+    >
+      <svg class="h-8 w-8 translate-x-0.5" viewBox="0 0 24 24" fill="currentColor">
+        <path d="M8 5v14l11-7z"></path>
+      </svg>
+    </div>
+  </button>
+
+  <!-- Iframe will be inserted here on click -->
+</div>
+
+<script>
+  function initYouTubeEmbeds() {
+    document.querySelectorAll<HTMLButtonElement>('.youtube-play-btn').forEach((btn) => {
+      btn.addEventListener('click', () => {
+        const container = btn.closest('.youtube-embed');
+        const embedUrl = btn.dataset.embedUrl;
+
+        if (!container || !embedUrl) return;
+
+        // Create iframe
+        const iframe = document.createElement('iframe');
+        iframe.src = embedUrl + '&autoplay=1';
+        iframe.title = btn.getAttribute('aria-label')?.replace('Play: ', '') || 'YouTube video';
+        iframe.allow =
+          'accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture';
+        iframe.allowFullscreen = true;
+        iframe.className = 'absolute inset-0 h-full w-full';
+
+        // Replace button with iframe
+        btn.remove();
+        container.appendChild(iframe);
+      });
+    });
+  }
+
+  // Initialize on load
+  initYouTubeEmbeds();
+
+  // Re-initialize after view transitions
+  document.addEventListener('astro:after-swap', initYouTubeEmbeds);
+</script>

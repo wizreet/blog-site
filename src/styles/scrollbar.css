@@ -1,0 +1,83 @@
+/**
+ * Custom Scrollbar Styles
+ *
+ * @description Custom scrollbar styling for a consistent look across browsers.
+ */
+
+/* ============================================================================
+   Webkit Scrollbar (Chrome, Safari, Edge)
+   ============================================================================ */
+
+::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--scrollbar-track);
+  border-radius: 5px;
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--scrollbar-thumb);
+  border-radius: 5px;
+  border: 2px solid var(--scrollbar-track);
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--scrollbar-thumb-hover);
+}
+
+/* Thin scrollbar for code blocks and nested scrollable areas */
+.scrollbar-thin::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+.scrollbar-thin::-webkit-scrollbar-thumb {
+  border-width: 1px;
+}
+
+/* ============================================================================
+   Firefox Scrollbar
+   ============================================================================ */
+
+* {
+  scrollbar-width: thin;
+  scrollbar-color: var(--scrollbar-thumb) var(--scrollbar-track);
+}
+
+/* ============================================================================
+   Hide Scrollbar (keep functionality)
+   ============================================================================ */
+
+.scrollbar-hide {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;
+}
+
+/* ============================================================================
+   Overlay Scrollbars (for OverlayScrollbars library)
+   ============================================================================ */
+
+.os-scrollbar {
+  --os-size: 10px;
+  --os-padding-perpendicular: 2px;
+  --os-padding-axis: 2px;
+  --os-handle-border-radius: 5px;
+  --os-handle-bg: var(--scrollbar-thumb);
+  --os-handle-bg-hover: var(--scrollbar-thumb-hover);
+  --os-handle-bg-active: var(--scrollbar-thumb-hover);
+}
+
+.os-scrollbar-horizontal {
+  height: var(--os-size);
+}
+
+.os-scrollbar-vertical {
+  width: var(--os-size);
+}

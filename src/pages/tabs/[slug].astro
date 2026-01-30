@@ -1,0 +1,146 @@
+---
+/**
+ * Tab Detail Page
+ *
+ * @description Displays a single guitar tab with video embed and downloads.
+ *
+ * @route /tabs/[slug]
+ */
+
+import { Icon } from 'astro-icon/components';
+import { getCollection, render } from 'astro:content';
+import MainGridLayout from '@layouts/MainGridLayout.astro';
+import YouTubeEmbed from '@components/misc/YouTubeEmbed.astro';
+import { getTabUrl, getUrl } from '@utils/url-utils';
+import { formatDate } from '@utils/date-utils';
+import { DIFFICULTY_COLORS } from '@constants/constants';
+import { i18n, I18nKey } from '@i18n/index';
+
+export async function getStaticPaths() {
+  const tabs = await getCollection('tabs');
+
+  return tabs.map((tab) => ({
+    params: { slug: tab.id },
+    props: { tab },
+  }));
+}
+
+const { tab } = Astro.props;
+
+// Render the tab content (if any markdown body)
+const { Content } = await render(tab);
+
+const { title, artist, difficulty, tuning, youtubeId, pdfUrl, gpUrl, published } = tab.data;
+
+const difficultyColors = DIFFICULTY_COLORS[difficulty] || DIFFICULTY_COLORS.intermediate;
+---
+
+<MainGridLayout
+  title={`${title}${artist ? ` - ${artist}` : ''}`}
+  description={`Guitar tab for ${title}`}
+  url={getTabUrl(tab.slug)}
+  hideSidebar={true}
+>
+  <div class="mx-auto max-w-3xl space-y-6">
+    <!-- Back Link -->
+    <a
+      href={getUrl('/tabs')}
+      class="inline-flex items-center gap-1 text-sm text-[var(--text-secondary)] transition-colors hover:text-[oklch(var(--primary))]"
+    >
+      <Icon name="material-symbols:arrow-back" class="h-4 w-4" />
+      Back to tabs
+    </a>
+
+    <!-- Tab Header -->
+    <header class="card-base p-6">
+      <!-- Difficulty Badge -->
+      <div class="mb-3 flex items-center gap-3">
+        <span
+          class:list={[
+            'inline-flex items-center rounded-full px-3 py-1 text-sm font-medium',
+            difficultyColors,
+          ]}
+        >
+          {difficulty.charAt(0).toUpperCase() + difficulty.slice(1)}
+        </span>
+
+        {
+          tuning && tuning !== 'Standard' && (
+            <span class="text-sm text-[var(--text-secondary)]">
+              <Icon name="material-symbols:tune" class="mr-1 inline h-4 w-4" />
+              {tuning}
+            </span>
+          )
+        }
+      </div>
+
+      <!-- Title -->
+      <h1 class="text-3xl font-bold text-[var(--text-primary)]">
+        {title}
+      </h1>
+
+      <!-- Artist -->
+      {
+        artist && (
+          <p class="mt-1 text-lg text-[var(--text-secondary)]">
+            by {artist}
+          </p>
+        )
+      }
+
+      <!-- Meta -->
+      <div class="mt-4 flex items-center gap-4 text-sm text-[var(--text-tertiary)]">
+        <div class="flex items-center gap-1">
+          <Icon name="material-symbols:calendar-today-outline" class="h-4 w-4" />
+          <time datetime={published.toISOString()}>
+            {formatDate(published)}
+          </time>
+        </div>
+      </div>
+
+      <!-- Download Links -->
+      {
+        (pdfUrl || gpUrl) && (
+          <div class="mt-6 flex flex-wrap gap-3">
+            {pdfUrl && (
+              <a
+                href={getUrl(pdfUrl)}
+                download
+                class="btn-secondary flex items-center gap-2"
+              >
+                <Icon name="material-symbols:picture-as-pdf-outline" class="h-5 w-5" />
+                Download PDF
+              </a>
+            )}
+            {gpUrl && (
+              <a
+                href={getUrl(gpUrl)}
+                download
+                class="btn-secondary flex items-center gap-2"
+              >
+                <Icon name="material-symbols:audio-file-outline" class="h-5 w-5" />
+                Download GP File
+              </a>
+            )}
+          </div>
+        )
+      }
+    </header>
+
+    <!-- YouTube Video -->
+    {
+      youtubeId && (
+        <div class="card-base overflow-hidden">
+          <YouTubeEmbed videoId={youtubeId} title={title} />
+        </div>
+      )
+    }
+
+    <!-- Tab Content / Notes -->
+    <div class="card-base p-6">
+      <div class="prose prose-lg max-w-none dark:prose-invert">
+        <Content />
+      </div>
+    </div>
+  </div>
+</MainGridLayout>

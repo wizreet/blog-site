@@ -1,0 +1,115 @@
+---
+/**
+ * License Component
+ *
+ * @description Displays license information for a blog post.
+ * Shows Creative Commons or custom license with proper attribution.
+ */
+
+import { Icon } from 'astro-icon/components';
+import { licenseConfig, siteConfig } from '@/config';
+import type { CollectionEntry } from 'astro:content';
+
+interface Props {
+  /** The post for which to show license */
+  post: CollectionEntry<'posts'>;
+}
+
+const { post } = Astro.props;
+
+// Only show if license is enabled in config
+const showLicense = licenseConfig.enable;
+
+// Get the absolute URL for the post
+const postUrl = new URL(Astro.url.pathname, Astro.site).toString();
+
+// Creative Commons license info based on type
+const ccTypes = {
+  'CC BY-NC-SA 4.0': {
+    name: 'Creative Commons Attribution-NonCommercial-ShareAlike 4.0 International',
+    url: 'https://creativecommons.org/licenses/by-nc-sa/4.0/',
+    icons: ['by', 'nc', 'sa'],
+  },
+  'CC BY-NC-ND 4.0': {
+    name: 'Creative Commons Attribution-NonCommercial-NoDerivatives 4.0 International',
+    url: 'https://creativecommons.org/licenses/by-nc-nd/4.0/',
+    icons: ['by', 'nc', 'nd'],
+  },
+  'CC BY-NC 4.0': {
+    name: 'Creative Commons Attribution-NonCommercial 4.0 International',
+    url: 'https://creativecommons.org/licenses/by-nc/4.0/',
+    icons: ['by', 'nc'],
+  },
+  'CC BY-SA 4.0': {
+    name: 'Creative Commons Attribution-ShareAlike 4.0 International',
+    url: 'https://creativecommons.org/licenses/by-sa/4.0/',
+    icons: ['by', 'sa'],
+  },
+  'CC BY-ND 4.0': {
+    name: 'Creative Commons Attribution-NoDerivatives 4.0 International',
+    url: 'https://creativecommons.org/licenses/by-nd/4.0/',
+    icons: ['by', 'nd'],
+  },
+  'CC BY 4.0': {
+    name: 'Creative Commons Attribution 4.0 International',
+    url: 'https://creativecommons.org/licenses/by/4.0/',
+    icons: ['by'],
+  },
+  'CC0 1.0': {
+    name: 'CC0 1.0 Universal (Public Domain)',
+    url: 'https://creativecommons.org/publicdomain/zero/1.0/',
+    icons: ['zero'],
+  },
+};
+
+const licenseType = licenseConfig.type as keyof typeof ccTypes;
+const license = ccTypes[licenseType];
+---
+
+{
+  showLicense && license && (
+    <div class="mt-8 rounded-lg border border-[var(--border-color)] bg-[var(--card-bg)] p-4">
+      <div class="flex items-start gap-4">
+        {/* License Icon */}
+        <div class="flex shrink-0 items-center gap-1">
+          <Icon name="simple-icons:creativecommons" class="h-6 w-6 text-[var(--text-secondary)]" />
+          {license.icons.map((icon) => (
+            <Icon
+              name={`simple-icons:cc${icon}`}
+              class="h-6 w-6 text-[var(--text-secondary)]"
+            />
+          ))}
+        </div>
+
+        {/* License Text */}
+        <div class="flex-1 text-sm">
+          <p class="text-[var(--text-secondary)]">
+            This article is licensed under{' '}
+            <a
+              href={license.url}
+              target="_blank"
+              rel="noopener noreferrer license"
+              class="font-medium text-[oklch(var(--primary))] hover:underline"
+            >
+              {licenseType}
+            </a>
+            .
+          </p>
+          <p class="mt-2 text-[var(--text-tertiary)]">
+            <strong class="font-medium text-[var(--text-secondary)]">Attribution:</strong>{' '}
+            <span class="select-all">
+              &quot;{post.data.title}&quot; by{' '}
+              <a href={Astro.site?.toString() || '/'} class="hover:underline">
+                {siteConfig.title}
+              </a>
+              {' - '}
+              <a href={postUrl} class="hover:underline">
+                {postUrl}
+              </a>
+            </span>
+          </p>
+        </div>
+      </div>
+    </div>
+  )
+}

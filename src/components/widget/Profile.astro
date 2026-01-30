@@ -1,0 +1,65 @@
+---
+/**
+ * Profile Widget Component
+ *
+ * @description Displays the profile card in the sidebar.
+ * Shows avatar, name, bio, and social links.
+ */
+
+import { Icon } from 'astro-icon/components';
+import { profileConfig, siteConfig } from '@/config';
+import { getUrl } from '@utils/url-utils';
+---
+
+<div class="card-base p-5">
+  <!-- Avatar -->
+  <div class="flex justify-center">
+    {
+      profileConfig.avatar ? (
+        <img
+          src={getUrl(profileConfig.avatar)}
+          alt={profileConfig.name}
+          class="h-24 w-24 rounded-full border-4 border-[var(--border-color)] object-cover shadow-md"
+        />
+      ) : (
+        <div class="flex h-24 w-24 items-center justify-center rounded-full bg-[oklch(var(--primary)/0.15)] text-3xl font-bold text-[oklch(var(--primary))]">
+          {profileConfig.name.charAt(0).toUpperCase()}
+        </div>
+      )
+    }
+  </div>
+
+  <!-- Name -->
+  <h2 class="mt-4 text-center text-xl font-bold text-[var(--text-primary)]">
+    {profileConfig.name}
+  </h2>
+
+  <!-- Bio -->
+  {
+    profileConfig.bio && (
+      <p class="mt-2 text-center text-sm text-[var(--text-secondary)]">
+        {profileConfig.bio}
+      </p>
+    )
+  }
+
+  <!-- Social Links -->
+  {
+    profileConfig.links && profileConfig.links.length > 0 && (
+      <div class="mt-4 flex flex-wrap items-center justify-center gap-2">
+        {profileConfig.links.map((link) => (
+          <a
+            href={link.url}
+            target="_blank"
+            rel="noopener noreferrer"
+            class="flex h-9 w-9 items-center justify-center rounded-full bg-[var(--btn-regular-bg)] text-[var(--text-secondary)] transition-colors hover:bg-[var(--btn-hover-bg)] hover:text-[oklch(var(--primary))]"
+            aria-label={link.name}
+            title={link.name}
+          >
+            <Icon name={link.icon} class="h-4 w-4" />
+          </a>
+        ))}
+      </div>
+    )
+  }
+</div>

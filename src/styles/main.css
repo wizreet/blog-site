@@ -1,0 +1,397 @@
+/**
+ * Main CSS Styles
+ *
+ * @description Global styles, Tailwind imports, and custom components.
+ * This file is imported in the main Layout.astro.
+ */
+
+/* ============================================================================
+   Imports (must come first)
+   ============================================================================ */
+
+@import '@fontsource/roboto/400.css';
+@import '@fontsource/roboto/500.css';
+@import '@fontsource/roboto/700.css';
+@import '@fontsource-variable/jetbrains-mono';
+@import './variables.css';
+
+/* ============================================================================
+   Tailwind Imports
+   ============================================================================ */
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ============================================================================
+   Base Styles
+   ============================================================================ */
+
+@layer base {
+  /* Smooth scrolling */
+  html {
+    scroll-behavior: smooth;
+  }
+
+  /* Base body styles */
+  body {
+    @apply bg-[var(--page-bg)] text-[var(--text-primary)];
+    @apply font-sans antialiased;
+    @apply min-h-screen;
+    transition:
+      background-color 0.3s ease,
+      color 0.3s ease;
+  }
+
+  /* Selection styles */
+  ::selection {
+    @apply bg-[oklch(var(--primary)/0.3)] text-[var(--text-primary)];
+  }
+
+  /* Focus styles for accessibility */
+  :focus-visible {
+    @apply outline-2 outline-offset-2 outline-[oklch(var(--primary))];
+  }
+
+  /* Remove default focus outline, use focus-visible instead */
+  :focus:not(:focus-visible) {
+    outline: none;
+  }
+
+  /* Heading styles */
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
+    @apply font-bold text-[var(--text-primary)];
+    text-wrap: balance;
+  }
+
+  h1 {
+    @apply text-3xl md:text-4xl;
+  }
+  h2 {
+    @apply text-2xl md:text-3xl;
+  }
+  h3 {
+    @apply text-xl md:text-2xl;
+  }
+  h4 {
+    @apply text-lg md:text-xl;
+  }
+
+  /* Link styles */
+  a {
+    @apply text-[var(--text-primary)] transition-colors duration-200;
+  }
+
+  a:hover {
+    @apply text-[oklch(var(--primary))];
+  }
+
+  /* List styles */
+  ul,
+  ol {
+    @apply pl-5;
+  }
+
+  ul {
+    @apply list-disc;
+  }
+
+  ol {
+    @apply list-decimal;
+  }
+
+  /* Code styles */
+  code:not(pre code) {
+    @apply font-mono text-sm;
+    @apply bg-[var(--code-bg)] px-1.5 py-0.5 rounded;
+  }
+
+  /* Image styles */
+  img {
+    @apply max-w-full h-auto;
+  }
+
+  /* Table styles */
+  table {
+    @apply w-full border-collapse;
+  }
+
+  th,
+  td {
+    @apply px-4 py-2 border border-[var(--border-color)];
+  }
+
+  th {
+    @apply bg-[var(--table-header-bg)] font-semibold text-left;
+  }
+}
+
+/* ============================================================================
+   Component Styles
+   ============================================================================ */
+
+@layer components {
+  /* Card base */
+  .card-base {
+    @apply bg-[var(--card-bg)] rounded-[var(--radius-large)];
+    @apply overflow-hidden transition-all duration-200;
+  }
+
+  .card-base:hover {
+    @apply shadow-[var(--shadow-hover)];
+  }
+
+  /* Button base */
+  .btn-base {
+    @apply inline-flex items-center justify-center;
+    @apply rounded-lg font-medium;
+    @apply transition-all duration-200;
+    @apply focus-visible:ring-2 focus-visible:ring-[oklch(var(--primary))] focus-visible:ring-offset-2;
+  }
+
+  /* Primary button */
+  .btn-primary {
+    @apply btn-base;
+    @apply bg-[oklch(var(--primary))] text-white;
+    @apply hover:opacity-90;
+    @apply px-4 py-2;
+  }
+
+  /* Secondary button */
+  .btn-secondary {
+    @apply btn-base;
+    @apply bg-[var(--btn-regular-bg)] text-[var(--text-primary)];
+    @apply hover:bg-[var(--btn-hover-bg)];
+    @apply px-4 py-2;
+  }
+
+  /* Ghost button (no background) */
+  .btn-ghost {
+    @apply btn-base;
+    @apply bg-transparent text-[var(--text-primary)];
+    @apply hover:bg-[var(--btn-hover-bg)];
+    @apply px-4 py-2;
+  }
+
+  /* Icon button */
+  .btn-icon {
+    @apply btn-base;
+    @apply p-2 bg-transparent;
+    @apply hover:bg-[var(--btn-hover-bg)];
+  }
+
+  /* Plain button (minimal styling) */
+  .btn-plain {
+    @apply flex items-center justify-center;
+    @apply transition-colors duration-200 rounded-lg;
+    @apply hover:bg-[var(--btn-hover-bg)];
+    @apply p-2;
+  }
+
+  /* Link with hover effect */
+  .link {
+    @apply text-[var(--text-primary)];
+    @apply hover:text-[oklch(var(--primary))] hover:underline;
+    @apply transition-colors duration-200;
+  }
+
+  /* Link with primary color */
+  .link-primary {
+    @apply text-[oklch(var(--primary))];
+    @apply hover:underline;
+    @apply transition-colors duration-200;
+  }
+
+  /* Badge */
+  .badge {
+    @apply inline-flex items-center px-2 py-0.5;
+    @apply text-xs font-medium rounded-full;
+    @apply bg-[var(--btn-regular-bg)] text-[var(--text-secondary)];
+  }
+
+  .badge-primary {
+    @apply badge;
+    @apply bg-[oklch(var(--primary)/0.15)] text-[oklch(var(--primary))];
+  }
+
+  /* Tag */
+  .tag {
+    @apply inline-flex items-center px-2.5 py-1;
+    @apply text-sm rounded-md;
+    @apply bg-[var(--btn-regular-bg)] text-[var(--text-secondary)];
+    @apply hover:bg-[var(--btn-hover-bg)] hover:text-[var(--text-primary)];
+    @apply transition-colors duration-200;
+  }
+
+  /* Input */
+  .input {
+    @apply w-full px-4 py-2;
+    @apply bg-[var(--card-bg)] border border-[var(--border-color)];
+    @apply rounded-lg text-[var(--text-primary)];
+    @apply placeholder:text-[var(--text-tertiary)];
+    @apply focus:outline-none focus:border-[oklch(var(--primary))];
+    @apply transition-colors duration-200;
+  }
+
+  /* Select */
+  .select {
+    @apply input appearance-none;
+    @apply bg-[url('data:image/svg+xml;charset=utf-8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%2224%22%20height%3D%2224%22%20viewBox%3D%220%200%2024%2024%22%3E%3Cpath%20fill%3D%22currentColor%22%20d%3D%22M7%2010l5%205%205-5z%22%2F%3E%3C%2Fsvg%3E')];
+    @apply bg-no-repeat bg-[right_0.5rem_center] bg-[length:1.5em_1.5em];
+    @apply pr-10;
+  }
+}
+
+/* ============================================================================
+   Utility Styles
+   ============================================================================ */
+
+@layer utilities {
+  /* Text opacity utilities (Fuwari convention) */
+  .text-90 {
+    @apply text-black/90 dark:text-white/90;
+  }
+
+  .text-75 {
+    @apply text-black/75 dark:text-white/75;
+  }
+
+  .text-50 {
+    @apply text-black/50 dark:text-white/50;
+  }
+
+  .text-30 {
+    @apply text-black/30 dark:text-white/30;
+  }
+
+  /* Hide scrollbar but allow scrolling */
+  .scrollbar-hide {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+
+  .scrollbar-hide::-webkit-scrollbar {
+    display: none;
+  }
+
+  /* Text balance for headings */
+  .text-balance {
+    text-wrap: balance;
+  }
+
+  /* Line clamp utilities */
+  .line-clamp-1 {
+    display: -webkit-box;
+    -webkit-line-clamp: 1;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+
+  .line-clamp-2 {
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+
+  .line-clamp-3 {
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+
+  /* Aspect ratio utilities */
+  .aspect-video {
+    aspect-ratio: 16 / 9;
+  }
+
+  .aspect-square {
+    aspect-ratio: 1 / 1;
+  }
+
+  /* Container */
+  .container-page {
+    @apply max-w-[var(--page-width)] mx-auto px-4 md:px-6 lg:px-8;
+  }
+}
+
+/* ============================================================================
+   Animation Styles
+   ============================================================================ */
+
+/* Fade in animation */
+@keyframes fade-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.animate-fade-in {
+  animation: fade-in 0.2s ease-out forwards;
+}
+
+/* Slide up animation */
+@keyframes slide-up {
+  from {
+    transform: translateY(10px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+.animate-slide-up {
+  animation: slide-up 0.3s ease-out forwards;
+}
+
+/* Pulse animation for active indicators */
+@keyframes pulse-dot {
+  0%,
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.7;
+    transform: scale(0.85);
+  }
+}
+
+.animate-pulse-dot {
+  animation: pulse-dot 2s ease-in-out infinite;
+}
+
+/* ============================================================================
+   Print Styles
+   ============================================================================ */
+
+@media print {
+  body {
+    @apply bg-white text-black;
+  }
+
+  .no-print {
+    display: none !important;
+  }
+
+  a {
+    text-decoration: underline;
+  }
+
+  a[href^='http']::after {
+    content: ' (' attr(href) ')';
+    font-size: 0.8em;
+    color: #666;
+  }
+}

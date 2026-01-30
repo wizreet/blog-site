@@ -1,0 +1,121 @@
+---
+/**
+ * Table of Contents Widget Component
+ *
+ * @description Displays a table of contents for post pages.
+ * Shows headings extracted from the post content.
+ * Used in the right sidebar on post detail pages.
+ */
+
+import { Icon } from 'astro-icon/components';
+import { i18n, I18nKey } from '@i18n/index';
+
+interface Heading {
+  depth: number;
+  slug: string;
+  text: string;
+}
+
+interface Props {
+  /** Headings extracted from the post content */
+  headings: Heading[];
+}
+
+const { headings } = Astro.props;
+
+// Filter to only include h2-h4
+const filteredHeadings = headings.filter((h) => h.depth >= 2 && h.depth <= 4);
+---
+
+{
+  filteredHeadings.length > 0 && (
+    <div class="card-base p-4">
+      {/* Header */}
+      <h3 class="mb-3 flex items-center gap-2 text-sm font-semibold uppercase tracking-wider text-[var(--text-secondary)]">
+        <Icon name="material-symbols:list-alt-outline" class="h-4 w-4" />
+        {i18n(I18nKey.toc)}
+      </h3>
+
+      {/* TOC List */}
+      <nav class="toc max-h-[50vh]" aria-label="Table of contents">
+        <ul class="toc-list space-y-0.5">
+          {filteredHeadings.map((heading) => (
+            <li class="toc-item">
+              <a
+                href={`#${heading.slug}`}
+                class="toc-link"
+                data-level={heading.depth}
+              >
+                {heading.text}
+              </a>
+            </li>
+          ))}
+        </ul>
+      </nav>
+    </div>
+  )
+}
+
+<script>
+  // TOC active state management
+  function initTOC() {
+    const tocLinks = document.querySelectorAll<HTMLAnchorElement>('.toc-link');
+    if (!tocLinks.length) return;
+
+    const headings = Array.from(tocLinks).map((link) => {
+      const id = link.getAttribute('href')?.slice(1);
+      return id ? document.getElementById(id) : null;
+    }).filter(Boolean) as HTMLElement[];
+
+    if (!headings.length) return;
+
+    function updateActiveLink() {
+      const scrollY = window.scrollY;
+      const navbarHeight = parseInt(
+        getComputedStyle(document.documentElement).getPropertyValue('--navbar-height') || '64'
+      );
+
+      // Find the current heading
+      let currentIndex = 0;
+      for (let i = 0; i < headings.length; i++) {
+        if (headings[i].offsetTop - navbarHeight - 100 <= scrollY) {
+          currentIndex = i;
+        }
+      }
+
+      // Update active states
+      tocLinks.forEach((link, index) => {
+        if (index === currentIndex) {
+          link.classList.add('active');
+        } else {
+          link.classList.remove('active');
+        }
+      });
+    }
+
+    // Throttled scroll handler
+    let ticking = false;
+    window.addEventListener(
+      'scroll',
+      () => {
+        if (!ticking) {
+          requestAnimationFrame(() => {
+            updateActiveLink();
+            ticking = false;
+          });
+          ticking = true;
+        }
+      },
+      { passive: true }
+    );
+
+    // Initial update
+    updateActiveLink();
+  }
+
+  // Initialize on load
+  initTOC();
+
+  // Re-initialize after view transitions
+  document.addEventListener('astro:after-swap', initTOC);
+</script>

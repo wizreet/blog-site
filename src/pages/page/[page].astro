@@ -1,0 +1,72 @@
+---
+/**
+ * Paginated Home Page
+ *
+ * @description Paginated post listing for pages beyond page 1.
+ *
+ * @route /page/[page]
+ */
+
+import MainGridLayout from '@layouts/MainGridLayout.astro';
+import PostCard from '@components/card/PostCard.astro';
+import Pagination from '@components/misc/Pagination.astro';
+import { getSortedPosts } from '@utils/content-utils';
+import { getUrl } from '@utils/url-utils';
+import { PAGE_SIZE } from '@constants/constants';
+import { siteConfig } from '@/config';
+import { i18n, I18nKey } from '@i18n/index';
+
+export async function getStaticPaths() {
+  const allPosts = await getSortedPosts();
+  const totalPages = Math.ceil(allPosts.length / PAGE_SIZE);
+
+  // Generate paths for page 2 onwards (page 1 is handled by index.astro)
+  const paths = [];
+  for (let i = 2; i <= totalPages; i++) {
+    paths.push({
+      params: { page: i.toString() },
+      props: { currentPage: i, totalPages },
+    });
+  }
+
+  return paths;
+}
+
+interface Props {
+  currentPage: number;
+  totalPages: number;
+}
+
+const { currentPage, totalPages } = Astro.props;
+
+// Get posts for current page
+const allPosts = await getSortedPosts();
+const start = (currentPage - 1) * PAGE_SIZE;
+const end = start + PAGE_SIZE;
+const posts = allPosts.slice(start, end);
+---
+
+<MainGridLayout
+  title={`${i18n(I18nKey.page)} ${currentPage}`}
+  description={`${siteConfig.subtitle} - ${i18n(I18nKey.page)} ${currentPage}`}
+>
+  <div class="space-y-6">
+    <!-- Page Header -->
+    <div class="mb-8">
+      <h1 class="text-3xl font-bold text-[var(--text-primary)] md:text-4xl">
+        {siteConfig.title}
+      </h1>
+      <p class="mt-2 text-[var(--text-secondary)]">
+        {i18n(I18nKey.page)} {currentPage} of {totalPages}
+      </p>
+    </div>
+
+    <!-- Posts List -->
+    <div class="space-y-4">
+      {posts.map((post) => <PostCard post={post} />)}
+    </div>
+
+    <!-- Pagination -->
+    <Pagination currentPage={currentPage} totalPages={totalPages} baseUrl={getUrl('/')} />
+  </div>
+</MainGridLayout>
