@@ -42,7 +42,7 @@ const hasMoreTags = (tags?.length || 0) > 3;
 ---
 
 <article class="card-base group">
-  <a href={getPostUrl(post.slug)} class="block p-5">
+  <a href={getPostUrl(post.id)} class="block p-5">
     <div class:list={['flex gap-4', compact ? 'flex-col sm:flex-row' : 'flex-col']}>
       <!-- Main Content -->
       <div class="flex-1 min-w-0">

@@ -85,7 +85,7 @@ export default defineConfig({
         'fa6-solid': ['*'],
         'fa6-regular': ['*'],
         'simple-icons': ['*'],
-        'logos': ['*'],
+        logos: ['*'],
       },
     }),
   ],

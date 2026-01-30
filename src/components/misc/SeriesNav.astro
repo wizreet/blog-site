@@ -31,7 +31,7 @@ const sortedPosts = [...posts].sort((a, b) => {
 });
 
 // Find current post index
-const currentIndex = sortedPosts.findIndex((p) => p.slug === currentSlug);
+const currentIndex = sortedPosts.findIndex((p) => p.id === currentSlug);
 const hasPrev = currentIndex > 0;
 const hasNext = currentIndex < sortedPosts.length - 1;
 const prevPost = hasPrev ? sortedPosts[currentIndex - 1] : null;
@@ -57,12 +57,12 @@ const nextPost = hasNext ? sortedPosts[currentIndex + 1] : null;
   <div class="space-y-1.5">
     {
       sortedPosts.map((post, index) => {
-        const isCurrent = post.slug === currentSlug;
+        const isCurrent = post.id === currentSlug;
         const partNum = post.data.series?.part || index + 1;
 
         return (
           <a
-            href={getPostUrl(post.slug)}
+            href={getPostUrl(post.id)}
             class:list={[
               'flex items-center gap-3 rounded-lg px-3 py-2 text-sm transition-colors',
               isCurrent
@@ -96,7 +96,7 @@ const nextPost = hasNext ? sortedPosts[currentIndex + 1] : null;
       <div class="mt-4 flex items-center justify-between gap-4 border-t border-[var(--border-color)] pt-4">
         {prevPost ? (
           <a
-            href={getPostUrl(prevPost.slug)}
+            href={getPostUrl(prevPost.id)}
             class="flex items-center gap-1 text-sm text-[var(--text-secondary)] transition-colors hover:text-[oklch(var(--primary))]"
           >
             <Icon name="material-symbols:chevron-left" class="h-5 w-5" />
@@ -108,7 +108,7 @@ const nextPost = hasNext ? sortedPosts[currentIndex + 1] : null;
 
         {nextPost ? (
           <a
-            href={getPostUrl(nextPost.slug)}
+            href={getPostUrl(nextPost.id)}
             class="flex items-center gap-1 text-sm text-[var(--text-secondary)] transition-colors hover:text-[oklch(var(--primary))]"
           >
             <span class="truncate">{i18n(I18nKey.nextPost)}</span>

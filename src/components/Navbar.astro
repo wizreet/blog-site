@@ -5,21 +5,23 @@
  * @description The main navigation bar that appears at the top of all pages.
  * Features:
  * - Site branding (title or logo)
- * - Navigation links
+ * - Navigation links (supports presets and custom links)
  * - Theme toggle
  * - Search button
  * - Mobile menu toggle
  *
- * The navbar is fixed at the top and has a blur backdrop.
+ * Based on Mizuki's Navbar patterns.
  */
 
 import { Icon } from 'astro-icon/components';
-import { siteConfig, navBarConfig } from '@/config';
-import { i18n, I18nKey } from '@i18n/index';
+import { siteConfig, getNavLinks } from '@/config';
 import { getUrl } from '@utils/url-utils';
-import { NAV_ICONS } from '@constants/icon';
 import ThemeSwitch from '@components/ThemeSwitch.tsx';
 import Search from '@components/Search.tsx';
+import type { NavLink } from '@/types/config';
+
+// Get resolved navigation links (converts presets to actual links)
+const links: NavLink[] = getNavLinks();
 
 // Get current path for active link highlighting
 const currentPath = Astro.url.pathname;
@@ -28,65 +30,88 @@ const currentPath = Astro.url.pathname;
  * Check if a nav link is active
  */
 function isActiveLink(href: string): boolean {
-  // Remove trailing slash for comparison
   const normalizedPath = currentPath.replace(/\/$/, '') || '/';
   const normalizedHref = href.replace(/\/$/, '') || '/';
 
-  // Exact match for home
   if (normalizedHref === '/' || normalizedHref === getUrl('/')) {
     return normalizedPath === '/' || normalizedPath === getUrl('/').replace(/\/$/, '');
   }
 
-  // Prefix match for other pages
   return normalizedPath.startsWith(normalizedHref);
+}
+
+/**
+ * Check if link has children (is a dropdown)
+ */
+function hasChildren(link: NavLink): boolean {
+  return !!(link.children && link.children.length > 0);
 }
 ---
 
 <header
-  class="fixed left-0 right-0 top-0 z-40 h-[var(--navbar-height)] border-b border-[var(--border-color)] bg-[var(--card-bg)]/80 backdrop-blur-lg"
+  id="navbar"
+  class="fixed left-0 right-0 top-0 z-40 h-[var(--navbar-height)] border-b border-[var(--border-color)] bg-[var(--card-bg)]/80 backdrop-blur-lg transition-all duration-300"
 >
   <nav class="container-page flex h-full items-center justify-between">
     <!-- Logo / Site Title -->
     <a
       href={getUrl('/')}
-      class="flex items-center gap-2 text-xl font-bold transition-colors hover:text-[oklch(var(--primary))]"
+      class="btn-plain scale-animation flex h-11 items-center gap-2 rounded-lg px-3 text-xl font-bold active:scale-95"
     >
-      {
-        siteConfig.logo ? (
-          <img
-            src={siteConfig.logo}
-            alt={siteConfig.title}
-            class="h-8 w-8 rounded-full object-cover"
-          />
-        ) : null
-      }
+      <Icon name="material-symbols:home-outline" class="h-6 w-6" />
       <span class="hidden sm:inline">{siteConfig.title}</span>
     </a>
 
     <!-- Desktop Navigation -->
     <div class="hidden items-center gap-1 md:flex">
       {
-        navBarConfig.links.map((link) => (
-          <a
-            href={link.external ? link.url : getUrl(link.url)}
-            target={link.external ? '_blank' : undefined}
-            rel={link.external ? 'noopener noreferrer' : undefined}
-            class:list={[
-              'flex items-center gap-1.5 rounded-lg px-3 py-2 text-sm font-medium transition-colors',
-              isActiveLink(getUrl(link.url))
-                ? 'bg-[var(--btn-hover-bg)] text-[oklch(var(--primary))]'
-                : 'text-[var(--text-secondary)] hover:bg-[var(--btn-hover-bg)] hover:text-[var(--text-primary)]',
-            ]}
-          >
-            {link.icon && (
-              <Icon name={link.icon} class="h-4 w-4" />
-            )}
-            <span>{link.name}</span>
-            {link.external && (
-              <Icon name="material-symbols:open-in-new" class="h-3 w-3 opacity-50" />
-            )}
-          </a>
-        ))
+        links.map((link) =>
+          hasChildren(link) ? (
+            /* Dropdown Menu */
+            <div class="dropdown-container relative">
+              <button
+                class="btn-plain flex items-center gap-1.5 rounded-lg px-3 py-2 text-sm font-medium"
+                aria-haspopup="true"
+                aria-expanded="false"
+              >
+                {link.icon && <Icon name={link.icon} class="h-4 w-4" />}
+                <span>{link.name}</span>
+                <Icon name="material-symbols:expand-more" class="h-4 w-4 transition-transform" />
+              </button>
+              <div class="dropdown-menu absolute right-0 top-full z-50 mt-1 hidden min-w-[160px] rounded-lg bg-[var(--card-bg)] p-2 shadow-lg border border-[var(--border-color)]">
+                {link.children?.map((child) => (
+                  <a
+                    href={child.external ? child.url : getUrl(child.url)}
+                    target={child.external ? '_blank' : undefined}
+                    rel={child.external ? 'noopener noreferrer' : undefined}
+                    class="flex items-center gap-2 rounded-md px-3 py-2 text-sm text-[var(--text-secondary)] transition-colors hover:bg-[var(--btn-hover-bg)] hover:text-[var(--text-primary)]"
+                  >
+                    {child.icon && <Icon name={child.icon} class="h-4 w-4" />}
+                    <span>{child.name}</span>
+                    {child.external && <Icon name="material-symbols:open-in-new" class="h-3 w-3 opacity-50" />}
+                  </a>
+                ))}
+              </div>
+            </div>
+          ) : (
+            /* Regular Link */
+            <a
+              href={link.external ? link.url : getUrl(link.url)}
+              target={link.external ? '_blank' : undefined}
+              rel={link.external ? 'noopener noreferrer' : undefined}
+              class:list={[
+                'btn-plain flex items-center gap-1.5 rounded-lg px-3 py-2 text-sm font-medium transition-all',
+                isActiveLink(getUrl(link.url))
+                  ? 'bg-[var(--btn-hover-bg)] text-[oklch(var(--primary))]'
+                  : 'text-[var(--text-secondary)] hover:text-[var(--text-primary)]',
+              ]}
+            >
+              {link.icon && <Icon name={link.icon} class="h-4 w-4" />}
+              <span>{link.name}</span>
+              {link.external && <Icon name="material-symbols:open-in-new" class="h-3 w-3 opacity-50" />}
+            </a>
+          )
+        )
       }
     </div>
 
@@ -119,44 +144,102 @@ function isActiveLink(href: string): boolean {
   aria-hidden="true"
 >
   <!-- Backdrop -->
-  <div class="absolute inset-0 bg-black/50" id="mobile-menu-backdrop"></div>
+  <div class="absolute inset-0 bg-black/50 backdrop-blur-sm" id="mobile-menu-backdrop"></div>
 
   <!-- Menu Panel -->
   <div
-    class="absolute right-0 top-[var(--navbar-height)] h-[calc(100vh-var(--navbar-height))] w-64 translate-x-full transform overflow-y-auto bg-[var(--card-bg)] shadow-lg transition-transform duration-300"
+    class="absolute right-0 top-[var(--navbar-height)] h-[calc(100vh-var(--navbar-height))] w-72 translate-x-full transform overflow-y-auto bg-[var(--card-bg)] shadow-xl transition-transform duration-300 ease-out"
     id="mobile-menu-panel"
   >
-    <nav class="flex flex-col p-4">
+    <nav class="flex flex-col gap-1 p-4">
       {
-        navBarConfig.links.map((link) => (
-          <a
-            href={link.external ? link.url : getUrl(link.url)}
-            target={link.external ? '_blank' : undefined}
-            rel={link.external ? 'noopener noreferrer' : undefined}
-            class:list={[
-              'flex items-center gap-2 rounded-lg px-4 py-3 text-sm font-medium transition-colors',
-              isActiveLink(getUrl(link.url))
-                ? 'bg-[var(--btn-hover-bg)] text-[oklch(var(--primary))]'
-                : 'text-[var(--text-secondary)] hover:bg-[var(--btn-hover-bg)] hover:text-[var(--text-primary)]',
-            ]}
-          >
-            {link.icon && (
-              <Icon name={link.icon} class="h-5 w-5" />
-            )}
-            <span>{link.name}</span>
-            {link.external && (
-              <Icon name="material-symbols:open-in-new" class="h-4 w-4 opacity-50" />
-            )}
-          </a>
-        ))
+        links.map((link) =>
+          hasChildren(link) ? (
+            /* Mobile Dropdown */
+            <div class="mobile-dropdown">
+              <button
+                class="flex w-full items-center justify-between rounded-lg px-4 py-3 text-sm font-medium text-[var(--text-secondary)] transition-colors hover:bg-[var(--btn-hover-bg)]"
+                aria-expanded="false"
+              >
+                <span class="flex items-center gap-2">
+                  {link.icon && <Icon name={link.icon} class="h-5 w-5" />}
+                  {link.name}
+                </span>
+                <Icon name="material-symbols:expand-more" class="h-5 w-5 transition-transform" />
+              </button>
+              <div class="mobile-dropdown-content hidden pl-4">
+                {link.children?.map((child) => (
+                  <a
+                    href={child.external ? child.url : getUrl(child.url)}
+                    target={child.external ? '_blank' : undefined}
+                    rel={child.external ? 'noopener noreferrer' : undefined}
+                    class="flex items-center gap-2 rounded-lg px-4 py-2.5 text-sm text-[var(--text-tertiary)] transition-colors hover:bg-[var(--btn-hover-bg)] hover:text-[var(--text-primary)]"
+                  >
+                    {child.icon && <Icon name={child.icon} class="h-4 w-4" />}
+                    <span>{child.name}</span>
+                    {child.external && <Icon name="material-symbols:open-in-new" class="h-3 w-3 opacity-50" />}
+                  </a>
+                ))}
+              </div>
+            </div>
+          ) : (
+            /* Mobile Regular Link */
+            <a
+              href={link.external ? link.url : getUrl(link.url)}
+              target={link.external ? '_blank' : undefined}
+              rel={link.external ? 'noopener noreferrer' : undefined}
+              class:list={[
+                'flex items-center gap-2 rounded-lg px-4 py-3 text-sm font-medium transition-colors',
+                isActiveLink(getUrl(link.url))
+                  ? 'bg-[var(--btn-hover-bg)] text-[oklch(var(--primary))]'
+                  : 'text-[var(--text-secondary)] hover:bg-[var(--btn-hover-bg)] hover:text-[var(--text-primary)]',
+              ]}
+            >
+              {link.icon && <Icon name={link.icon} class="h-5 w-5" />}
+              <span>{link.name}</span>
+              {link.external && <Icon name="material-symbols:open-in-new" class="h-4 w-4 opacity-50" />}
+            </a>
+          )
+        )
       }
     </nav>
   </div>
 </div>
 
+<style>
+  /* Dropdown hover styles */
+  .dropdown-container:hover .dropdown-menu,
+  .dropdown-container:focus-within .dropdown-menu {
+    display: block;
+    animation: dropdown-fade 0.15s ease-out;
+  }
+
+  .dropdown-container:hover button svg:last-child {
+    transform: rotate(180deg);
+  }
+
+  @keyframes dropdown-fade {
+    from {
+      opacity: 0;
+      transform: translateY(-4px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  /* Scale animation utility */
+  .scale-animation {
+    transition: transform 0.15s ease;
+  }
+  .scale-animation:active {
+    transform: scale(0.95);
+  }
+</style>
+
 <script>
-  // Mobile menu toggle functionality
-  function initMobileMenu() {
+  function initNavbar() {
     const toggle = document.getElementById('mobile-menu-toggle');
     const menu = document.getElementById('mobile-menu');
     const panel = document.getElementById('mobile-menu-panel');
@@ -171,13 +254,7 @@ function isActiveLink(href: string): boolean {
       menu.classList.remove('hidden');
       menu.setAttribute('aria-hidden', 'false');
       toggle.setAttribute('aria-expanded', 'true');
-
-      // Animate panel in
-      requestAnimationFrame(() => {
-        panel.classList.remove('translate-x-full');
-      });
-
-      // Prevent body scroll
+      requestAnimationFrame(() => panel.classList.remove('translate-x-full'));
       document.body.style.overflow = 'hidden';
     }
 
@@ -185,41 +262,33 @@ function isActiveLink(href: string): boolean {
       isOpen = false;
       panel.classList.add('translate-x-full');
       toggle.setAttribute('aria-expanded', 'false');
-
-      // Hide menu after animation
       setTimeout(() => {
         menu.classList.add('hidden');
         menu.setAttribute('aria-hidden', 'true');
       }, 300);
-
-      // Restore body scroll
       document.body.style.overflow = '';
     }
 
-    toggle.addEventListener('click', () => {
-      if (isOpen) {
-        closeMenu();
-      } else {
-        openMenu();
-      }
-    });
-
+    toggle.addEventListener('click', () => isOpen ? closeMenu() : openMenu());
     backdrop.addEventListener('click', closeMenu);
+    document.addEventListener('keydown', (e) => { if (e.key === 'Escape' && isOpen) closeMenu(); });
 
-    // Close on escape key
-    document.addEventListener('keydown', (e) => {
-      if (e.key === 'Escape' && isOpen) {
-        closeMenu();
-      }
+    // Mobile dropdowns
+    document.querySelectorAll('.mobile-dropdown button').forEach((btn) => {
+      btn.addEventListener('click', () => {
+        const content = btn.nextElementSibling;
+        const icon = btn.querySelector('svg:last-child') as HTMLElement;
+        const isExpanded = btn.getAttribute('aria-expanded') === 'true';
+        btn.setAttribute('aria-expanded', (!isExpanded).toString());
+        content?.classList.toggle('hidden');
+        if (icon) icon.style.transform = isExpanded ? '' : 'rotate(180deg)';
+      });
     });
 
-    // Close on route change (for view transitions)
-    document.addEventListener('astro:before-swap', closeMenu);
+    // Close on link click
+    menu.querySelectorAll('a').forEach((link) => link.addEventListener('click', closeMenu));
   }
 
-  // Initialize on load
-  initMobileMenu();
-
-  // Re-initialize after view transitions
-  document.addEventListener('astro:after-swap', initMobileMenu);
+  initNavbar();
+  document.addEventListener('astro:after-swap', initNavbar);
 </script>

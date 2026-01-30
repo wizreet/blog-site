@@ -233,7 +233,7 @@ export default function Search() {
                 </div>
               ) : results.length > 0 ? (
                 <ul className="space-y-1">
-                  {results.map((result, index) => (
+                  {results.map((result) => (
                     <li key={result.url}>
                       <a
                         href={result.url}

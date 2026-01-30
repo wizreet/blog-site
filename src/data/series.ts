@@ -54,7 +54,9 @@ export function getSeriesById(id: string): Series | undefined {
  */
 export function getSortedSeries(): Series[] {
   const statusOrder: Record<string, number> = { ongoing: 0, hiatus: 1, paused: 1, completed: 2 };
-  return [...seriesData].sort((a, b) => (statusOrder[a.status] ?? 3) - (statusOrder[b.status] ?? 3));
+  return [...seriesData].sort(
+    (a, b) => (statusOrder[a.status] ?? 3) - (statusOrder[b.status] ?? 3)
+  );
 }
 
 export default seriesData;

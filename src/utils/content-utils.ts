@@ -65,13 +65,21 @@ export async function getSortedPosts(): Promise<PostEntry[]> {
 
   // Set prev/next links for navigation
   for (let i = 1; i < sorted.length; i++) {
-    sorted[i].data.nextSlug = sorted[i - 1].id;
-    sorted[i].data.nextTitle = sorted[i - 1].data.title;
+    const currentPost = sorted[i];
+    const prevPost = sorted[i - 1];
+    if (currentPost && prevPost) {
+      currentPost.data.nextSlug = prevPost.id;
+      currentPost.data.nextTitle = prevPost.data.title;
+    }
   }
 
   for (let i = 0; i < sorted.length - 1; i++) {
-    sorted[i].data.prevSlug = sorted[i + 1].id;
-    sorted[i].data.prevTitle = sorted[i + 1].data.title;
+    const currentPost = sorted[i];
+    const nextPost = sorted[i + 1];
+    if (currentPost && nextPost) {
+      currentPost.data.prevSlug = nextPost.id;
+      currentPost.data.prevTitle = nextPost.data.title;
+    }
   }
 
   return sorted;
@@ -226,8 +234,8 @@ export async function getSeriesNavigation(post: PostEntry): Promise<SeriesNaviga
   if (currentIndex === -1) return null;
 
   return {
-    prev: currentIndex > 0 ? seriesPosts[currentIndex - 1] : null,
-    next: currentIndex < seriesPosts.length - 1 ? seriesPosts[currentIndex + 1] : null,
+    prev: currentIndex > 0 ? (seriesPosts[currentIndex - 1] ?? null) : null,
+    next: currentIndex < seriesPosts.length - 1 ? (seriesPosts[currentIndex + 1] ?? null) : null,
     total: seriesPosts.length,
     current: currentIndex + 1,
   };
@@ -238,7 +246,8 @@ export async function getSeriesNavigation(post: PostEntry): Promise<SeriesNaviga
  */
 export async function getFeaturedSeries(): Promise<SeriesWithCount[]> {
   const allSeries = await getSeriesList();
-  return allSeries.filter((s) => s.featured);
+  // Filter to series with posts (featured logic can be added to series data)
+  return allSeries.filter((s) => s.postCount > 0).slice(0, 3);
 }
 
 // ============================================================================

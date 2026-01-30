@@ -27,7 +27,7 @@ export const GET: APIRoute = async ({ site }) => {
       title: post.data.title,
       pubDate: post.data.published,
       description: post.data.description || '',
-      link: getPostUrl(post.slug),
+      link: getPostUrl(post.id),
       categories: [...(post.data.category ? [post.data.category] : []), ...(post.data.tags || [])],
     })),
     customData: `<language>${siteConfig.lang}</language>`,

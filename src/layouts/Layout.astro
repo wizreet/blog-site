@@ -26,21 +26,21 @@ import { ViewTransitions } from 'astro:transitions';
 
 interface Props {
   /** Page title (will be appended with site title) */
-  title?: string;
+  title?: string | undefined;
   /** Page description for SEO */
-  description?: string;
+  description?: string | undefined;
   /** Open Graph image URL */
-  ogImage?: string;
+  ogImage?: string | undefined;
   /** Page URL (canonical) */
-  url?: string;
+  url?: string | undefined;
   /** Article publish date (for blog posts) */
-  publishDate?: Date;
+  publishDate?: Date | undefined;
   /** Article modified date (for blog posts) */
-  modifiedDate?: Date;
+  modifiedDate?: Date | undefined;
   /** Whether this is an article (blog post) */
   isArticle?: boolean;
   /** Robots meta directive */
-  robots?: string;
+  robots?: string | undefined;
 }
 
 const {

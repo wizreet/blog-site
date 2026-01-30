@@ -45,8 +45,8 @@ export function i18n(key: I18nKey): string {
   const normalizedLang = lang.toLowerCase().replace('-', '_');
 
   // Get translation for current language, fallback to English
-  const translation = translationMap[normalizedLang] || translationMap.en;
-  return translation[key] || translationMap.en[key] || key;
+  const translation = translationMap[normalizedLang] ?? translationMap.en ?? en;
+  return translation[key] ?? en[key] ?? key;
 }
 
 /**

@@ -53,7 +53,7 @@ const { title, description, image, published, updated } = post.data;
   title={title}
   description={description}
   ogImage={image}
-  url={getPostUrl(post.slug)}
+  url={getPostUrl(post.id)}
   publishDate={published}
   modifiedDate={updated}
   isArticle={true}
@@ -97,7 +97,7 @@ const { title, description, image, published, updated } = post.data;
   <!-- Series Navigation (if part of series) -->
   {series && seriesPosts.length > 1 && (
     <div class="mt-6">
-      <SeriesNav series={series} posts={seriesPosts} currentSlug={post.slug} />
+      <SeriesNav series={series} posts={seriesPosts} currentSlug={post.id} />
     </div>
   )}
 

@@ -216,7 +216,7 @@ export function getDir(id: string): string {
  */
 export function getFilename(path: string): string {
   const parts = path.split('/');
-  const filename = parts[parts.length - 1];
+  const filename = parts[parts.length - 1] ?? '';
   return filename.replace(/\.[^.]+$/, '');
 }
 
