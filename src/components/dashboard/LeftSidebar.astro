@@ -44,15 +44,26 @@ seriesWithPosts.forEach((series) => {
 });
 ---
 
-<nav class="sidebar-nav" aria-label={i18n(I18nKey.categories)}>
-  <!-- Series Section -->
-  {seriesWithPosts.length > 0 && (
-    <section class="nav-section">
-      <header class="section-header">
-        <Icon name="material-symbols:library-books" class="section-icon" />
-        <span class="section-title">{i18n(I18nKey.series)}</span>
-        <span class="section-count">{seriesWithPosts.length}</span>
-      </header>
+<div class="sidebar-wrapper">
+  {/* Collapse Toggle Header */}
+  <button
+    id="left-sidebar-toggle"
+    class="sidebar-toggle-btn"
+    aria-label="Collapse sidebar"
+    title="Collapse sidebar"
+  >
+    <Icon name="material-symbols:chevron-left" class="toggle-icon" />
+  </button>
+
+  <nav class="sidebar-nav" aria-label={i18n(I18nKey.categories)}>
+    <!-- Series Section -->
+    {seriesWithPosts.length > 0 && (
+      <section class="nav-section">
+        <header class="section-header">
+          <Icon name="material-symbols:library-books" class="section-icon" />
+          <span class="section-title">{i18n(I18nKey.series)}</span>
+          <span class="section-count">{seriesWithPosts.length}</span>
+        </header>
 
       <div class="section-body">
         {seriesWithPosts.map((series) => {
@@ -142,9 +153,43 @@ seriesWithPosts.forEach((series) => {
       })}
     </div>
   </section>
-</nav>
+  </nav>
+</div>
 
 <style>
+  .sidebar-wrapper {
+    position: relative;
+  }
+
+  .sidebar-toggle-btn {
+    position: absolute;
+    top: 0.5rem;
+    right: -0.5rem;
+    z-index: 10;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 1.5rem;
+    height: 1.5rem;
+    border: 1px solid var(--border-color);
+    border-radius: 50%;
+    background: var(--card-bg);
+    color: var(--text-tertiary);
+    cursor: pointer;
+    transition: all 0.15s;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  }
+
+  .sidebar-toggle-btn:hover {
+    color: var(--text-primary);
+    background: var(--btn-hover-bg);
+  }
+
+  .toggle-icon {
+    width: 1rem;
+    height: 1rem;
+  }
+
   .sidebar-nav {
     display: flex;
     flex-direction: column;
@@ -453,8 +498,40 @@ seriesWithPosts.forEach((series) => {
       btn.setAttribute('aria-expanded', 'true');
       panel?.setAttribute('data-expanded', 'true');
     });
+
+    // Left sidebar collapse toggle
+    const leftToggle = document.getElementById('left-sidebar-toggle');
+    const dashboardContainer = document.querySelector('.dashboard-container');
+    
+    if (leftToggle && dashboardContainer) {
+      const savedState = localStorage.getItem('left-sidebar-collapsed');
+      let isCollapsed = savedState === 'true';
+      
+      // Apply initial state
+      if (isCollapsed) {
+        dashboardContainer.classList.add('left-sidebar-collapsed');
+      }
+      
+      // Clone to remove old listeners
+      const newToggle = leftToggle.cloneNode(true) as HTMLElement;
+      leftToggle.parentNode?.replaceChild(newToggle, leftToggle);
+      
+      newToggle.addEventListener('click', (e) => {
+        e.preventDefault();
+        isCollapsed = !isCollapsed;
+        localStorage.setItem('left-sidebar-collapsed', isCollapsed.toString());
+        
+        const container = document.querySelector('.dashboard-container');
+        if (isCollapsed) {
+          container?.classList.add('left-sidebar-collapsed');
+        } else {
+          container?.classList.remove('left-sidebar-collapsed');
+        }
+      });
+    }
   }
 
   initSidebar();
+  document.addEventListener('astro:after-swap', initSidebar);
   document.addEventListener('swup:contentReplaced', initSidebar);
 </script>

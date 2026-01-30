@@ -59,26 +59,10 @@ function hasChildren(link: NavLink): boolean {
   class="fixed left-0 right-0 top-0 z-40 h-[var(--navbar-height)] border-b border-[var(--border-color)] bg-[var(--card-bg)]/80 backdrop-blur-lg transition-all duration-300"
 >
   <nav class="container-page flex h-full items-center justify-between gap-4">
-    <!-- Left: Sidebar Toggle + Site Title -->
+    <!-- Left: Logo/Home -->
     <div class="flex items-center gap-2">
-      <!-- Sidebar Toggle (Desktop) -->
-      <button
-        id="sidebar-toggle"
-        class="btn-plain hidden lg:flex items-center justify-center h-10 w-10 rounded-lg flex-shrink-0"
-        aria-label="Toggle sidebar"
-        aria-expanded="true"
-        title="Toggle sidebar"
-      >
-        <Icon name="material-symbols:menu-open" class="sidebar-icon-open h-5 w-5" />
-        <Icon name="material-symbols:menu" class="sidebar-icon-closed h-5 w-5 hidden" />
-      </button>
-
-      <!-- Site Title/Logo -->
-      <a
-        href={getUrl('/')}
-        class="flex items-center gap-2 text-lg font-semibold text-[var(--text-primary)] hover:text-[oklch(var(--primary))] transition-colors"
-      >
-        <span class="truncate max-w-[180px] md:max-w-none">{siteConfig.title}</span>
+      <a href={getUrl('/')} class="btn-plain flex items-center justify-center h-10 w-10 rounded-lg flex-shrink-0" aria-label="Home">
+        <Icon name="material-symbols:home" class="h-5 w-5" />
       </a>
     </div>
 
@@ -355,81 +339,18 @@ function hasChildren(link: NavLink): boolean {
     });
   }
 
-  // Sidebar toggle functionality
-  function initSidebarToggle() {
-    const sidebarToggle = document.getElementById('sidebar-toggle');
-    const dashboardContainer = document.querySelector('.dashboard-container');
-
-    if (!sidebarToggle || !dashboardContainer) return;
-
-    // Check localStorage for saved preference
-    const savedState = localStorage.getItem('sidebar-collapsed');
-    let isCollapsed = savedState === 'true';
-
-    function updateSidebarState() {
-      const openIcon = sidebarToggle?.querySelector('.sidebar-icon-open');
-      const closedIcon = sidebarToggle?.querySelector('.sidebar-icon-closed');
-
-      if (isCollapsed) {
-        dashboardContainer?.classList.add('sidebar-collapsed');
-        sidebarToggle?.setAttribute('aria-expanded', 'false');
-        openIcon?.classList.add('hidden');
-        closedIcon?.classList.remove('hidden');
-      } else {
-        dashboardContainer?.classList.remove('sidebar-collapsed');
-        sidebarToggle?.setAttribute('aria-expanded', 'true');
-        openIcon?.classList.remove('hidden');
-        closedIcon?.classList.add('hidden');
-      }
-    }
-
-    // Initialize state
-    updateSidebarState();
-
-    // Remove old listener by cloning
-    const newSidebarToggle = sidebarToggle.cloneNode(true) as HTMLElement;
-    sidebarToggle.parentNode?.replaceChild(newSidebarToggle, sidebarToggle);
-
-    newSidebarToggle.addEventListener('click', (e) => {
-      e.preventDefault();
-      e.stopPropagation();
-      isCollapsed = !isCollapsed;
-      localStorage.setItem('sidebar-collapsed', isCollapsed.toString());
-
-      // Re-query elements after clone
-      const container = document.querySelector('.dashboard-container');
-      const openIcon = newSidebarToggle.querySelector('.sidebar-icon-open');
-      const closedIcon = newSidebarToggle.querySelector('.sidebar-icon-closed');
-
-      if (isCollapsed) {
-        container?.classList.add('sidebar-collapsed');
-        newSidebarToggle.setAttribute('aria-expanded', 'false');
-        openIcon?.classList.add('hidden');
-        closedIcon?.classList.remove('hidden');
-      } else {
-        container?.classList.remove('sidebar-collapsed');
-        newSidebarToggle.setAttribute('aria-expanded', 'true');
-        openIcon?.classList.remove('hidden');
-        closedIcon?.classList.add('hidden');
-      }
-    });
-  }
-
   // Initialize on page load
   document.addEventListener('DOMContentLoaded', () => {
     initNavbar();
-    initSidebarToggle();
   });
 
   // Re-initialize after Astro page transitions
   document.addEventListener('astro:after-swap', () => {
     initNavbar();
-    initSidebarToggle();
   });
 
   // Fallback: also init immediately in case DOMContentLoaded already fired
   if (document.readyState === 'complete' || document.readyState === 'interactive') {
     initNavbar();
-    initSidebarToggle();
   }
 </script>

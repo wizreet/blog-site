@@ -102,6 +102,10 @@ enum I18nKey {
   author = 'author',
   license = 'license',
   comments = 'comments',
+
+  // Pagination
+  prevPage = 'prevPage',
+  nextPage = 'nextPage',
 }
 
 export default I18nKey;

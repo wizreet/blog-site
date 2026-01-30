@@ -74,8 +74,7 @@ if (post.data.series?.id) optionalProps.activeSeries = post.data.series.id;
   url={getPostUrl(post.id)}
   headings={headings}
   activePost={post.id}
-  hideLeftSidebar={true}
-  hideRightSidebar={true}
+  showTocOnLeft={true}
   {...optionalProps}
 >
   <article class="card-base overflow-hidden">
@@ -91,15 +90,6 @@ if (post.data.series?.id) optionalProps.activeSeries = post.data.series.id;
         <PostMeta post={post} />
       </div>
     </header>
-
-    <!-- Featured Image (if present) -->
-    {
-      imageUrl && (
-        <div class="aspect-video overflow-hidden">
-          <img src={imageUrl} alt={title} class="h-full w-full object-cover" loading="eager" />
-        </div>
-      )
-    }
 
     <!-- Post Content -->
     <div class="p-6 md:p-8">

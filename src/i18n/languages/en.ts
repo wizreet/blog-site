@@ -17,13 +17,11 @@ export const en: Translation = {
   [I18nKey.tags]: 'Tags',
   [I18nKey.categories]: 'Categories',
   [I18nKey.series]: 'Series',
-  [I18nKey.tabs]: 'Guitar Tabs',
   [I18nKey.posts]: 'Posts',
   [I18nKey.projects]: 'Projects',
   [I18nKey.skills]: 'Skills',
   [I18nKey.timeline]: 'Timeline',
   [I18nKey.friends]: 'Friends',
-  [I18nKey.music]: 'Music',
   [I18nKey.links]: 'Links',
 
   // Post/Content
@@ -88,23 +86,6 @@ export const en: Translation = {
   [I18nKey.notFoundMessage]: "The page you're looking for doesn't exist.",
   [I18nKey.backHome]: 'Back to Home',
 
-  // Guitar Tabs
-  [I18nKey.tabDifficulty]: 'Difficulty',
-  [I18nKey.tabTuning]: 'Tuning',
-  [I18nKey.tabCapo]: 'Capo',
-  [I18nKey.tabDownloadPdf]: 'Download PDF',
-  [I18nKey.tabDownloadGp]: 'Download Guitar Pro',
-  [I18nKey.tabVideoTutorial]: 'Video Tutorial',
-
-  // Music
-  [I18nKey.musicCovers]: 'Covers',
-  [I18nKey.musicOriginals]: 'Originals',
-  [I18nKey.musicJams]: 'Jam Sessions',
-  [I18nKey.musicGearUsed]: 'Gear Used',
-  [I18nKey.musicPlayer]: 'Music Player',
-  [I18nKey.musicPlayerShow]: 'Show Player',
-  [I18nKey.musicPlayerHide]: 'Hide Player',
-
   // Encrypted Content
   [I18nKey.encrypted]: 'Encrypted',
   [I18nKey.encryptedContent]: 'This content is encrypted',
@@ -123,4 +104,8 @@ export const en: Translation = {
   [I18nKey.author]: 'Author',
   [I18nKey.license]: 'License',
   [I18nKey.comments]: 'Comments',
+
+  // Pagination
+  [I18nKey.prevPage]: 'Previous',
+  [I18nKey.nextPage]: 'Next',
 };

@@ -38,6 +38,7 @@ import BackToTop from '@components/BackToTop.astro';
 import LeftSidebar from '@components/dashboard/LeftSidebar.astro';
 import RightSidebar from '@components/dashboard/RightSidebar.astro';
 import type { MarkdownHeading } from 'astro';
+import TOC from '@components/widget/TOC.astro';
 
 interface Props {
   /** Page title for SEO and browser tab */
@@ -60,6 +61,8 @@ interface Props {
   hideLeftSidebar?: boolean;
   /** Hide right sidebar */
   hideRightSidebar?: boolean;
+  /** Show TOC on left sidebar (for post pages) */
+  showTocOnLeft?: boolean;
   /** Headings for TOC */
   headings?: MarkdownHeading[];
   /** Additional class for main content */
@@ -83,6 +86,7 @@ const {
   robots,
   hideLeftSidebar = false,
   hideRightSidebar = false,
+  showTocOnLeft = false,
   headings = [],
   contentClass = '',
   activeCategory,
@@ -111,17 +115,19 @@ const hasRightSlot = Astro.slots.has('right-sidebar');
   <!-- Main Layout Container -->
   <div class="dashboard-container">
     <div class="dashboard-grid">
-      {/* Left Sidebar - Navigation Dashboard */}
+      {/* Left Sidebar - TOC for posts, Navigation for other pages */}
       {!hideLeftSidebar && (
-        <aside class="left-sidebar" aria-label="Navigation">
+        <aside class="left-sidebar" aria-label={showTocOnLeft ? "Table of contents" : "Navigation"}>
           <div class="sidebar-content">
             {hasLeftSlot ? (
               <slot name="left-sidebar" />
+            ) : showTocOnLeft ? (
+              <TOC headings={headings} />
             ) : (
               <LeftSidebar
-                activeCategory={activeCategory}
-                activeSeries={activeSeries}
-                activePost={activePost}
+                activeCategory={activeCategory ?? ''}
+                activeSeries={activeSeries ?? ''}
+                activePost={activePost ?? ''}
               />
             )}
           </div>
@@ -141,14 +147,14 @@ const hasRightSlot = Astro.slots.has('right-sidebar');
         <slot />
       </main>
 
-      {/* Right Sidebar - Profile & TOC */}
+      {/* Right Sidebar - Profile & Categories */}
       {!hideRightSidebar && (
         <aside class="right-sidebar" aria-label="Page info">
           <div class="sidebar-content">
             {hasRightSlot ? (
               <slot name="right-sidebar" />
             ) : (
-              <RightSidebar headings={headings} />
+              <RightSidebar headings={showTocOnLeft ? [] : headings} />
             )}
           </div>
         </aside>
@@ -283,25 +289,66 @@ const hasRightSlot = Astro.slots.has('right-sidebar');
     }
   }
 
-  /* Sidebar collapsed state */
+  /* Sidebar collapsed state - Left */
   @media (min-width: 1024px) {
-    .dashboard-container.sidebar-collapsed .left-sidebar {
+    .dashboard-container.left-sidebar-collapsed .left-sidebar {
       display: none;
     }
 
-    .dashboard-container.sidebar-collapsed .dashboard-grid {
+    .dashboard-container.left-sidebar-collapsed .dashboard-grid {
       grid-template-columns: 1fr 260px;
       grid-template-areas: 'main right';
     }
 
-    .dashboard-container.sidebar-collapsed .main-content {
+    .dashboard-container.left-sidebar-collapsed .main-content {
       grid-column: 1 / 2;
     }
   }
 
   @media (min-width: 1280px) {
-    .dashboard-container.sidebar-collapsed .dashboard-grid {
+    .dashboard-container.left-sidebar-collapsed .dashboard-grid {
       grid-template-columns: 1fr 280px;
+    }
+  }
+
+  /* Sidebar collapsed state - Right */
+  @media (min-width: 768px) {
+    .dashboard-container.right-sidebar-collapsed .right-sidebar {
+      display: none;
+    }
+
+    .dashboard-container.right-sidebar-collapsed .dashboard-grid {
+      grid-template-columns: 1fr;
+      grid-template-areas: 'main';
+    }
+  }
+
+  @media (min-width: 1024px) {
+    .dashboard-container.right-sidebar-collapsed .dashboard-grid {
+      grid-template-columns: 240px 1fr;
+      grid-template-areas: 'left main';
+    }
+
+    .dashboard-container.right-sidebar-collapsed .main-content {
+      grid-column: 2 / 3;
+    }
+  }
+
+  @media (min-width: 1280px) {
+    .dashboard-container.right-sidebar-collapsed .dashboard-grid {
+      grid-template-columns: 260px 1fr;
+    }
+  }
+
+  /* Both sidebars collapsed */
+  @media (min-width: 1024px) {
+    .dashboard-container.left-sidebar-collapsed.right-sidebar-collapsed .dashboard-grid {
+      grid-template-columns: 1fr;
+      grid-template-areas: 'main';
+    }
+
+    .dashboard-container.left-sidebar-collapsed.right-sidebar-collapsed .main-content {
+      grid-column: 1 / 2;
     }
   }
 </style>

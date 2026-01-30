@@ -8,7 +8,7 @@
  */
 
 import { getCollection, type CollectionEntry } from 'astro:content';
-import { seriesData, getSeriesById } from '@/data/series';
+import { seriesData } from '@/data/series';
 import type { Series, CategoryWithCount, TagWithCount } from '@/types/config';
 
 // ============================================================================
@@ -16,8 +16,6 @@ import type { Series, CategoryWithCount, TagWithCount } from '@/types/config';
 // ============================================================================
 
 export type PostEntry = CollectionEntry<'posts'>;
-export type TabEntry = CollectionEntry<'tabs'>;
-export type MusicEntry = CollectionEntry<'music'>;
 
 export interface SeriesWithCount extends Series {
   postCount: number;
@@ -256,77 +254,6 @@ export async function getFeaturedSeries(): Promise<SeriesWithCount[]> {
   const allSeries = await getSeriesList();
   // Filter to series with posts (featured logic can be added to series data)
   return allSeries.filter((s) => s.postCount > 0).slice(0, 3);
-}
-
-// ============================================================================
-// Tabs Utilities
-// ============================================================================
-
-/**
- * Get all guitar tabs sorted by date
- */
-export async function getSortedTabs(): Promise<TabEntry[]> {
-  const tabs = await getCollection('tabs');
-
-  return tabs.sort((a, b) => {
-    const dateA = new Date(a.data.published);
-    const dateB = new Date(b.data.published);
-    return dateB.getTime() - dateA.getTime();
-  });
-}
-
-/**
- * Get tabs grouped by artist
- */
-export async function getTabsByArtist(): Promise<Map<string, TabEntry[]>> {
-  const tabs = await getSortedTabs();
-  const grouped = new Map<string, TabEntry[]>();
-
-  tabs.forEach((tab) => {
-    const artist = tab.data.artist;
-    if (!grouped.has(artist)) {
-      grouped.set(artist, []);
-    }
-    grouped.get(artist)!.push(tab);
-  });
-
-  return grouped;
-}
-
-// ============================================================================
-// Music Utilities (Hidden)
-// ============================================================================
-
-/**
- * Get all music videos sorted by date
- */
-export async function getSortedMusic(): Promise<MusicEntry[]> {
-  const music = await getCollection('music');
-
-  return music.sort((a, b) => {
-    const dateA = new Date(a.data.published);
-    const dateB = new Date(b.data.published);
-    return dateB.getTime() - dateA.getTime();
-  });
-}
-
-/**
- * Get music grouped by type
- */
-export async function getMusicByType(): Promise<{
-  covers: MusicEntry[];
-  originals: MusicEntry[];
-  jams: MusicEntry[];
-  lessons: MusicEntry[];
-}> {
-  const music = await getSortedMusic();
-
-  return {
-    covers: music.filter((m) => m.data.type === 'cover'),
-    originals: music.filter((m) => m.data.type === 'original'),
-    jams: music.filter((m) => m.data.type === 'jam'),
-    lessons: music.filter((m) => m.data.type === 'lesson'),
-  };
 }
 
 // ============================================================================

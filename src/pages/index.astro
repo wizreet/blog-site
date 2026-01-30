@@ -14,8 +14,9 @@ import Pagination from '@components/misc/Pagination.astro';
 import { getSortedPosts } from '@utils/content-utils';
 import { getUrl } from '@utils/url-utils';
 import { PAGE_SIZE } from '@constants/constants';
-import { siteConfig } from '@/config';
+import { siteConfig, profileConfig } from '@/config';
 import { i18n, I18nKey } from '@i18n/index';
+import { Icon } from 'astro-icon/components';
 
 // Get all posts sorted by date
 const allPosts = await getSortedPosts();
@@ -29,6 +30,38 @@ const totalPages = Math.ceil(allPosts.length / PAGE_SIZE);
 
 <DashboardLayout title={siteConfig.title} description={siteConfig.subtitle}>
   <div class="home-page">
+    {/* Hero/Intro Section */}
+    <section class="intro-card card-base">
+      <div class="intro-content">
+        <img
+          src={profileConfig.avatar}
+          alt={profileConfig.name}
+          class="intro-avatar"
+        />
+        <div class="intro-text">
+          <h1 class="intro-greeting">
+            Hi, I'm <span class="intro-name">{profileConfig.name}</span> 👋
+          </h1>
+          <p class="intro-bio">{profileConfig.bio}</p>
+          {profileConfig.links && profileConfig.links.length > 0 && (
+            <div class="intro-links">
+              {profileConfig.links.map((link) => (
+                <a
+                  href={link.url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  class="intro-link"
+                  title={link.name}
+                >
+                  <Icon name={link.icon} class="w-5 h-5" />
+                </a>
+              ))}
+            </div>
+          )}
+        </div>
+      </div>
+    </section>
+
     {/* Recent Posts Section */}
     <section class="posts-section">
       <div class="section-header">
@@ -67,7 +100,88 @@ const totalPages = Math.ceil(allPosts.length / PAGE_SIZE);
   .home-page {
     display: flex;
     flex-direction: column;
+    gap: 1.5rem;
+  }
+
+  /* Intro Card */
+  .intro-card {
+    padding: 1.5rem;
+  }
+
+  .intro-content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
     gap: 1rem;
+  }
+
+  @media (min-width: 640px) {
+    .intro-content {
+      flex-direction: row;
+      text-align: left;
+      gap: 1.5rem;
+    }
+  }
+
+  .intro-avatar {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 3px solid oklch(var(--primary) / 0.3);
+    flex-shrink: 0;
+  }
+
+  .intro-text {
+    flex: 1;
+  }
+
+  .intro-greeting {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--text-primary);
+    margin-bottom: 0.5rem;
+  }
+
+  .intro-name {
+    color: oklch(var(--primary));
+  }
+
+  .intro-bio {
+    color: var(--text-secondary);
+    line-height: 1.6;
+    margin-bottom: 0.75rem;
+  }
+
+  .intro-links {
+    display: flex;
+    gap: 0.75rem;
+    justify-content: center;
+  }
+
+  @media (min-width: 640px) {
+    .intro-links {
+      justify-content: flex-start;
+    }
+  }
+
+  .intro-link {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    background: var(--btn-regular-bg);
+    color: var(--text-secondary);
+    transition: all 0.2s ease;
+  }
+
+  .intro-link:hover {
+    background: oklch(var(--primary));
+    color: white;
+    transform: translateY(-2px);
   }
 
   /* Posts Section */
@@ -102,7 +216,7 @@ const totalPages = Math.ceil(allPosts.length / PAGE_SIZE);
     opacity: 0.8;
   }
 
-  /* Posts List - Fuwari style: cards with subtle background on mobile, gap on desktop */
+  /* Posts List */
   .posts-list {
     display: flex;
     flex-direction: column;
