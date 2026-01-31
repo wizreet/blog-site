@@ -33,7 +33,7 @@ export async function getStaticPaths() {
 const { series, posts } = Astro.props;
 ---
 
-<DashboardLayout title={`${series.name} Series`} description={series.description} activeSeries={series.id}>
+<DashboardLayout title={`${series.name} Series`} description={series.description} activeSeries={series.id} hideLeftSidebar={true}>
   <div class="space-y-6">
     <!-- Series Header -->
     <header class="card-base p-6">
