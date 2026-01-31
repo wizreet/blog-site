@@ -161,6 +161,7 @@ const hasRightSlot = Astro.slots.has('right-sidebar');
     border-radius: 2px;
   }
 
+
   /* Tablet: Main + Right */
   @media (min-width: 768px) {
     .dashboard-container {
@@ -175,9 +176,20 @@ const hasRightSlot = Astro.slots.has('right-sidebar');
       display: block;
     }
 
+    /* When left is hidden via prop - no gap on left */
+    .dashboard-container[data-hide-left='true'] .dashboard-grid {
+      grid-template-columns: 1fr 260px;
+    }
+
     /* When right is hidden via prop */
     .dashboard-container[data-hide-right='true'] .dashboard-grid {
       grid-template-columns: 1fr;
+    }
+
+    /* When both hidden via props */
+    .dashboard-container[data-hide-left='true'][data-hide-right='true'] .dashboard-grid {
+      grid-template-columns: 1fr;
+      max-width: 900px;
     }
 
     /* When right is collapsed via toggle */
@@ -189,6 +201,7 @@ const hasRightSlot = Astro.slots.has('right-sidebar');
       grid-template-columns: 1fr;
     }
   }
+
 
   /* Desktop: Left + Main + Right */
   @media (min-width: 1024px) {
@@ -253,20 +266,37 @@ const hasRightSlot = Astro.slots.has('right-sidebar');
       grid-template-columns: 260px 1fr 280px;
     }
 
+    /* When left is hidden via prop - no gap on left */
     .dashboard-container[data-hide-left='true'] .dashboard-grid {
       grid-template-columns: 1fr 280px;
     }
 
+    /* When right is hidden via prop */
     .dashboard-container[data-hide-right='true'] .dashboard-grid {
       grid-template-columns: 260px 1fr;
     }
 
+    /* When both hidden via props */
+    .dashboard-container[data-hide-left='true'][data-hide-right='true'] .dashboard-grid {
+      grid-template-columns: 1fr;
+      max-width: 900px;
+    }
+
+    /* Collapsed states via toggle */
     .dashboard-container[data-left-collapsed='true'] .dashboard-grid {
       grid-template-columns: 1fr 280px;
     }
 
     .dashboard-container[data-right-collapsed='true'] .dashboard-grid {
       grid-template-columns: 260px 1fr;
+    }
+
+    /* Combined prop + collapsed states */
+    .dashboard-container[data-hide-left='true'][data-right-collapsed='true'] .dashboard-grid,
+    .dashboard-container[data-left-collapsed='true'][data-hide-right='true'] .dashboard-grid,
+    .dashboard-container[data-left-collapsed='true'][data-right-collapsed='true'] .dashboard-grid {
+      grid-template-columns: 1fr;
+      max-width: 900px;
     }
   }
 </style>
